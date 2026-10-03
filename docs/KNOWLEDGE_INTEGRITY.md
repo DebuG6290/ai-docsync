@@ -22,12 +22,31 @@ documentation. Old versions and historical Chat provenance are retained.
 
 ## Candidate narrowing and semantic classes
 
-`lexical-overlap.v1` selects shared meaningful heading terms or at least two shared
+`lexical-overlap.v1` selected shared meaningful heading terms or at least two shared
 non-stopword content/heading terms. It is generic, deterministic and uncapped;
 selection evidence is retained. No filenames, repositories or specific capabilities
 drive selection. It can miss paraphrases with no lexical overlap; candidate recall
 requires independently labelled all-pair cases before claiming detection accuracy.
 Embedding narrowing is a future measured option, not an unmeasured improvement.
+
+`distinctive-overlap.v2` replaces the large-corpus rule: shared heading terms must
+occur in at most 10% of headings; body terms must occur in at most 5% of sections
+(both have a two-section floor), with at least two shared distinctive terms and
+binary IDF cosine similarity at least 0.25. Corpora of 20 or fewer sections retain
+the original overlap behavior. These are candidate signals, never semantic verdicts.
+There is no top-K cap. Versioned fingerprints stage new evidence without rewriting
+old scans. This policy can miss overlaps and requires labelled recall evaluation.
+
+Live OpenBull auditing exposed 152,303 candidates across 845 sections. A fixed-commit
+public-source replay produced 13,837 v2 candidates; see
+`evals/openbull/narrowing-workload.json`. This measures workload only. It does not
+establish semantic accuracy or end-to-end latency/cost. Do not automatically scan
+an entire large candidate corpus merely to produce demo numbers.
+
+Integrity review selects one durable scan and uses SQL counts plus pages of ten
+assessed unresolved pairs. Unassessed pairs remain blocking but do not get premature
+resolution forms. All evidence and historical scans remain accessible; pagination
+does not change activation eligibility or discard off-screen conflicts.
 
 `conflict.v1` assesses one exact pair with full section content, context and source
 commit metadata. Metadata and lifecycle signals cannot establish authoritative truth.

@@ -2,10 +2,12 @@
 import re
 import json
 from itertools import combinations
+from collections import Counter
+from math import log, sqrt
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
-NARROWING_VERSION = 'lexical-overlap.v1'
+NARROWING_VERSION = 'distinctive-overlap.v2'
 PROMPT_VERSION = 'conflict.v1'
 BLOCKING = {'VERSION_DRIFT', 'HARD_CONFLICT'}
 STOP = set('the a an and or of for to in on at is are was were be been with as by it its this that these those from not no can will may should must does do has have only all any each if then into section document documentation module service'.split())
@@ -50,17 +52,31 @@ def candidate_pairs(sections, changed_ids=None):
     """
     ordered = sorted(sections, key=lambda s: s['section_id'])
     features = {s['section_id']: (tokens(s['heading']), tokens(s['content'])) for s in ordered}
+    heading_frequency = Counter(t for h, _ in features.values() for t in h)
+    frequency = Counter(t for h, b in features.values() for t in h | b)
+    count = len(ordered)
+    # Corpus-wide boilerplate is not an entity-overlap signal. Small corpora
+    # retain terms occurring in two sources so contradictory pairs survive.
+    heading_limit = count if count <= 20 else max(2, count * .1)
+    body_limit = count if count <= 20 else max(2, count * .05)
+    distinctive = {sid: {t for t in h | b if frequency[t] <= body_limit}
+        for sid, (h, b) in features.items()}
+    weights = {t: log((count + 1) / (n + 1)) + 1 for t, n in frequency.items()}
+    norms = {sid: sqrt(sum(weights[t] ** 2 for t in terms)) for sid, terms in distinctive.items()}
     result = []
     for left, right in combinations(ordered, 2):
         if changed_ids is not None and not {left['section_id'], right['section_id']} & changed_ids:
             continue
         lh, lb = features[left['section_id']]
         rh, rb = features[right['section_id']]
-        headings = lh & rh
-        overlap = (lh | lb) & (rh | rb)
-        if headings or len(overlap) >= 2:
+        headings = {t for t in lh & rh if heading_frequency[t] <= heading_limit}
+        overlap = distinctive[left['section_id']] & distinctive[right['section_id']]
+        denominator = norms[left['section_id']] * norms[right['section_id']]
+        similarity = sum(weights[t] ** 2 for t in overlap) / denominator if denominator else 0.
+        if headings or len(overlap) >= 2 and (count <= 20 or similarity >= .25):
             result.append((left['section_id'], right['section_id'],
-                {'shared_heading_terms': sorted(headings), 'shared_terms': sorted(overlap)}))
+                {'shared_heading_terms': sorted(headings), 'shared_terms': sorted(overlap),
+                 'distinctive_similarity': similarity, 'corpus_sections': count}))
     return result
 
 

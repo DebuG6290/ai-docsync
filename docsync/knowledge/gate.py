@@ -3,7 +3,7 @@ import hashlib
 import json
 from dataclasses import asdict
 from datetime import timedelta, timezone
-from sqlalchemy import select
+from sqlalchemy import select, func, or_
 from docsync.errors import ConflictError
 from docsync.knowledge.conflicts import candidate_pairs, assess, BLOCKING, NARROWING_VERSION, PROMPT_VERSION
 from docsync.web.database import session_factory
@@ -60,6 +60,28 @@ def unresolved(pairs):
     excluded = exclusions(pairs)
     return [p for p in pairs if not {p.left_id, p.right_id} & excluded and not p.resolution
         and (p.classification is None or p.classification in BLOCKING or p.uncertain)]
+
+
+def review_queries(session, scan):
+    """Repository-scoped counts and SQL pagination without loading every pair.
+
+    All unresolved evidence still blocks activation, including off-screen pairs.
+    """
+    base = select(KnowledgeConflict).where(KnowledgeConflict.repo_id == scan.repo_id,
+        KnowledgeConflict.scan_id == scan.id)
+    resolved = session.scalars(base.where(KnowledgeConflict.resolution.is_not(None))).all()
+    excluded = exclusions(resolved)
+    pending = base.where(KnowledgeConflict.resolution.is_(None), or_(
+        KnowledgeConflict.classification.is_(None), KnowledgeConflict.classification.in_(BLOCKING),
+        KnowledgeConflict.uncertain.is_(True)))
+    if excluded:
+        pending = pending.where(KnowledgeConflict.left_id.not_in(excluded), KnowledgeConflict.right_id.not_in(excluded))
+    assessed = pending.where(KnowledgeConflict.classification.is_not(None))
+    def count(query):
+        return session.scalar(select(func.count()).select_from(query.subquery()))
+    counts = {'total': count(base), 'pending': count(pending), 'assessed': count(assessed), 'excluded': excluded}
+    order = (KnowledgeConflict.left_id, KnowledgeConflict.right_id)
+    return counts, assessed.order_by(*order), base.order_by(*order)
 
 
 def review_state(pairs):
