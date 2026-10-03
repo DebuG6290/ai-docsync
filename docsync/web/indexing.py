@@ -57,11 +57,16 @@ def replace_approved_sections(
     *,
     case: ChangeCase | None = None,
     release=None,
+    conflict_scan_id=None,
 ) -> KnowledgeVersion:
     """Build a full immutable index snapshot, then switch the active pointer in one transaction."""
+    from docsync.knowledge.gate import activation_gate
+    scan, excluded_ids = activation_gate(session, repository, source_commit, changed, conflict_scan_id)
     changed_ids = {section.section_id for section in changed}
     staged: list[tuple[IndexInput, int, str, list[float]]] = []
     for section in changed:
+        if section.section_id in excluded_ids:
+            continue
         for chunk_index, chunk in enumerate(chunk_text(section.content)):
             staged.append((section, chunk_index, chunk, embedder.embed(chunk)))
 
@@ -88,7 +93,7 @@ def replace_approved_sections(
     session.add(version)
     session.flush()
     for old in old_sections:
-        if old.section_id in changed_ids:
+        if old.section_id in changed_ids or old.section_id in excluded_ids:
             continue
         session.add(
             IndexedSection(
@@ -123,6 +128,8 @@ def replace_approved_sections(
             old_version.active = False
     version.active = True
     repository.active_index_version_id = version.id
+    scan.state = 'ACTIVATED'
+    scan.activated_version_id = version.id
     if case is not None:
         case.status = "INDEXED"
         if release is not None:

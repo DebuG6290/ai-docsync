@@ -24,6 +24,8 @@ def release_status(release, jobs=()):
     latest = max(related, key=lambda j: j.created_at) if related else None
     if release.status == 'INDEXED':
         return ProductStatus('Knowledge updated', 'This documentation update is available to Chat.', 'success')
+    if release.status == 'KNOWLEDGE_REVIEW':
+        return ProductStatus('Knowledge conflict review', 'Resolve staged conflicts in Knowledge, then resume verification and indexing. Chat uses the previous approved version.', 'warning')
     if latest and interrupted(latest):
         return ProductStatus('Refresh interrupted', 'Chat still uses the previous version. Retry the indexing Action after checking its run.', 'error')
     if release.status in {'INDEX_ERROR', 'INDEX_CONFLICT'} or (latest and latest.status == 'ERROR'):

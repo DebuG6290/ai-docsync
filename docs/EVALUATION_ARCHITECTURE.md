@@ -144,3 +144,7 @@ random UUID ordering as the tie-breaker, retaining existing rows unchanged.
 Next: additive conflict staging/resolution gate; then pre-labelled OpenBull lifecycle,
 benchmark harness, dashboard, feedback, comprehensive operation telemetry and study
 instrumentation. Preserve existing approvals and active knowledge throughout.
+
+Batch 1 adds [knowledge integrity staging](KNOWLEDGE_INTEGRITY.md), four-way pair
+assessments, explicit uncertainty, immutable human resolutions and repository-scoped
+attempt/workflow counts. No conflict accuracy claim exists without adjudicated pairs.

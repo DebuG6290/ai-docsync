@@ -80,6 +80,8 @@ def test_live_measurements_are_scoped_and_contain_no_text_or_semantic_labels(sys
         session.add(AuditEvent(case_id=case.id, kind='analysis_completed', created_at=now, payload={}))
         session.add(SarvamCall(case_id=case.id, operation='impact', metadata_json={'latency_ms': 500}))
         session.add(SarvamCall(case_id=foreign.id, operation='impact', metadata_json={'latency_ms': 9000}))
+        session.add(SarvamCall(operation='conflict', metadata_json={'repo_id': repo_id, 'input_tokens': 40}))
+        session.add(SarvamCall(operation='conflict', metadata_json={'repo_id': other.id, 'input_tokens': 4000}))
         session.add(ReviewAction(proposal_id=proposal.id, action='ACCEPT', version_id=version.id))
         session.add(Job(repo_id=repo_id, kind='analyze_push', payload={}, status='ERROR', attempts=2))
         session.commit()
@@ -89,5 +91,7 @@ def test_live_measurements_are_scoped_and_contain_no_text_or_semantic_labels(sys
         assert result['intake_to_first_review_ready_seconds']['median'] == 10
         assert result['analysis_terminal_job_failure_rate']['value'] == 1
         assert result['analysis_retried_job_rate']['value'] == 1
+        assert result['input_token_observation_coverage']['numerator'] == 1
+        assert result['input_token_observation_coverage']['denominator'] == 2
         assert result['quality_metrics'] is None and result['estimated_cost'] is None
         assert 'proposed_text' not in str(result) and 'question' not in result
