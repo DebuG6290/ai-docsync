@@ -15,10 +15,10 @@ permissions:
 jobs:
   index:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
-    uses: DebuG6290/ai-docsync/.github/workflows/docsync-index.yml@6e5d6449c6d46cea9617c516329ab4f373be7ab1
+    uses: DebuG6290/ai-docsync/.github/workflows/docsync-index.yml@557bfb407ff63911c65de7e4adc811ab24465545
     with:
-      # Workflow and application are pinned to the same reviewed batched-analysis release.
-      application_ref: 6e5d6449c6d46cea9617c516329ab4f373be7ab1
+      # Workflow and application are pinned to the same reviewed multi-repository release.
+      application_ref: 557bfb407ff63911c65de7e4adc811ab24465545
       monitored_branch: master
       baseline_sha: ${{ inputs.baseline_sha || '' }}
       retry: ${{ github.run_attempt > 1 }}
