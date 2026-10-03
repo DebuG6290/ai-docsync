@@ -38,6 +38,8 @@ Batch 0 [CI run 37155513571](https://github.com/DebuG6290/ai-docsync/actions/run
 at `587b0b73feac915e22e20333daa8c5c195757394`: **134 passed**, including PostgreSQL/pgvector.
 Batch 1 local validation: **162 passed, 2 skipped** on 2026-10-04; the skipped tests
 exercise PostgreSQL/pgvector and concurrent scan deduplication/ownership in CI.
+Batch 1 [CI run 37157275980](https://github.com/DebuG6290/ai-docsync/actions/runs/37157275980)
+at `effccc06acd37ad0713e870f1968c57b5cf1673d`: **164 passed**, including both PostgreSQL checks.
 These counts establish regression coverage, not model accuracy or field reliability.
 
 ## 5. Human-review metrics
