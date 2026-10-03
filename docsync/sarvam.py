@@ -17,7 +17,7 @@ T = TypeVar("T", bound=BaseModel)
 MODEL_CONTRACT_ERROR = "MODEL_CONTRACT_ERROR"
 API_ERROR = "API_ERROR"
 
-OUTPUT_TOKEN_BUDGETS = {"mapping": 4096, "impact": 8192, "revision": 4096}
+OUTPUT_TOKEN_BUDGETS = {"mapping": 4096, "impact": 8192, "revision": 4096, "conflict": 4096}
 
 
 def _type_name(value: Any) -> str:

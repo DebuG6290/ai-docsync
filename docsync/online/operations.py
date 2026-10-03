@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from sqlalchemy import select
 from docsync.errors import ConflictError
+from docsync.knowledge.gate import KnowledgeReviewPending, wait_for_review
 
 from docsync.web.database import session_factory
 from docsync.web.models import AuditEvent, ChangeCase, Job, Proposal, ProposalVersion, DocumentationRelease, utcnow
@@ -68,6 +69,12 @@ def execute(engine, settings, job_id, *, run_url="", retry=False, repo_id=None):
             kind=job.kind, payload=dict(job.payload))
     try:
         _process_job(engine, settings, detached)
+    except KnowledgeReviewPending:
+        with factory() as session:
+            job = session.get(Job, job_id)
+            wait_for_review(session, job)
+            session.commit()
+        return False
     except Exception as exc:
         with factory() as session:
             job = session.get(Job, job_id)

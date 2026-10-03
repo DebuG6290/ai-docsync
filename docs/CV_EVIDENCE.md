@@ -9,6 +9,10 @@ AST symbol detection, approved mappings/context, three-way impact decisions,
 immutable proposal versions, authoritative human edits, targeted rejection revisions,
 drift/race checked docs-only publication, verified indexing and cited versioned Chat.
 These are implementation capabilities, not benchmark accuracy claims.
+Baseline/incremental knowledge integrity gating and audits of existing approved
+snapshots stage overlap evidence, block unresolved conflicts/uncertainty, and record
+human resolutions before a new immutable version activates. See
+[integrity contract](KNOWLEDGE_INTEGRITY.md); deployment validation is pending review.
 
 ## 2. Real repositories validated
 
@@ -30,6 +34,11 @@ Regression-suite results belong to dated engineering validation, not production
 reliability percentages. Production failure/retry denominators require an export.
 Batch 0 local validation: **133 passed, 1 skipped** on 2026-10-04; the skipped test
 requires ephemeral PostgreSQL/pgvector, covered separately by GitHub CI.
+Batch 0 [CI run 37155513571](https://github.com/DebuG6290/ai-docsync/actions/runs/37155513571)
+at `587b0b73feac915e22e20333daa8c5c195757394`: **134 passed**, including PostgreSQL/pgvector.
+Batch 1 local validation: **162 passed, 2 skipped** on 2026-10-04; the skipped tests
+exercise PostgreSQL/pgvector and concurrent scan deduplication/ownership in CI.
+These counts establish regression coverage, not model accuracy or field reliability.
 
 ## 5. Human-review metrics
 

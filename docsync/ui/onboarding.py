@@ -209,6 +209,8 @@ def setup(ctx, view):
             st.error('The application release SHA is unavailable. Use the full reviewed application commit SHA for both workflow and application_ref pins; see DEPLOYMENT.md.')
     else:
         st.subheader('Initialize approved knowledge')
+        from docsync.ui.conflicts import render as conflict_review
+        conflict_review(ctx, view)
         if view['active']:
             st.success('Approved knowledge is active for this repository.')
             st.caption('Source commit: ' + view['active'].source_commit)
@@ -217,4 +219,4 @@ def setup(ctx, view):
             st.write('Review the documentation at a full source commit. Then explicitly approve it by running DocSync index → Run workflow with that 40-character baseline_sha. This is a human approval action.')
             st.caption('The baseline includes Markdown under docs/ and documentation files referenced by approved mappings. It never uses the branch tip implicitly and cannot replace an existing active version.')
             st.link_button('Open baseline indexing workflow', f'https://github.com/{view["repo"].full_name}/actions/workflows/docsync-index.yml')
-            st.caption('Wait for a successful Action, refresh this workspace and check Knowledge before using Chat.')
+            st.caption('After the Action, check Knowledge for staged conflict review. Resolve conflicts and resume activation before using Chat.')

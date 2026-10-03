@@ -5,6 +5,12 @@ from docsync.ui.components import heading, empty, date, case_title
 from docsync.web.models import AuditEvent
 
 LABELS = {
+    'knowledge_conflict_scan_staged': 'Knowledge conflict evidence staged',
+    'knowledge_conflict_assessed': 'Knowledge overlap assessed',
+    'knowledge_conflict_resolved': 'Human knowledge conflict resolution recorded',
+    'knowledge_activation_waiting': 'Knowledge activation waits for review',
+    'knowledge_conflict_scan_failed': 'Knowledge conflict scan needs retry',
+    'knowledge_integrity_audit_activated': 'Reviewed knowledge integrity snapshot activated',
     'repository_connected': 'Repository connected', 'mapping_confirmed': 'Code-to-documentation mapping confirmed',
     'github_commit_received': 'Code change detected', 'action_received': 'GitHub Action received',
     'analysis_started': 'Documentation assessment started', 'analysis_completed': 'Documentation assessment completed',

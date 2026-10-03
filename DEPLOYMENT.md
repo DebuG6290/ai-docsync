@@ -48,7 +48,7 @@ In HTTPX fork → Settings → Secrets and variables → Actions, add:
 - `DATABASE_URL`
 - `SARVAM_API_KEY`
 
-`GITHUB_TOKEN` is built in and read-only. No App private key is needed in Actions. Indexing requires only `DATABASE_URL` and the built-in token. SARVAM_MODEL defaults to sarvam-105b.
+`GITHUB_TOKEN` is built in and read-only. No App private key is needed in Actions. Indexing requires `DATABASE_URL` and the built-in token; the reusable index workflow also accepts optional `SARVAM_API_KEY` for conflict scanning. Without that key, plausible overlap pairs stage for semantic scanning and human resolution in Streamlit before activation. See [Knowledge integrity](docs/KNOWLEDGE_INTEGRITY.md). SARVAM_MODEL defaults to sarvam-105b.
 
 The analysis workflow runs on push to master. The indexing workflow runs when a PR is closed and merged into master, or when baseline initialization is manually dispatched. The release must already exist in Neon with the exact PR number and immutable approved commit. PR names and filenames are not approval evidence.
 

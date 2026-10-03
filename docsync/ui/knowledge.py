@@ -8,6 +8,8 @@ from docsync.web.models import IndexedSection
 
 def render(ctx, view):
     heading('Approved knowledge', 'Follow each documentation update from GitHub merge to the version Chat can use.', 'KNOWLEDGE & RELEASES')
+    from docsync.ui.conflicts import render as conflict_review
+    conflict_review(ctx, view)
     active = view['active']
     if not active:
         empty('Start with approved documentation', 'Choose and explicitly approve a full source commit before asking Chat or analyzing code changes. Connection alone does not approve knowledge.')

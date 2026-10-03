@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from docsync.apply import apply_case
 from docsync.engine import analyze, revise_rejected
 from docsync.errors import ConflictError
+from docsync.knowledge.gate import prepare_gate, KnowledgeReviewPending, wait_for_review
 from docsync.repository.markdown_sections import parse_sections, section_sha256
 from docsync.repository.git_reader import read_file
 from docsync.sarvam import SarvamClient
@@ -231,6 +232,7 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
         installation_id = repo.installation_id
         active = session.get(KnowledgeVersion, repo.active_index_version_id) if repo.active_index_version_id else None
         active_commit = active.source_commit if active else None
+        parent_id = repo.active_index_version_id
     github = GitHubClient(settings)
     try:
         token = _token(github, repo)
@@ -274,6 +276,8 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
                 audit(session, "index_refresh_conflict", {"sections": mismatches, "merged_sha": merge_sha}, case.id)
                 session.commit()
             return
+        conflict_scan_id = prepare_gate(engine, repo.id, merge_sha, approved, parent_id=parent_id,
+            client=SarvamClient(settings.sarvam_model) if os.environ.get('SARVAM_API_KEY') else None)
         embedder = SentenceEmbedder(settings.embedding_model, settings.embedding_cache)
         with factory() as session:
             stored = session.get(DocumentationRelease, release.id)
@@ -287,7 +291,8 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
             release = session.get(DocumentationRelease, release.id)
             case = session.get(ChangeCase, release.case_id)
             version = replace_approved_sections(
-                session, repo, merge_sha, approved, embedder, case=case, release=release
+                session, repo, merge_sha, approved, embedder, case=case, release=release,
+                conflict_scan_id=conflict_scan_id
             )
             audit(session, "knowledge_index_activated", {"version_id": version.id, "merged_sha": merge_sha, "section_count": len(approved)}, case.id)
             session.commit()
@@ -326,13 +331,16 @@ def _baseline_index(engine, settings: Settings, job: Job) -> None:
                     sections.append(IndexInput(section.section_id, section.path, section.heading, section.text, baseline_sha))
             if not sections:
                 raise ValueError('The approved baseline contains no Markdown sections')
+            conflict_scan_id = prepare_gate(engine, repo.id, baseline_sha, sections, parent_id=None,
+                client=SarvamClient(settings.sarvam_model) if os.environ.get('SARVAM_API_KEY') else None)
             embedder = SentenceEmbedder(settings.embedding_model, settings.embedding_cache)
             embedder = prepared_embeddings(sections, embedder)
             with factory() as session:
                 repo = session.get(Repository, repo.id)
                 if repo.active_index_version_id:
                     return
-                version = replace_approved_sections(session, repo, baseline_sha, sections, embedder)
+                version = replace_approved_sections(session, repo, baseline_sha, sections, embedder,
+                    conflict_scan_id=conflict_scan_id)
                 audit(session, "approved_baseline_indexed", {"repo_id": repo.id, "source_commit": baseline_sha, "section_count": len(sections), "version_id": version.id})
                 session.commit()
     finally:
@@ -394,6 +402,10 @@ def run_once(engine, settings: Settings) -> bool:
                 delivery = session.get(GitHubDelivery, completed.delivery_id)
                 if delivery is not None:
                     delivery.status = "PROCESSED"
+            session.commit()
+    except KnowledgeReviewPending:
+        with factory() as session:
+            wait_for_review(session, session.get(Job, job_id))
             session.commit()
     except Exception as exc:
         with factory() as session:

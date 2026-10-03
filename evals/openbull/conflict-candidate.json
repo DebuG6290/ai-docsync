@@ -1,0 +1,27 @@
+{
+  "case_id": "openbull-lifecycle-overlap-candidate-v1",
+  "repository": "DebuG6290/openbull",
+  "source_commit": "00673ebb95a8c08cd5523f6e5f7f6e196eaa47b9",
+  "fixture_type": "public_source_excerpts_for_narrowing_regression",
+  "classification_label": null,
+  "human_label_source": null,
+  "notes": "User-identified potential lifecycle conflict; no semantic accuracy label inferred. Excerpts retain source metadata as signals, not authoritative truth.",
+  "sections": [
+    {
+      "section_id": "docs/design/ARCHITECTURE.md::openbull-architecture",
+      "path": "docs/design/ARCHITECTURE.md",
+      "heading": "OpenBull Architecture",
+      "content": "# OpenBull Architecture\n\n| **Last updated** | 2026-05-11 |\n| **Owner** | Platform team |\n| **Status** | Stable — describes shipped behaviour. In-flight Strategy Module is called out in its own section. |\n",
+      "source_commit": "00673ebb95a8c08cd5523f6e5f7f6e196eaa47b9",
+      "source_url": "https://github.com/DebuG6290/openbull/blob/00673ebb95a8c08cd5523f6e5f7f6e196eaa47b9/docs/design/ARCHITECTURE.md"
+    },
+    {
+      "section_id": "docs/plan/strategy-module.md::strategy-module-implementation-plan",
+      "path": "docs/plan/strategy-module.md",
+      "heading": "Strategy Module — Implementation Plan",
+      "content": "# Strategy Module — Implementation Plan\n\n**Status:** v1 shipped — all 10 build-order phases on `main`\n**Owner:** rajandran\n**Last updated:** 2026-05-11\n",
+      "source_commit": "00673ebb95a8c08cd5523f6e5f7f6e196eaa47b9",
+      "source_url": "https://github.com/DebuG6290/openbull/blob/00673ebb95a8c08cd5523f6e5f7f6e196eaa47b9/docs/plan/strategy-module.md"
+    }
+  ]
+}

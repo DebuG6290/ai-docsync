@@ -35,8 +35,8 @@ def reconcile_release(factory, release_id, *, repo_id=None):
                 release.merged_sha = commit
                 release.merged_at = utcnow()
                 audit(session, 'documentation_merge_confirmed', {'pr_number': number, 'merged_sha': commit}, release.case_id)
-            if release.status not in {'INDEXING', 'VERIFYING', 'INDEX_ERROR', 'INDEX_CONFLICT'}:
+            if release.status not in {'INDEXING', 'VERIFYING', 'INDEX_ERROR', 'INDEX_CONFLICT', 'KNOWLEDGE_REVIEW'}:
                 release.status = 'MERGED'
-        elif release.status not in {'INDEXING', 'VERIFYING', 'INDEX_ERROR', 'INDEX_CONFLICT'}:
+        elif release.status not in {'INDEXING', 'VERIFYING', 'INDEX_ERROR', 'INDEX_CONFLICT', 'KNOWLEDGE_REVIEW'}:
             release.status = 'CLOSED' if pr.get('state') == 'closed' else 'PENDING_MERGE'
         session.commit()

@@ -3,7 +3,7 @@ from datetime import timezone
 from sqlalchemy import select
 from docsync.evaluation.metrics import ratio, distribution, review_action_rates
 from docsync.web.models import (Repository, ChangeCase, SarvamCall, Proposal, ReviewAction, Job,
-    AuditEvent, DocumentationRelease)
+    AuditEvent, DocumentationRelease, KnowledgeScan, KnowledgeConflict, ConflictResolution)
 
 
 def seconds(start, end):
@@ -19,12 +19,16 @@ def report(session, repo_id):
         raise ValueError('Unknown repository')
     cases = session.scalars(select(ChangeCase).where(ChangeCase.repo_id == repo_id)).all()
     case_ids = [c.id for c in cases]
-    calls = session.scalars(select(SarvamCall).where(SarvamCall.case_id.in_(case_ids))).all()
+    calls = session.scalars(select(SarvamCall).where(SarvamCall.case_id.in_(case_ids) |
+        (SarvamCall.case_id.is_(None) & (SarvamCall.metadata_json['repo_id'].as_string() == repo_id)))).all()
     proposals = session.scalars(select(Proposal).where(Proposal.case_id.in_(case_ids))).all()
     actions = session.scalars(select(ReviewAction).where(ReviewAction.proposal_id.in_([p.id for p in proposals]))).all()
     jobs = session.scalars(select(Job).where(Job.repo_id == repo_id, Job.kind == 'analyze_push')).all()
     events = session.scalars(select(AuditEvent).where(AuditEvent.case_id.in_(case_ids))).all()
     releases = session.scalars(select(DocumentationRelease).where(DocumentationRelease.repo_id == repo_id)).all()
+    scans = session.scalars(select(KnowledgeScan).where(KnowledgeScan.repo_id == repo_id)).all()
+    conflicts = session.scalars(select(KnowledgeConflict).where(KnowledgeConflict.repo_id == repo_id)).all()
+    resolutions = session.scalars(select(ConflictResolution).where(ConflictResolution.repo_id == repo_id)).all()
     ready = []
     activation = []
     for case in cases:
@@ -50,6 +54,11 @@ def report(session, repo_id):
         'final_approval_to_activation_seconds': distribution(activation),
         'input_token_observation_coverage': ratio(sum(c.metadata_json.get('input_tokens') is not None for c in calls), len(calls)),
         'quality_metrics': None, 'estimated_cost': None,
+        'conflict_workflow_counts': {'scans': len(scans), 'candidate_pairs_across_scans': len(conflicts),
+            'assessed_pairs_across_scans': sum(c.classification is not None for c in conflicts),
+            'blocking_assessments_across_scans': sum(c.classification in {'VERSION_DRIFT', 'HARD_CONFLICT'} for c in conflicts),
+            'uncertain_assessments_across_scans': sum(c.uncertain for c in conflicts),
+            'human_resolutions': len(resolutions)},
         'limitations': ['Review event rates measure interactions, not factual quality or unique-proposal acceptance.',
             'Case intake is not the code commit timestamp. Provider attempt latency is not end-to-end analysis latency.',
             'Diagnostic totals can undercount interrupted/older executions. Retries are job-level, not provider-level.',

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, ForeignKeyConstraint, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -228,4 +228,54 @@ class ChatTurn(Base):
     answer: Mapped[str] = mapped_column(Text, nullable=False)
     citations: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     knowledge_version_id: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class KnowledgeScan(Base):
+    __tablename__ = 'knowledge_scans'
+    __table_args__ = (UniqueConstraint('repo_id', 'fingerprint'), UniqueConstraint('repo_id', 'id'))
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    repo_id: Mapped[str] = mapped_column(ForeignKey('repositories.id'), nullable=False)
+    parent_version_id: Mapped[str | None] = mapped_column(ForeignKey('knowledge_versions.id'))
+    source_commit: Mapped[str] = mapped_column(String(64), nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    narrowing_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    state: Mapped[str] = mapped_column(String(24), default='PENDING', nullable=False)
+    snapshot: Mapped[dict] = mapped_column(JSON, nullable=False)
+    activated_version_id: Mapped[str | None] = mapped_column(ForeignKey('knowledge_versions.id'))
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class KnowledgeConflict(Base):
+    __tablename__ = 'knowledge_conflicts'
+    __table_args__ = (
+        ForeignKeyConstraint(['repo_id', 'scan_id'], ['knowledge_scans.repo_id', 'knowledge_scans.id']),
+        UniqueConstraint('scan_id', 'left_id', 'right_id'), UniqueConstraint('repo_id', 'id'))
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    repo_id: Mapped[str] = mapped_column(ForeignKey('repositories.id'), nullable=False)
+    scan_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    left_id: Mapped[str] = mapped_column(String(512), nullable=False)
+    right_id: Mapped[str] = mapped_column(String(512), nullable=False)
+    narrowing_signals: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    classification: Mapped[str | None] = mapped_column(String(24))
+    uncertain: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    assessment: Mapped[dict | None] = mapped_column(JSON)
+    resolution: Mapped[str | None] = mapped_column(String(32))
+    assessed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ConflictResolution(Base):
+    __tablename__ = 'conflict_resolutions'
+    __table_args__ = (
+        ForeignKeyConstraint(['repo_id', 'conflict_id'], ['knowledge_conflicts.repo_id', 'knowledge_conflicts.id']),
+        UniqueConstraint('conflict_id'))
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    repo_id: Mapped[str] = mapped_column(ForeignKey('repositories.id'), nullable=False)
+    conflict_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    action: Mapped[str] = mapped_column(String(32), nullable=False)
+    actor: Mapped[str] = mapped_column(String(255), nullable=False)
+    rationale: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
