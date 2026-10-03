@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Approved docs chat · DocSync{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">{{ repo.full_name }} · APPROVED DOCUMENTATION ONLY</p><h1>Ask the docs</h1><p class="muted">Each question is grounded independently in the active approved index.</p></div></div>
+{% if active_index %}<div class="index-tag">Active knowledge version <code>{{ active_index.id }}</code> · approved commit <code>{{ active_index.source_commit }}</code></div>{% else %}<div class="notice warning">The baseline index is not initialized. Return to the review dashboard and run “Index approved baseline”.</div>{% endif %}
+{% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+<section class="panel"><form method="post" action="/chat" class="chat-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label for="question">Question</label><textarea id="question" name="question" rows="2" required placeholder="What is the default timeout?">{{ request.query_params.get("q", "") }}</textarea><button {% if not active_index %}disabled{% endif %}>Ask Sarvam</button></form></section>
+{% for turn in turns %}<article class="panel chat-turn"><p class="eyebrow">{{ turn.created_at.strftime("%Y-%m-%d %H:%M UTC") }} · version <code>{{ turn.knowledge_version_id }}</code></p><h2>{{ turn.question }}</h2><div class="answer">{{ turn.answer }}</div><h3>Sources</h3>
+{% if turn.citations %}<ul class="citations">{% for citation in turn.citations %}<li><strong>{{ citation.heading }}</strong> · <code>{{ citation.file }}</code><br><span class="muted">section {{ citation.section_id }} · approved commit <code>{{ citation.approved_commit }}</code></span></li>{% endfor %}</ul>{% else %}<p class="muted">No active approved section was retrieved.</p>{% endif %}</article>{% else %}<p class="empty">No chat questions yet.</p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,43 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: docsync
+      POSTGRES_USER: docsync
+      POSTGRES_PASSWORD: local-only-change-this
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docsync -d docsync"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - docsync-postgres:/var/lib/postgresql/data
+  web:
+    build: .
+    command: ["sh", "-c", "python -m docsync.web.migrate && uvicorn docsync.web.app:app --host 0.0.0.0 --port 8000"]
+    environment: &app-env
+      DATABASE_URL: postgresql+psycopg://docsync:local-only-change-this@db:5432/docsync
+      SARVAM_API_KEY: ${SARVAM_API_KEY:?Set SARVAM_API_KEY in the shell or local .env file}
+      SARVAM_MODEL: ${SARVAM_MODEL:-sarvam-105b}
+      DOCSYNC_REPOSITORY: ${DOCSYNC_REPOSITORY:?Set DOCSYNC_REPOSITORY to your HTTPX fork owner/name}
+      DOCSYNC_MONITORED_BRANCH: ${DOCSYNC_MONITORED_BRANCH:-master}
+      DOCSYNC_REVIEW_USERNAME: ${DOCSYNC_REVIEW_USERNAME:-admin}
+      DOCSYNC_REVIEW_PASSWORD: ${DOCSYNC_REVIEW_PASSWORD:?Set DOCSYNC_REVIEW_PASSWORD}
+      GITHUB_APP_ID: ${GITHUB_APP_ID:?Set GITHUB_APP_ID}
+      GITHUB_INSTALLATION_ID: ${GITHUB_INSTALLATION_ID:?Set GITHUB_INSTALLATION_ID}
+      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:?Set GITHUB_PRIVATE_KEY}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:?Set GITHUB_WEBHOOK_SECRET}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  worker:
+    build: .
+    command: ["python", "-m", "docsync.web.worker"]
+    environment: *app-env
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  docsync-postgres:

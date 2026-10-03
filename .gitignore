@@ -1,0 +1,14 @@
+.docsync-state/
+.httpx-testbed/
+.httpx-scenarios*/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.pytest-tmp/
+.pytest-tmp-*/
+.cache/
+.pytest-httpx-*/
+.env
+*.egg-info/
+

@@ -1,0 +1,57 @@
+{
+  "H1": {
+    "repo": ".httpx-scenarios\\phase1-1\\H1",
+    "old_sha": "a0765e1b0af6c2b791ce8e37eb2d700fa93fd4da",
+    "new_sha": "d0979ebbd0f46a23e01220a459b930b730353475"
+  },
+  "H2": {
+    "repo": ".httpx-scenarios\\phase1-1\\H2",
+    "old_sha": "e4efff2179cc381334b483b471d7f739a81795e7",
+    "new_sha": "a64da6d8977ebf6a3ddfbd9076c2bdc64bbba072"
+  },
+  "H3": {
+    "repo": ".httpx-scenarios\\phase1-1\\H3",
+    "old_sha": "b39fdf9069a48a06853c7d368614f4ec85eb3cb8",
+    "new_sha": "cb91fb1f44528663378e4a5d8645e1508c9642a9"
+  },
+  "H4": {
+    "repo": ".httpx-scenarios\\phase1-1\\H4",
+    "old_sha": "1040060ab0499b17f2053d6b3a68e78dd1195d57",
+    "new_sha": "38e11d4895ff48f44c4dd86f3122a4de90de2f11"
+  },
+  "H5": {
+    "repo": ".httpx-scenarios\\phase1-1\\H5",
+    "old_sha": "f75f378d7f9e54c278e098c422348f813c8c6dc8",
+    "new_sha": "320b77aad60609206df322d6b91723f25231c8f9"
+  },
+  "H6": {
+    "repo": ".httpx-scenarios\\phase1-1\\H6",
+    "old_sha": "079ca2bc03255c9131c68045898d445f8f3ee3a5",
+    "new_sha": "1c43e57729e231979ad79cf02f9762cb5cbe33b2"
+  },
+  "H7": {
+    "repo": ".httpx-scenarios\\phase1-1\\H7",
+    "old_sha": "6eced2b7278e356e29930e28ba96144a62e4dbce",
+    "new_sha": "592fbaf1082a90f8af40c20eb309b57495db7651"
+  },
+  "H8": {
+    "repo": ".httpx-scenarios\\phase1-1\\H8",
+    "old_sha": "8aebc90dfc2e86791a3a6c4e3ac2748fc7a57073",
+    "new_sha": "6ada4d54c7629b098a12f25c47c89a27e2b10be0"
+  },
+  "H9": {
+    "repo": ".httpx-scenarios\\phase1-1\\H9",
+    "old_sha": "92bb0d3db84b6f9005cbf5bd851ffdae265fc622",
+    "new_sha": "0098ae93be586c4c1ff1e0cdd0b568ce4a1f7a55"
+  },
+  "H10": {
+    "repo": ".httpx-scenarios\\phase1-1\\H10",
+    "old_sha": "aa5d8a956faf4faa5d997d41740eed53c13f17be",
+    "new_sha": "8eca7af6ff35ea0b0d2e476f8aa7198582ae590d"
+  },
+  "H11": {
+    "repo": ".httpx-scenarios\\phase1-1\\H11",
+    "old_sha": "39c6a293468557d9aa2956fab6d2e6f24226b503",
+    "new_sha": "b29012dce0c8752880d4c18e3b81d6797e6004f0"
+  }
+}

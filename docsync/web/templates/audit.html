@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Audit {{ case.id[:8] }} · DocSync{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">CASE {{ case.id }}</p><h1>Audit timeline</h1><p class="muted">{{ case.before_sha }} → {{ case.after_sha }}</p></div><a class="button secondary" href="/cases/{{ case.id }}">Back to review</a></div>
+<section class="panel"><ol class="timeline">{% for event in events %}<li><time>{{ event.created_at.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time><strong>{{ event.kind|replace("_", " ")|title }}</strong><pre>{{ event.payload|tojson(indent=2) }}</pre></li>{% else %}<li class="empty">No case events recorded.</li>{% endfor %}</ol></section>
+{% endblock %}

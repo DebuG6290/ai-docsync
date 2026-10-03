@@ -1,0 +1,147 @@
+{
+  "generated_at": "2026-10-02T22:05:46.733758+00:00",
+  "pinned_base": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+  "scenarios": [
+    {
+      "scenario": 1,
+      "description": "Default timeout changes from five to eight seconds",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "revision_count": 0,
+      "case_id": "45dbdb29-d6a8-4225-8967-f3dc084b452b",
+      "actual_decision": "UPDATE",
+      "sections": [
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0) in httpx/_config.py"
+          ],
+          "current_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 5 seconds of\nnetwork inactivity.\n\n",
+          "disposition": "UPDATE",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n",
+          "reason": "The intro states the package default is 5 seconds, but the code now defines `DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)`.",
+          "section_id": "docs/advanced/timeouts.md::__intro__"
+        },
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0) in httpx/_config.py"
+          ],
+          "current_text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 5s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n\n",
+          "disposition": "UPDATE",
+          "proposed_text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 8s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n\n",
+          "reason": "The first example relies on the package default timeout; the comment claiming 5s is now inconsistent with `DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)`.",
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client"
+        },
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0) in httpx/_config.py"
+          ],
+          "current_text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is five seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n",
+          "disposition": "UPDATE",
+          "proposed_text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is eight seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n",
+          "reason": "The quickstart explicitly states the network-inactivity default is five seconds, which no longer matches `DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)`.",
+          "section_id": "docs/quickstart.md::timeouts"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "scenario": 2,
+      "description": "Internal Timeout.as_dict refactor preserves behavior",
+      "expected_decision": "NO_CHANGE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "human_actions": [],
+      "revision_count": 0,
+      "actual_decision": "ERROR",
+      "error": "ModelError: Sarvam response omitted, duplicated, or introduced candidate section IDs",
+      "pass": false
+    },
+    {
+      "scenario": 3,
+      "description": "Timeout.is_disabled public property added",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "human_actions": [],
+      "revision_count": 0,
+      "actual_decision": "ERROR",
+      "error": "ModelError: Sarvam response content was not text",
+      "pass": false
+    },
+    {
+      "scenario": 4,
+      "description": "Default timeout comes from an unavailable external runtime policy",
+      "expected_decision": "UNCERTAIN",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "revision_count": 0,
+      "actual_decision": "ERROR",
+      "error": "ModelError: Sarvam returned malformed or schema-invalid impact_analysis: 1 validation error for ImpactResponse\n  Invalid JSON: EOF while parsing a string at line 1 column 2884 [type=json_invalid, input_value='{\"decision\":\"NO_CHANGE\",...\\n>>> httpx.get(\\'https', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/json_invalid",
+      "pass": false
+    },
+    {
+      "scenario": 5,
+      "description": "Reject one proposal with network-inactivity feedback; leave other sections unchanged",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [
+        {
+          "action": "REJECT",
+          "reason": "The new timeout value is correct, but the wording should also preserve the explanation that this timeout measures network inactivity.",
+          "version_id": "43284bda-3ad8-4e25-a703-98b6bef4f1df"
+        },
+        {
+          "action": "ACCEPT",
+          "reason": null,
+          "version_id": "286da05d-ef8a-4b0d-8f88-b0ba668c3ee4"
+        }
+      ],
+      "revision_count": 1,
+      "actual_decision": "UPDATE",
+      "sections": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "disposition": "UPDATE",
+          "current_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 5 seconds of\nnetwork inactivity.\n\n",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n",
+          "reason": "The intro states the package default is 5 seconds, but the code now defines `DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)`.",
+          "revision_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n"
+        }
+      ],
+      "final_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n",
+      "error": null,
+      "other_proposals_byte_for_byte_unchanged": true,
+      "pass": true
+    },
+    {
+      "scenario": 6,
+      "description": "Human-modify a proposal, explicitly accept, then apply the human-authored version",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "revision_count": 0,
+      "actual_decision": "ERROR",
+      "error": "ModelError: Sarvam response content was not text",
+      "pass": false
+    }
+  ]
+}

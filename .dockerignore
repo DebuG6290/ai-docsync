@@ -1,0 +1,14 @@
+.git
+.venv
+.pytest_cache
+.pytest-tmp
+.pytest-tmp-*
+.cache
+.docsync-state
+.httpx-testbed
+.httpx-scenarios
+*.pyc
+__pycache__
+.env
+.env.*
+test

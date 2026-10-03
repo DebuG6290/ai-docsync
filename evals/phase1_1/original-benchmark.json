@@ -1,0 +1,562 @@
+{
+  "generated_at": "2026-10-02T22:59:39.012840+00:00",
+  "pinned_base": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+  "original_run_errors": [],
+  "scenarios": [
+    {
+      "scenario": 1,
+      "description": "Default timeout changes from five to eight seconds",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::__intro__",
+            "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+            "docs/quickstart.md::timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 3639,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 1797,
+          "latency_ms": 4827.1,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 865,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790981983,
+          "response_id": "20261002_b610ab4a-f50d-4917-9a54-130fd9470137",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 2662
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n",
+          "reason": "The code diff changes DEFAULT_TIMEOUT_CONFIG from Timeout(timeout=5.0) to Timeout(timeout=8.0), directly contradicting the documentation's claim of a 5-second default.",
+          "section_id": "docs/advanced/timeouts.md::__intro__"
+        },
+        {
+          "code_evidence": [],
+          "decision": "NO_CHANGE",
+          "missing_information": [],
+          "proposed_text": null,
+          "reason": "This section demonstrates how to set a timeout on a client instance using httpx.Client(timeout=...). It does not state or imply the specific default value of the library's built-in default timeout.",
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client"
+        },
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)"
+          ],
+          "decision": "NO_CHANGE",
+          "missing_information": [],
+          "proposed_text": null,
+          "reason": "This section discusses that HTTPX defaults to including reasonable timeouts and mentions the default is 'five seconds', but this is a general statement about the concept of timeouts. The specific value of 5.0 seconds is not the only thing changed; the code change to 8.0 seconds is a specific implementation detail. However, since this section explicitly states 'The default timeout for network inactivity is five seconds', it is also factually incorrect based on the new code. Wait, re-evaluating: the section explicitly states 'five seconds', which is now incorrect. The code change from 5.0 to 8.0 makes this statement false. Therefore, this section should be updated as well to maintain consistency, or at least the specific claim about 'five seconds' should be corrected. However, the section is about general timeout behavior and how to modify it, not specifically about the default value. The text 'The default timeout for network inactivity is five seconds' is a direct factual claim that is now wrong. I should update this as well to 'eight seconds' or remove the specific number. But the instruction says 'make the smallest justified edit'. Changing 'five seconds' to 'eight seconds' is the smallest edit. But wait, the user asked to compare old and new code and the Git diff with the supplied current text. The current text of docs/quickstart.md::timeouts explicitly says 'five seconds'. The code now has 8.0. So this is also a direct contradiction. I need to update this too.",
+          "section_id": "docs/quickstart.md::timeouts"
+        }
+      ],
+      "case_id": "9c4f9ba4-d8f0-4410-aa80-1cb1464734eb",
+      "actual_decision": "UPDATE",
+      "evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The code diff explicitly changes DEFAULT_TIMEOUT_CONFIG from Timeout(timeout=5.0) to Timeout(timeout=8.0). This is a direct, observable change to the default timeout value. The documentation in docs/advanced/timeouts.md::__intro__ states 'The default behavior is to raise a TimeoutException after 5 seconds of network inactivity.' The code change directly contradicts this, making an update necessary.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "status": "SEMANTIC_FAIL",
+      "pass": false
+    },
+    {
+      "scenario": 2,
+      "description": "Internal Timeout.as_dict refactor preserves behavior",
+      "expected_decision": "NO_CHANGE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+          ],
+          "choices_count": 1,
+          "content_length": 21043,
+          "content_type": "str",
+          "error": "Sarvam output was truncated because finish_reason=length",
+          "error_category": "MODEL_CONTRACT_ERROR",
+          "finish_reason": "length",
+          "input_tokens": 3798,
+          "latency_ms": 43197.17,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 8192,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "failed",
+          "response_created": 1790982027,
+          "response_id": "20261002_dd81cbaa-32ef-4066-804f-39f15c1ed86d",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "retry_scheduled": true,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 11990
+        },
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+          ],
+          "choices_count": 1,
+          "content_length": 2400,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 3888,
+          "latency_ms": 2969.49,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 502,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982030,
+          "response_id": "20261002_4a6c388f-2c3c-4af7-8b71-30cd3be82b3e",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 1,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 4390
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "as_dict() implementation changed from hardcoded literal to zip-based construction, but returns the same keys and values.",
+            "The four timeout types (connect, read, write, pool) and their exception types (ConnectTimeout, ReadTimeout, WriteTimeout, PoolTimeout) are unchanged in the code.",
+            "The documentation describes the four timeout types and their behavior, which are unaffected by this internal refactor."
+          ],
+          "decision": "NO_CHANGE",
+          "missing_information": [
+            "The documentation does not mention as_dict(), so there is no direct semantic link to update. The behavior described is established by the class structure and __init__ parameters, which are unchanged."
+          ],
+          "proposed_text": null,
+          "reason": "The code change is a refactor of as_dict() to use a zip-based dictionary construction. This does not change any documented timeout behavior, parameter names, or exception types. The documentation section does not reference as_dict().",
+          "section_id": "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+        }
+      ],
+      "case_id": "e6dc6892-31d1-43a3-ac2a-8f27b29cd649",
+      "actual_decision": "NO_CHANGE",
+      "evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The supplied documentation section 'fine-tuning-the-configuration' describes the four timeout types and how to configure them. The code change is a refactor of as_dict() to use a zip-based dictionary construction. The documentation does not reference as_dict(), and the refactor does not change any documented behavior, parameter names, or exception types. Therefore, no documentation update is required.",
+        "missing_information": [
+          "The documentation describes four timeout types (connect, read, write, pool) and their behavior, but the code change only refactors the internal implementation of as_dict() to use a zip-based dictionary construction instead of a hardcoded literal. This refactor does not alter the documented behavior, the parameter names, or the exception types. The documentation text does not mention as_dict() at all, so there is no semantic dependency between the changed code and the supplied documentation section. The code change is purely stylistic/implementation-level and has no impact on the documented timeout behavior."
+        ],
+        "sufficient": false
+      },
+      "status": "PASS",
+      "pass": true
+    },
+    {
+      "scenario": 3,
+      "description": "Timeout.is_disabled public property added",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 13879,
+          "content_type": "str",
+          "error": "Sarvam output was truncated because finish_reason=length",
+          "error_category": "MODEL_CONTRACT_ERROR",
+          "finish_reason": "length",
+          "input_tokens": 3330,
+          "latency_ms": 44728.16,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 8192,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "failed",
+          "response_created": 1790982075,
+          "response_id": "20261002_510a3c91-9bce-45e9-b827-4d83c56eaee8",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "retry_scheduled": true,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 11522
+        },
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 2470,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 3421,
+          "latency_ms": 3610.69,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 661,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982079,
+          "response_id": "20261002_683d89fa-60e4-451e-8da9-72b381182bbe",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 1,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 4082
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "class Timeout:\n    @property\n    def is_disabled(self) -> bool:\n        return all(value is None for value in self.as_dict().values())"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "## Setting and disabling timeouts\n\nYou can set timeouts for an individual request:\n\n```python\n# Using the top-level API:\nhttpx.get('http://example.com/api/v1/example', timeout=10.0)\n\n# Using a client instance:\nwith httpx.Client() as client:\n    client.get(\"http://example.com/api/v1/example\", timeout=10.0)\n```\n\nOr disable timeouts for an individual request:\n\n```python\n# Using the top-level API:\nhttpx.get('http://example.com/api/v1/example', timeout=None)\n\n# Using a client instance:\nwith httpx.Client() as client:\n    client.get(\"http://example.com/api/v1/example\", timeout=None)\n```\n\nYou can also check if a `Timeout` instance is disabled by using the `is_disabled` property:\n\n```python\nfrom httpx import Timeout\n\n# No timeouts.\nassert Timeout(None).is_disabled\n\n# 5s timeout on all operations.\nassert not Timeout(5.0).is_disabled\n\n# 5s timeout on connect, no other timeouts.\nassert not Timeout(None, connect=5.0).is_disabled\n```\n",
+          "reason": "The new `is_disabled` property is added to the `Timeout` class. The documentation section describes how to disable timeouts but does not mention this new property. The proposed text adds a paragraph and code examples showing how to use `is_disabled` to check if a `Timeout` instance is disabled, which is a natural extension of the existing content.",
+          "section_id": "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+        }
+      ],
+      "case_id": "7885070f-c15f-40b0-88ea-6b5239f795b2",
+      "actual_decision": "UPDATE",
+      "evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The new code adds a property `is_disabled` to the `Timeout` class that returns `True` when all timeout values (connect, read, write, pool) are `None`. The documentation section 'Setting and disabling timeouts' explicitly describes how to disable timeouts by passing `timeout=None` to requests. The new property provides a programmatic way to check if a timeout is disabled. The existing documentation only covers the functional usage (`timeout=None`) but does not mention the `is_disabled` property. The documentation should be updated to mention this new property for completeness.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "status": "PASS",
+      "pass": true
+    },
+    {
+      "scenario": 4,
+      "description": "Default timeout comes from an unavailable external runtime policy",
+      "expected_decision": "UNCERTAIN",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::__intro__",
+            "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+            "docs/quickstart.md::timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 3937,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 1844,
+          "latency_ms": 4777.32,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 894,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982085,
+          "response_id": "20261002_3881344a-a254-4d7f-abb9-244ad3c189de",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 2738
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=timeout_seconds())",
+            "from external_runtime_policy import timeout_seconds"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after a default timeout\nperiod of 5 seconds of network inactivity. This default is now determined by\nthe `timeout_seconds()` runtime policy function.\n\n",
+          "reason": "The code change replaces `Timeout(timeout=5.0)` with `Timeout(timeout=timeout_seconds())`, indicating the default timeout is no longer a hardcoded constant. The documentation must be updated to reflect this, while preserving the 5-second reference as the prior default value. The external function's behavior is unknown, so we note the policy-driven nature of the change without fabricating a specific value.",
+          "section_id": "docs/advanced/timeouts.md::__intro__"
+        },
+        {
+          "code_evidence": [],
+          "decision": "NO_CHANGE",
+          "missing_information": [],
+          "proposed_text": null,
+          "reason": "This section describes how to set a default timeout on a client instance via the `timeout` parameter. It does not describe the library-level default configuration value. The change to `DEFAULT_TIMEOUT_CONFIG` does not affect the API or behavior of setting a timeout on a client, so no documentation update is needed.",
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client"
+        },
+        {
+          "code_evidence": [
+            "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=timeout_seconds())"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is five seconds, determined by the\n`timeout_seconds()` runtime policy function. You can modify the value to be more\nor less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n",
+          "reason": "The quickstart section explicitly states 'The default timeout for network inactivity is five seconds.' The code change replaces this hardcoded 5.0 with `timeout_seconds()`, so the documentation must be updated to indicate the default is now determined by runtime policy, while preserving the five-second reference. The rest of the section is unaffected.",
+          "section_id": "docs/quickstart.md::timeouts"
+        }
+      ],
+      "case_id": "ebf9b31f-54a5-4ec2-a761-7bce787716b6",
+      "actual_decision": "UPDATE",
+      "evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The code change replaces a hardcoded 5.0-second timeout with a call to `timeout_seconds()` from an external runtime policy module (`external_runtime_policy`). The current documentation states the default is 5 seconds. Because `timeout_seconds()` is an external function whose implementation is not provided, we cannot determine its exact value, but the change clearly indicates the default timeout is no longer a fixed constant and is instead driven by runtime policy. The documentation must be updated to reflect this shift from a hardcoded value to a dynamically determined default, while preserving the existing 5-second reference as the prior default. The change is a semantic change to the default timeout configuration.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "status": "SEMANTIC_FAIL",
+      "pass": false
+    },
+    {
+      "scenario": 5,
+      "description": "Reject a proposal, require an observable scope clarification, then accept V2",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [
+        {
+          "action": "REJECT",
+          "version_id": "93c2ed51-267a-45d6-9b6b-b3dc465c7ba2",
+          "reason": "The value change is correct, but explicitly clarify that this is a network-inactivity timeout and not an overall deadline for the complete HTTP request."
+        },
+        {
+          "action": "ACCEPT",
+          "version_id": "7f912cd3-cce9-4875-9e8e-4b35769513e1",
+          "reason": null
+        }
+      ],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::__intro__"
+          ],
+          "choices_count": 1,
+          "content_length": 737,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 1132,
+          "latency_ms": 1044.16,
+          "max_tokens": 4096,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "revision",
+          "output_tokens": 154,
+          "prompt_version": "revision.v2",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982086,
+          "response_id": "20261002_bc3345df-823d-45a3-a2df-132731d72fd0",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "proposal_revision",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1286
+        }
+      ],
+      "case_id": "9c4f9ba4-d8f0-4410-aa80-1cb1464734eb",
+      "actual_decision": "UPDATE",
+      "requested_feedback": "The value change is correct, but explicitly clarify that this is a network-inactivity timeout and not an overall deadline for the complete HTTP request.",
+      "revision_checks": {
+        "V1 preserved": true,
+        "rejection event and exact reason preserved": true,
+        "V2 differs from V1": true,
+        "requested feedback appears in V2": false,
+        "only rejected proposal gained a version": true,
+        "V2 explicitly accepted": true
+      },
+      "revision_versions": [
+        {
+          "version": 1,
+          "author": "sarvam",
+          "sha256": "daf4b4362e73f3e8e5764e4c25bd3d090e743a48ea5067878b90f5583e488259",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n"
+        },
+        {
+          "version": 2,
+          "author": "sarvam",
+          "sha256": "ad0dba04b4263b128cb484001da6fe4c4bc5cf7f29f76c3bc72f8b780fe2016c",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of network inactivity. This timeout applies to the period of network inactivity and does not represent an overall deadline for the complete HTTP request.\n\n"
+        }
+      ],
+      "sections": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "decision": "UPDATE",
+          "reason": "The reviewer rejected the previous proposal because it did not clarify that the timeout is specifically for network inactivity and not an overall request deadline. The revised text adds this clarification while preserving the corrected 8-second value and the accurate current documentation.",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of network inactivity. This timeout applies to the period of network inactivity and does not represent an overall deadline for the complete HTTP request.\n\n"
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "pass": false
+    },
+    {
+      "scenario": 6,
+      "description": "Human-modify a persisted UPDATE, accept it, and apply it without a Sarvam rewrite",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__"
+      ],
+      "human_actions": [
+        {
+          "action": "MODIFY",
+          "version_id": "b308df6e-f533-4faa-a811-557b3190c1b6",
+          "content": "The default timeout is 8 seconds of network inactivity.\n\nThis setting does not impose an overall deadline for the complete HTTP request.\n"
+        },
+        {
+          "action": "ACCEPT",
+          "version_id": "b308df6e-f533-4faa-a811-557b3190c1b6",
+          "content": null
+        }
+      ],
+      "sarvam_calls": [],
+      "case_id": "04eae1f2-9868-43a6-a961-70f7bc042eeb",
+      "actual_decision": "UPDATE",
+      "revision_checks": {
+        "human-authored version stored exactly": true,
+        "no Sarvam rewrite during review": true,
+        "human version explicitly accepted": true
+      },
+      "apply_checks": {
+        "apply command succeeded": true,
+        "exact human text appears in documentation": true,
+        "applied version is the human version": true,
+        "section hash recorded": true,
+        "file hash recorded": true,
+        "no Sarvam calls for human edit": true
+      },
+      "sections": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "decision": "UPDATE",
+          "proposed_text": "The default timeout is 8 seconds of network inactivity.\n\nThis setting does not impose an overall deadline for the complete HTTP request.\n"
+        }
+      ],
+      "final_text": "The default timeout is 8 seconds of network inactivity.\n\nThis setting does not impose an overall deadline for the complete HTTP request.\n",
+      "status": "PASS",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "SEMANTIC_FAIL": 3,
+    "PASS": 3
+  }
+}

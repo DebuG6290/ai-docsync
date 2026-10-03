@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Approved mappings · DocSync{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">{{ repo.full_name }}</p><h1>Approved code ↔ documentation mappings</h1><p class="muted">Mappings identify candidates. They do not decide whether a change affects documentation.</p></div></div>
+<section class="panel"><div class="table-scroll"><table><thead><tr><th>Code symbol</th><th>Documentation section</th><th>Status</th><th>Version</th><th>Reason</th></tr></thead><tbody>{% for mapping in mappings %}<tr><td><code>{{ mapping.code_id }}</code></td><td><code>{{ mapping.section_id }}</code></td><td>{{ mapping.status }}</td><td>{{ mapping.version }}</td><td>{{ mapping.reason }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

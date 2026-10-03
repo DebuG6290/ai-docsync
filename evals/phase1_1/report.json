@@ -1,0 +1,854 @@
+{
+  "generated_at": "2026-10-02T23:03:53.970099+00:00",
+  "reasoning_contract": "impact.v3",
+  "heldout_expectation_sha256": "9a69f0e11f67c93b8a9da7ee4736839e580c308e34980e6880c557d71fb9aa96",
+  "heldout_expectations_frozen_before_calls": true,
+  "original_benchmark": [
+    {
+      "scenario": 1,
+      "description": "Default timeout changes from five to eight seconds",
+      "previous_result": "PASS",
+      "previous_decision": "UPDATE",
+      "new_result": "SEMANTIC_FAIL",
+      "new_decision": "UPDATE",
+      "regressed": true,
+      "previous_error": null,
+      "new_error": null
+    },
+    {
+      "scenario": 2,
+      "description": "Internal Timeout.as_dict refactor preserves behavior",
+      "previous_result": "PASS",
+      "previous_decision": "NO_CHANGE",
+      "new_result": "PASS",
+      "new_decision": "NO_CHANGE",
+      "regressed": false,
+      "previous_error": null,
+      "new_error": null
+    },
+    {
+      "scenario": 3,
+      "description": "Timeout.is_disabled public property added",
+      "previous_result": "PASS",
+      "previous_decision": "UPDATE",
+      "new_result": "PASS",
+      "new_decision": "UPDATE",
+      "regressed": false,
+      "previous_error": null,
+      "new_error": null
+    },
+    {
+      "scenario": 4,
+      "description": "Default timeout comes from an unavailable external runtime policy",
+      "previous_result": "SEMANTIC_FAIL",
+      "previous_decision": "UPDATE",
+      "new_result": "SEMANTIC_FAIL",
+      "new_decision": "UPDATE",
+      "regressed": false,
+      "previous_error": null,
+      "new_error": null
+    },
+    {
+      "scenario": 5,
+      "description": "Reject a proposal, require an observable scope clarification, then accept V2",
+      "previous_result": "PASS",
+      "previous_decision": "UPDATE",
+      "new_result": "SEMANTIC_FAIL",
+      "new_decision": "UPDATE",
+      "regressed": true,
+      "previous_error": null,
+      "new_error": null
+    },
+    {
+      "scenario": 6,
+      "description": "Human-modify a persisted UPDATE, accept it, and apply it without a Sarvam rewrite",
+      "previous_result": "PASS",
+      "previous_decision": "UPDATE",
+      "new_result": "PASS",
+      "new_decision": "UPDATE",
+      "regressed": false,
+      "previous_error": null,
+      "new_error": null
+    }
+  ],
+  "original_summary": {
+    "SEMANTIC_FAIL": 3,
+    "PASS": 3
+  },
+  "heldout_cases": [
+    {
+      "scenario_id": "H1",
+      "description": "A presentation helper changes its output transformation directly in supplied code",
+      "available_evidence": [
+        "The complete old and new helper implementations are supplied; the new implementation strips outer whitespace and title-cases the value."
+      ],
+      "intentionally_unavailable_evidence": [],
+      "expected_decision": "UPDATE",
+      "expected_sufficient": true,
+      "expected_basis": "The changed output transformation is explicit in the supplied implementation.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The diff clearly shows display_title now applies .strip() and .title() to the input, which is a concrete behavioral change from the previous 'returns exactly as received' description. The old documentation text is explicitly contradicted by the new implementation. The new behavior is fully determined from the code diff; no external runtime evidence or additional dependencies are needed to justify updating the documentation to state that the helper strips whitespace and title-cases the input.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::display-title",
+          "decision": "UPDATE",
+          "reason": "The implementation now applies .strip() and .title() (diff: 'return value.strip().title()'), so the old claim that it returns the title exactly as received is incorrect. The new text accurately describes the concrete behavior shown in the code change.",
+          "missing_information": []
+        }
+      ],
+      "status": "PASS",
+      "checks": {
+        "case decision matches expected": true,
+        "section decision matches expected": true,
+        "evidence sufficiency matches expected": true,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::display-title"
+          ],
+          "choices_count": 1,
+          "content_length": 1429,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 865,
+          "latency_ms": 2666.44,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 323,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982141,
+          "response_id": "20261002_eb26867e-5055-480b-9849-1a8fd6b82e44",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1188
+        }
+      ],
+      "case_id": "3ec27506-c081-46f2-b39f-978c340a9bb7"
+    },
+    {
+      "scenario_id": "H2",
+      "description": "A directly returned protocol default changes from one literal to another",
+      "available_evidence": [
+        "The complete old and new function bodies are supplied; the return literal changes from v1 to v2."
+      ],
+      "intentionally_unavailable_evidence": [],
+      "expected_decision": "UPDATE",
+      "expected_sufficient": true,
+      "expected_basis": "The changed default value is directly visible in the supplied implementation.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The diff clearly shows protocol_version() changed from returning 'v1' to returning 'v2'. The documentation text explicitly states the default protocol version is v1, which is now incorrect. This is a direct, deterministic behavior change with no missing context.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::protocol-version",
+          "decision": "UPDATE",
+          "reason": "The diff shows protocol_version() changed from 'v1' to 'v2'. The documentation currently states 'v1', which is now incorrect.",
+          "missing_information": []
+        }
+      ],
+      "status": "PASS",
+      "checks": {
+        "case decision matches expected": true,
+        "section decision matches expected": true,
+        "evidence sufficiency matches expected": true,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::protocol-version"
+          ],
+          "choices_count": 1,
+          "content_length": 994,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 856,
+          "latency_ms": 1682.6,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 239,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982143,
+          "response_id": "20261002_86ceb19d-17a0-45bc-8ef6-8bdc9d24f475",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1095
+        }
+      ],
+      "case_id": "7e68813e-ca53-443e-b4a9-31cce384a39b"
+    },
+    {
+      "scenario_id": "H3",
+      "description": "A whitespace normalizer is refactored while preserving the same visible operations",
+      "available_evidence": [
+        "Complete old and new function bodies are supplied; both strip outer whitespace and lowercase the same value in the same order."
+      ],
+      "intentionally_unavailable_evidence": [],
+      "expected_decision": "NO_CHANGE",
+      "expected_sufficient": true,
+      "expected_basis": "The supplied old and new implementations establish the documented behavior is unchanged.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The code change splits the one-liner into two statements, but the behavior is identical: strip whitespace then lowercase. The documentation already describes this behavior accurately. No documentation change is needed; the section is already correct and does not require an update.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::normalize-name",
+          "decision": "NO_CHANGE",
+          "reason": "The documentation already accurately describes the behavior. The code change is a stylistic refactor (splitting chained calls into separate statements) with no semantic change. No update needed.",
+          "missing_information": []
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "checks": {
+        "case decision matches expected": false,
+        "section decision matches expected": true,
+        "evidence sufficiency matches expected": true,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::normalize-name"
+          ],
+          "choices_count": 1,
+          "content_length": 1050,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 893,
+          "latency_ms": 2115.79,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 224,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982146,
+          "response_id": "20261002_5708bc26-56ad-4ed3-804d-794cffdaf50c",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1117
+        }
+      ],
+      "case_id": "69775b7a-25f4-482f-b47e-d95a05fed2a6"
+    },
+    {
+      "scenario_id": "H4",
+      "description": "A constant return is given a local name without changing the function result",
+      "available_evidence": [
+        "Complete old and new function bodies are supplied; both return the literal value 3."
+      ],
+      "intentionally_unavailable_evidence": [],
+      "expected_decision": "NO_CHANGE",
+      "expected_sufficient": true,
+      "expected_basis": "The supplied code shows the return value and documented behavior remain identical.",
+      "actual_decision": "NO_CHANGE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The code change is purely stylistic: the literal '3' is assigned to a local variable 'attempts' and then returned. The function still returns the integer 3, and the documentation already correctly states that the helper returns a maximum of three attempts. No semantic behavior changes, so no documentation update is needed.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::maximum-attempts",
+          "decision": "NO_CHANGE",
+          "reason": "The code change is a stylistic refactoring that preserves the return value of 3. The existing documentation accurately describes the behavior.",
+          "missing_information": []
+        }
+      ],
+      "status": "PASS",
+      "checks": {
+        "case decision matches expected": true,
+        "section decision matches expected": true,
+        "evidence sufficiency matches expected": true,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::maximum-attempts"
+          ],
+          "choices_count": 1,
+          "content_length": 849,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 872,
+          "latency_ms": 1451.47,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 198,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982147,
+          "response_id": "20261002_05581a97-7a9e-4824-82db-41d2ed601773",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1070
+        }
+      ],
+      "case_id": "9c6e60f7-e660-4e91-be9b-18b636670647"
+    },
+    {
+      "scenario_id": "H5",
+      "description": "Eligibility behavior is delegated to a policy object with no implementation supplied",
+      "available_evidence": [
+        "The changed wrapper now calls eligibility_policy.allows(item)."
+      ],
+      "intentionally_unavailable_evidence": [
+        "The eligibility_policy implementation and its rules are not supplied."
+      ],
+      "expected_decision": "UNCERTAIN",
+      "expected_sufficient": false,
+      "expected_basis": "A method name does not establish the delegated policy behavior.",
+      "actual_decision": "NO_CHANGE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The old code explicitly checked item.get('active', False), establishing that eligibility was determined by the 'active' boolean field. The new code delegates to eligibility_policy.allows(item). The current documentation states 'An item is eligible when its active field is true.' This is no longer accurate because the implementation now uses an external policy object. However, the mapping is APPROVED, which by definition means the documentation should be updated to reflect the new behavior. But the new behavior (what eligibility_policy.allows does) is not visible in the supplied context—there is no code, comments, or configuration for eligibility_policy.allows. Therefore, I cannot determine what the new eligibility criteria are. I cannot fabricate behavior for an unavailable function. The documentation currently describes the old behavior. Since I cannot verify or replace it with the new behavior, the correct decision is UNCERTAIN, not NO_CHANGE. Wait, let me reconsider. The instructions say: 'Approved mappings identify candidate documentation only; they do not imply impact.' And 'For the case-level decision, distinguish among behavior established by supplied code/evidence, behavior merely suggested by names, calls, comments, or incomplete dependencies, and behavior that cannot be determined from the supplied context.' The new code calls eligibility_policy.allows(item). This is an incomplete dependency—we don't know what eligibility_policy is or what allows does. The current text says 'active field is true'. The old code supports this. The new code does not. Since I cannot determine the new behavior, I must choose UNCERTAIN. The instructions also say: 'If a documentation statement depends on implementation or runtime information unavailable in the supplied context, choose UNCERTAIN and name the missing evidence.' The missing evidence is the implementation/behavior of eligibility_policy.allows(item).",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::eligibility",
+          "decision": "UNCERTAIN",
+          "reason": "The new implementation uses eligibility_policy.allows(item), but the behavior of eligibility_policy.allows is not available in the supplied context. The current text describes the old behavior (active field must be true), which is no longer accurate, but I cannot determine the new criteria to replace it.",
+          "missing_information": [
+            "The implementation, source, or behavior specification of eligibility_policy.allows(item) is not provided in the supplied context. Without knowing what conditions eligibility_policy.allows evaluates, the new eligibility criteria cannot be determined."
+          ]
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "checks": {
+        "case decision matches expected": false,
+        "section decision matches expected": true,
+        "evidence sufficiency matches expected": false,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::eligibility"
+          ],
+          "choices_count": 1,
+          "content_length": 3278,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 885,
+          "latency_ms": 4360.34,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 657,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982152,
+          "response_id": "20261002_6bf97263-3749-4b9a-ac48-170abf05aeed",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1542
+        }
+      ],
+      "case_id": "3c7d4e64-ed3d-49bd-9e8d-abac919e7cc8"
+    },
+    {
+      "scenario_id": "H6",
+      "description": "A worker count changes from a literal to a value read from an unavailable deployment configuration",
+      "available_evidence": [
+        "The new function reads deployment_config[workers]."
+      ],
+      "intentionally_unavailable_evidence": [
+        "The deployment configuration source and its active value are not supplied."
+      ],
+      "expected_decision": "UNCERTAIN",
+      "expected_sufficient": false,
+      "expected_basis": "The code does not establish what value the external configuration provides.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The code change replaces a hardcoded return value of 4 with a dynamic lookup from deployment_config['workers']. The old text explicitly stated the default worker count is four, which is no longer accurate because the function now defers to an external configuration. The new behavior is that worker_count() returns the value from deployment_config['workers']. The exact default value of deployment_config['workers'] is unknown from the supplied context, but the documentation must be updated to reflect that the count is no longer fixed at four and is instead driven by deployment_config.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::worker-count",
+          "decision": "UPDATE",
+          "reason": "The code now returns deployment_config['workers'] instead of a hardcoded 4. The old statement that the default is four is therefore incorrect. The new text reflects that the count is driven by the deployment_config configuration, without asserting a specific numeric default that is not visible in the supplied context.",
+          "missing_information": []
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "checks": {
+        "case decision matches expected": false,
+        "section decision matches expected": false,
+        "evidence sufficiency matches expected": false,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::worker-count"
+          ],
+          "choices_count": 1,
+          "content_length": 1589,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 858,
+          "latency_ms": 2203.71,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 350,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982155,
+          "response_id": "20261002_8231a3fe-6a3f-4fda-94e2-c038e2614539",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1208
+        }
+      ],
+      "case_id": "5e57e043-79e8-448d-ae9a-00e78970e9d1"
+    },
+    {
+      "scenario_id": "H7",
+      "description": "Retry classification is delegated to a third-party client integration",
+      "available_evidence": [
+        "The new function delegates classification to client.retry_provider.is_retryable(response)."
+      ],
+      "intentionally_unavailable_evidence": [
+        "The third-party retry provider implementation and its configured policy are not supplied."
+      ],
+      "expected_decision": "UNCERTAIN",
+      "expected_sufficient": false,
+      "expected_basis": "The integration call does not reveal which response statuses the provider treats as retryable.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The old code explicitly returns retryable status codes: 408, 429, or any 5xx. The new code delegates to client.retry_provider.is_retryable(response), which is an opaque abstraction. The old behavior is fully established by the old code, and the new behavior is opaque. The documentation currently states the old behavior. The diff shows the old behavior is replaced, so the documentation must be updated to reflect that retry classification is no longer determined by these specific status codes but by an external retry_provider.is_retryable method.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::retry-classification",
+          "decision": "UPDATE",
+          "reason": "The old code explicitly classified 408, 429, and 5xx as retryable. The new code delegates this decision to client.retry_provider.is_retryable(response). The documentation must reflect this delegation rather than specific status codes.",
+          "missing_information": []
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "checks": {
+        "case decision matches expected": false,
+        "section decision matches expected": false,
+        "evidence sufficiency matches expected": false,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::retry-classification"
+          ],
+          "choices_count": 1,
+          "content_length": 1573,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 952,
+          "latency_ms": 3185.69,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 365,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982158,
+          "response_id": "20261002_ff73b0db-a30f-44f5-bd5e-eedc07bc62e1",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1317
+        }
+      ],
+      "case_id": "74cd2f45-7614-4f25-9735-2c1f2cac158e"
+    },
+    {
+      "scenario_id": "H8",
+      "description": "A connection wrapper changes to a manager whose implementation is absent",
+      "available_evidence": [
+        "The wrapper now returns session_manager.open(host)."
+      ],
+      "intentionally_unavailable_evidence": [
+        "The session manager implementation is not supplied."
+      ],
+      "expected_decision": "UNCERTAIN",
+      "expected_sufficient": false,
+      "expected_basis": "The wrapper call alone cannot establish whether the manager opens a direct socket or adds other behavior.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The old code explicitly used socket.create_connection(host), which is a direct TCP socket connection. The new code delegates to session_manager.open(host), which is an abstraction over a session manager. The behavior changed from a direct TCP socket connection to using a session manager. The documentation stating 'The wrapper opens a direct TCP socket connection' is now incorrect and must be updated to reflect the new behavior.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::open-session",
+          "decision": "UPDATE",
+          "reason": "The old code used socket.create_connection(host) which is a direct TCP socket connection. The new code uses session_manager.open(host), which delegates to a session manager. The documentation must be updated to reflect this change in behavior.",
+          "missing_information": []
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "checks": {
+        "case decision matches expected": false,
+        "section decision matches expected": false,
+        "evidence sufficiency matches expected": false,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::open-session"
+          ],
+          "choices_count": 1,
+          "content_length": 13146,
+          "content_type": "str",
+          "error": "Sarvam output was truncated because finish_reason=length",
+          "error_category": "MODEL_CONTRACT_ERROR",
+          "finish_reason": "length",
+          "input_tokens": 899,
+          "latency_ms": 67687.11,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 8192,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "failed",
+          "response_created": 1790982227,
+          "response_id": "20261002_9b45c8ec-e317-4eb5-9b3b-22c14d79ef47",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "retry_scheduled": true,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 9091
+        },
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::open-session"
+          ],
+          "choices_count": 1,
+          "content_length": 1420,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 983,
+          "latency_ms": 2762.53,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 324,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982229,
+          "response_id": "20261002_a50fbf31-c079-4c88-a0f8-cc45a3f63663",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 1,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1307
+        }
+      ],
+      "case_id": "f849a3a6-08cf-45ca-8c9d-6c2855177494"
+    },
+    {
+      "scenario_id": "H9",
+      "description": "A fixed retention value changes to a deployment environment variable",
+      "available_evidence": [
+        "The new function reads and converts the RETENTION_DAYS environment variable."
+      ],
+      "intentionally_unavailable_evidence": [
+        "The deployment environment value and any runtime default policy are not supplied."
+      ],
+      "expected_decision": "UNCERTAIN",
+      "expected_sufficient": false,
+      "expected_basis": "The supplied context does not establish the value used in the target runtime.",
+      "actual_decision": "UPDATE",
+      "actual_evidence_assessment": {
+        "kind": "evidence_assessment",
+        "explanation": "The old code returned a hardcoded 30, and the new code reads int(os.environ['RETENTION_DAYS']). The old documentation 'Records are retained for 30 days by default.' is now inaccurate because the value is no longer hardcoded to 30. The new behavior is environment-variable-driven, but the exact default when the variable is unset is not visible in the diff (os.environ['RETENTION_DAYS'] would raise KeyError). The smallest justified edit is to state that retention days are controlled by the RETENTION_DAYS environment variable, removing the hardcoded 30 claim.",
+        "missing_information": [],
+        "sufficient": true
+      },
+      "actual_section_decisions": [
+        {
+          "section_id": "docs/behavior.md::retention-days",
+          "decision": "UPDATE",
+          "reason": "The code now returns int(os.environ['RETENTION_DAYS']) instead of a hardcoded 30, so the previous claim of a fixed 30-day retention is no longer accurate.",
+          "missing_information": []
+        }
+      ],
+      "status": "SEMANTIC_FAIL",
+      "checks": {
+        "case decision matches expected": false,
+        "section decision matches expected": false,
+        "evidence sufficiency matches expected": false,
+        "sufficiency and missing information agree": true
+      },
+      "sarvam_calls": [
+        {
+          "candidate_section_ids": [
+            "docs/behavior.md::retention-days"
+          ],
+          "choices_count": 1,
+          "content_length": 1421,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 881,
+          "latency_ms": 3044.99,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 349,
+          "prompt_version": "impact.v3",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790982233,
+          "response_id": "20261002_42d023a4-e457-4159-aff5-72b963b8021e",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1230
+        }
+      ],
+      "case_id": "615fa824-3dae-4732-97e7-ba1bc744abc3"
+    }
+  ],
+  "heldout_accuracy": {
+    "UPDATE": {
+      "passed": 2,
+      "semantic_failures": 0,
+      "scored_cases": 2,
+      "infrastructure_errors": 0,
+      "accuracy": 1.0
+    },
+    "NO_CHANGE": {
+      "passed": 1,
+      "semantic_failures": 1,
+      "scored_cases": 2,
+      "infrastructure_errors": 0,
+      "accuracy": 0.5
+    },
+    "UNCERTAIN": {
+      "passed": 0,
+      "semantic_failures": 5,
+      "scored_cases": 5,
+      "infrastructure_errors": 0,
+      "accuracy": 0.0
+    }
+  },
+  "exit_assessment": {
+    "update_accuracy": {
+      "passed": 2,
+      "semantic_failures": 0,
+      "scored_cases": 2,
+      "infrastructure_errors": 0,
+      "accuracy": 1.0
+    },
+    "no_change_accuracy": {
+      "passed": 1,
+      "semantic_failures": 1,
+      "scored_cases": 2,
+      "infrastructure_errors": 0,
+      "accuracy": 0.5
+    },
+    "uncertain_accuracy": {
+      "passed": 0,
+      "semantic_failures": 5,
+      "scored_cases": 5,
+      "infrastructure_errors": 0,
+      "accuracy": 0.0
+    },
+    "uncertain_cases_reported_sufficient": [
+      "H5",
+      "H6",
+      "H7",
+      "H8",
+      "H9"
+    ],
+    "case_section_decision_disagreements": [
+      "H3",
+      "H5"
+    ],
+    "original_regressions": [
+      1,
+      5
+    ],
+    "scenario_4": {
+      "previous_result": "SEMANTIC_FAIL",
+      "new_result": "SEMANTIC_FAIL",
+      "new_decision": "UPDATE"
+    },
+    "phase1_freeze_decision": "The conditional freeze criterion is not met: the held-out set scored 0/5 on UNCERTAIN and 2 previously passing original scenarios regressed. Keep Phase 1's accepted functional baseline distinct from uncertainty calibration; do not claim the v3 contract resolves evidence sufficiency.",
+    "remaining_limitations": [
+      "The case-level sufficiency label was overconfident on held-out uncertainty cases.",
+      "At least one structured response gave conflicting case-level and section-level decisions.",
+      "This is a small controlled evaluation with one model/provider and one prompt revision."
+    ]
+  },
+  "run_notes": [
+    "An initial unscored held-out invocation stopped before any Sarvam request because the controlled mapping rows were not seeded. The fixture setup was corrected; that setup attempt is excluded from semantic scoring.",
+    "The scored held-out run completed all nine cases with no terminal API or model-contract errors. H8 had a truncated first response and passed through the existing format-repair retry; the repaired structured response was scored normally."
+  ]
+}

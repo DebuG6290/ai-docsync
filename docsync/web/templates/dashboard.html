@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Review queue · DocSync{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">ONLINE REVIEW</p><h1>Change cases</h1><p class="muted">{{ repo.full_name if repo else "Repository setup required" }} · {{ repo.monitored_branch if repo else "" }}</p></div>
+  <a class="button secondary" href="/chat">Open documentation chat</a></div>
+<section class="panel index-status">
+  {% if active_index %}<div><strong>Active approved documentation</strong><p>Version <code>{{ active_index.id }}</code> · commit <code>{{ active_index.source_commit }}</code></p></div>
+  {% else %}<div><strong>Approved index not initialized</strong><p>Initialize the configured branch as the accepted documentation baseline before D0.</p></div>
+    <form method="post" action="/admin/index-baseline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Index approved baseline</button></form>
+  {% endif %}
+</section>
+<section class="panel"><div class="section-title"><h2>Cases</h2><span>{{ cases|length }} recent</span></div>
+  {% if cases %}<div class="table-scroll"><table><thead><tr><th>Created</th><th>Decision</th><th>Status</th><th>Commit</th><th>Summary</th></tr></thead><tbody>
+  {% for case in cases %}<tr><td><a href="/cases/{{ case.id }}">{{ case.created_at.strftime("%Y-%m-%d %H:%M UTC") if case.created_at else "" }}</a></td><td><span class="pill {{ (case.decision or 'error')|lower }}">{{ case.decision or "SYSTEM ERROR" }}</span></td><td>{{ case.status }}</td><td><code>{{ case.after_sha[:10] }}</code></td><td>{{ case.summary or case.error or "Analysis running" }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">No GitHub change cases have arrived yet.</p>{% endif %}
+</section>
+<section class="panel"><div class="section-title"><h2>GitHub deliveries</h2><span>latest 12</span></div>
+  {% if deliveries %}<div class="table-scroll"><table><thead><tr><th>Received</th><th>Event</th><th>Ref</th><th>Before → after</th><th>Status</th></tr></thead><tbody>{% for item in deliveries %}<tr><td>{{ item.received_at.strftime("%Y-%m-%d %H:%M UTC") }}</td><td>{{ item.event_name }}{% if item.action %} · {{ item.action }}{% endif %}</td><td>{{ item.ref or "—" }}</td><td><code>{{ (item.before_sha or "—")[:8] }} → {{ (item.after_sha or "—")[:8] }}</code></td><td>{{ item.status }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty">No deliveries recorded.</p>{% endif %}
+</section>
+<section class="panel"><div class="section-title"><h2>Background jobs</h2><span>latest 20</span></div>
+  {% if jobs %}<div class="table-scroll"><table><thead><tr><th>Queued</th><th>Work</th><th>Status</th><th>Attempts</th><th>Delivery</th></tr></thead><tbody>{% for job in jobs %}<tr><td>{{ job.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</td><td>{{ job.kind|replace("_", " ")|title }}</td><td>{{ job.status }}</td><td>{{ job.attempts }}</td><td><code>{{ (job.delivery_id or "manual")[:16] }}</code></td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty">No background work queued.</p>{% endif %}
+</section>
+{% endblock %}

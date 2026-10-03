@@ -1,0 +1,64 @@
+{
+  "evaluation": "phase1.1-original-six-new-semantics",
+  "previous_semantic_run": "evals/phase1_1/original-benchmark.json",
+  "accepted_phase1_baseline": "evals/httpx/phase1-live-report.json",
+  "scenarios": [
+    {
+      "scenario": 1,
+      "expected_workflow_state": "UPDATE",
+      "sections": [
+        {"section_id": "docs/advanced/timeouts.md::__intro__", "decision": "UPDATE", "evidence_completeness": "COMPLETE", "supported_claims": ["default timeout is eight seconds", "timeout is measured by network inactivity"]},
+        {"section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client", "decision": "UPDATE", "evidence_completeness": "COMPLETE", "supported_claims": ["the default client timeout example is eight seconds"]},
+        {"section_id": "docs/quickstart.md::timeouts", "decision": "UPDATE", "evidence_completeness": "COMPLETE", "supported_claims": ["default timeout is eight seconds", "timeout is measured by network inactivity"]}
+      ],
+      "label_rationale": "The pinned source directly changes the configured default from 5 to 8. Each mapped section contains a stale five-second default claim, including the client-example comment; all three sections should change.",
+      "proposal_rubrics": {
+        "docs/advanced/timeouts.md::__intro__": {"required_claims": ["default timeout is eight seconds"], "forbidden_claims": ["a complete request is limited to eight seconds"]},
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": {"required_claims": ["no-argument client uses the eight-second default"], "forbidden_claims": ["a complete request is limited to eight seconds"]},
+        "docs/quickstart.md::timeouts": {"required_claims": ["default timeout is eight seconds"], "forbidden_claims": ["a complete request is limited to eight seconds"]}
+      }
+    },
+    {
+      "scenario": 2,
+      "expected_workflow_state": "NO_CHANGE",
+      "sections": [
+        {"section_id": "docs/advanced/timeouts.md::fine-tuning-the-configuration", "decision": "NO_CHANGE", "evidence_completeness": "COMPLETE", "supported_claims": ["the refactor preserves the same four timeout fields"]}
+      ],
+      "label_rationale": "The complete old/new method bodies return the same mapping values; the documented behavior remains accurate.",
+      "proposal_rubrics": {}
+    },
+    {
+      "scenario": 3,
+      "expected_workflow_state": "UPDATE",
+      "sections": [
+        {"section_id": "docs/advanced/timeouts.md::setting-and-disabling-timeouts", "decision": "UPDATE", "evidence_completeness": "COMPLETE", "supported_claims": ["is_disabled is true when every timeout component is None"]}
+      ],
+      "label_rationale": "The added property and its full implementation are supplied; the candidate section does not document this public property.",
+      "proposal_rubrics": {
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts": {"required_claims": ["is_disabled is true when every timeout component is None"], "forbidden_claims": ["is_disabled is true when any timeout component is None"]}
+      }
+    },
+    {
+      "scenario": 4,
+      "expected_workflow_state": "UPDATE",
+      "sections": [
+        {"section_id": "docs/advanced/timeouts.md::__intro__", "decision": "UPDATE", "evidence_completeness": "PARTIAL", "supported_claims": ["the default timeout value is obtained by calling timeout_seconds()"]},
+        {"section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client", "decision": "UPDATE", "evidence_completeness": "PARTIAL", "supported_claims": ["the no-argument client example uses the runtime-policy-provided default"]},
+        {"section_id": "docs/quickstart.md::timeouts", "decision": "UPDATE", "evidence_completeness": "PARTIAL", "supported_claims": ["the default timeout is obtained from timeout_seconds()"]}
+      ],
+      "label_rationale": "The supplied diff directly replaces the literal default with a call to the imported runtime policy, so a useful bounded update can describe that source. The policy implementation and numeric runtime value are unavailable, so no section may continue to assert a specific duration as established fact. This scenario is re-labeled under the explicit UPDATE/PARTIAL definition; no numeric policy output is assumed.",
+      "proposal_rubrics": {
+        "docs/advanced/timeouts.md::__intro__": {"required_claims": ["default is obtained from timeout_seconds"], "forbidden_claims": ["five seconds", "eight seconds", "any specific numeric policy output"]},
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": {"required_claims": ["no-argument client uses the runtime-policy-provided default"], "forbidden_claims": ["five seconds", "eight seconds", "any specific numeric policy output"]},
+        "docs/quickstart.md::timeouts": {"required_claims": ["default is obtained from timeout_seconds"], "forbidden_claims": ["five seconds", "eight seconds", "any specific numeric policy output"]}
+      }
+    }
+  ],
+  "scenario_5_hitl": {
+    "expected_checks": ["V1 preserved", "rejection event and exact reason preserved", "V2 differs from V1", "requested feedback appears semantically in V2", "only rejected proposal gained a version", "V2 explicitly accepted"],
+    "prior_report_adjudication": "The prior V2 text says the timeout applies to network inactivity and does not represent an overall deadline for the complete HTTP request. The previous checker rejected the phrase 'does not represent' because its negative-deadline phrase list omitted it. This was a checker false negative, not a demonstrated HITL behavior regression."
+  },
+  "scenario_6_hitl": {
+    "expected_checks": ["human-authored version stored exactly", "no Sarvam rewrite during review", "human version explicitly accepted", "exact human text applied", "apply hashes recorded"]
+  }
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "code_id": "httpx/_config.py::Timeout.as_dict",
+    "section_id": "docs/advanced/timeouts.md::fine-tuning-the-configuration",
+    "reason": "Operator-confirmed candidate mapping for the HTTPX Phase 1 baseline."
+  },
+  {
+    "code_id": "httpx/_config.py::Timeout.is_disabled",
+    "section_id": "docs/advanced/timeouts.md::setting-and-disabling-timeouts",
+    "reason": "Operator-confirmed candidate mapping for the HTTPX Phase 1 baseline."
+  },
+  {
+    "code_id": "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG",
+    "section_id": "docs/advanced/timeouts.md::__intro__",
+    "reason": "Operator-confirmed primary timeout mapping for the HTTPX Phase 1 baseline."
+  },
+  {
+    "code_id": "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG",
+    "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+    "reason": "Operator-confirmed primary timeout mapping for the HTTPX Phase 1 baseline."
+  },
+  {
+    "code_id": "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG",
+    "section_id": "docs/quickstart.md::timeouts",
+    "reason": "Operator-confirmed second timeout mapping for the HTTPX Phase 1 baseline."
+  }
+]

@@ -1,0 +1,135 @@
+{
+  "review_method": "Post-run manual assessment of model proposals against the pre-call frozen safe-claim boundaries, unavailable evidence, and proposal rubrics. Existing approved documentation carried forward without changing its claim is treated as evidence for that preserved text; new or strengthened claims must be supported by the model's safe_claims.",
+  "heldout": {
+    "H1": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "missing_information_adequate": true,
+      "review_note": "The proposal's strip and title-case transformations are visible in the complete new function."
+    },
+    "H2": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "missing_information_adequate": true,
+      "review_note": "The complete function directly returns v2; the proposal does not generalize to all protocol implementations."
+    },
+    "H5": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "missing_information_adequate": false,
+      "review_note": "The delegation sentence is literally supported, but it is not a useful answer to whether the active-field rule remains true. The response omits the policy implementation and criterion from missing_information and incorrectly treats the old statement as stale."
+    },
+    "H6": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "missing_information_adequate": true,
+      "review_note": "The proposal says the value is read from the configuration key and labels four as the previous value, not the current runtime value."
+    },
+    "H7": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "missing_information_adequate": true,
+      "review_note": "The proposal delegates retryability to the provider and does not repeat the unsupported status-code list."
+    },
+    "H8": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": false,
+      "unsupported_claim_violation": true,
+      "rubric_satisfied": true,
+      "missing_information_adequate": false,
+      "review_note": "The direct delegation is supported, but 'to establish a connection' attributes behavior to the unavailable open method. The response also fails to recognize that the manager may still use a direct TCP socket, so the current documentation is not demonstrably stale."
+    },
+    "H9": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "missing_information_adequate": true,
+      "review_note": "The proposal states only that retention depends on RETENTION_DAYS; it does not assert a current value or fallback."
+    },
+    "H10": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": false,
+      "unsupported_claim_violation": true,
+      "rubric_satisfied": false,
+      "missing_information_adequate": true,
+      "review_note": "The response lists the old HTTP/2 preference as unsupported, then repeats it as current documentation. The delegated runtime profile could select a different ordering."
+    },
+    "H11": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": false,
+      "unsupported_claim_violation": true,
+      "rubric_satisfied": false,
+      "missing_information_adequate": false,
+      "review_note": "The proposal preserves the sensitive-record encryption guarantee even though the provider policy is unavailable. The unsupported_claims list does not identify that very assertion."
+    }
+  },
+  "original_sections": {
+    "1|docs/advanced/timeouts.md::__intro__": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "review_note": "The changed eight-second value is supported; network-inactivity wording is preserved from the unchanged approved section."
+    },
+    "1|docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "review_note": "The default example changes to eight seconds, matching the directly changed constant. Other explicit examples are preserved."
+    },
+    "1|docs/quickstart.md::timeouts": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "review_note": "The default changes to eight seconds; the existing network-inactivity scope is preserved."
+    },
+    "3|docs/advanced/timeouts.md::setting-and-disabling-timeouts": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "review_note": "The new is_disabled behavior and example match the supplied property implementation; existing section behavior is retained."
+    },
+    "4|docs/advanced/timeouts.md::__intro__": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": false,
+      "unsupported_claim_violation": true,
+      "rubric_satisfied": false,
+      "review_note": "The safe claim establishes that the default comes from timeout_seconds(), but not that the returned value is measured in seconds. The proposal's 'timeout_seconds() seconds' adds that unsupported unit assertion."
+    },
+    "4|docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": false,
+      "review_note": "The proposal removes the stale fixed duration safely but does not document the supported source of the no-argument default required by the frozen rubric."
+    },
+    "4|docs/quickstart.md::timeouts": {
+      "safe_claims_supported": true,
+      "proposal_factual_support": true,
+      "unsupported_claim_violation": false,
+      "rubric_satisfied": true,
+      "review_note": "The text identifies timeout_seconds() as the default source and does not assert its runtime value or a numeric duration."
+    }
+  },
+  "scenario_5_revision": {
+    "safe_claims_supported": true,
+    "proposal_factual_support": false,
+    "unsupported_claim_violation": true,
+    "rubric_satisfied": true,
+    "review_note": "The V2 includes the requested semantic clarification, so the HITL feedback check passes. Its new statement that the timeout does not govern total request duration is absent from the revision's safe_claims and supplied code evidence; the network-inactivity phrase was already in approved text, but this new guarantee was not established there."
+  }
+}

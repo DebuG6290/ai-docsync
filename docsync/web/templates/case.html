@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Case {{ case.id[:8] }} · DocSync{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">{{ repo.full_name }} · {{ case.id }}</p><h1>Review change case</h1><p class="muted">{{ case.before_sha }} → {{ case.after_sha }}</p></div><div class="head-actions"><span class="pill {{ (case.decision or 'error')|lower }}">{{ case.decision or "ERROR" }}</span><span class="pill neutral">{{ case.status }}</span><a class="button secondary" href="/cases/{{ case.id }}/audit">Audit timeline</a></div></div>
+{% if case.error %}<div class="notice error"><strong>Analysis/system error</strong><p>{{ case.error }}</p></div>{% endif %}
+{% if case.documentation_pr_url %}<div class="notice success"><strong>Approved documentation PR</strong> <a href="{{ case.documentation_pr_url }}">#{{ case.documentation_pr_number }}</a> · {{ case.status }}</div>{% endif %}
+<section class="panel"><div class="section-title"><h2>Case summary</h2><span>Decision: {{ case.decision or "pending" }}</span></div><p>{{ case.summary or "Analysis is running." }}</p></section>
+<section class="panel"><div class="section-title"><h2>Code evidence</h2><span>after {{ case.after_sha[:12] }}</span></div>
+{% if changes %}{% for change in changes %}<article class="code-card"><h3><code>{{ change.code_id }}</code> <span class="pill neutral">{{ change.change_kind }}</span></h3><p>{{ change.path }} · {{ change.name }}</p><details><summary>Relevant diff</summary><pre class="diff">{{ change.diff }}</pre></details>
+{% if change.old_code %}<details><summary>Old code context</summary><pre>{{ change.old_code }}</pre></details>{% endif %}{% if change.new_code %}<details><summary>New code context</summary><pre>{{ change.new_code }}</pre></details>{% endif %}</article>{% endfor %}{% else %}<p class="empty">No changed Python symbols were supplied to this case.</p>{% endif %}</section>
+
+<section class="panel"><div class="section-title"><h2>Mapped documentation and reasoning</h2><span>{{ assessments|length }} sections</span></div>
+{% for section in assessments %}<article class="review-card">
+  <div class="card-head"><div><p class="eyebrow">{{ section.path }} · lines {{ section.start_line }}–{{ section.end_line }}</p><h3>{{ section.heading }}</h3><code>{{ section.section_id }}</code></div><span class="pill {{ section.decision|lower }}">{{ section.decision }}</span></div>
+  <div class="columns">
+    <div><h4>Current approved text</h4><pre class="doc-text">{{ section.current_text }}</pre></div>
+    <div><h4>Evidence assessment</h4><p><strong>Completeness:</strong> {{ section.evidence_completeness }}</p><p>{{ section.rationale }}</p>
+      <h5>Code evidence</h5><ul>{% for item in section.code_evidence %}<li><code>{{ item }}</code></li>{% else %}<li class="muted">None supplied</li>{% endfor %}</ul>
+      <h5>Missing information</h5><ul>{% for item in section.missing_information %}<li>{{ item }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul>
+      <h5>Safe claims</h5><ul>{% for item in section.safe_claims %}<li>{{ item }}</li>{% else %}<li class="muted">None supplied</li>{% endfor %}</ul>
+      <h5>Unsupported claims</h5><ul>{% for item in section.unsupported_claims %}<li class="risk">{{ item }}</li>{% else %}<li class="muted">None identified</li>{% endfor %}</ul>
+    </div>
+  </div>
+  {% if section.decision == "UPDATE" and section.section_id in diffs %}<div class="doc-diff"><h4>Proposal diff</h4><pre>{% for line in diffs[section.section_id] %}<span class="{{ line.kind }}">{{ "+ " if line.kind == "add" else "- " if line.kind == "remove" else "  " }}{{ line.text }}</span>
+{% endfor %}</pre></div>{% endif %}
+  {% if section.decision == "UNCERTAIN" %}
+    <div class="notice warning"><strong>Human triage required</strong>{% if section.human_resolution %}<p>Resolved as {{ section.human_resolution }}: {{ section.triage_reason }}</p>{% else %}<p>This section will hold documentation publication until you resolve it.</p>
+    <form method="post" action="/sections/{{ section.id }}/triage" class="stack-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Resolution<select name="resolution"><option value="NO_CHANGE">Record no documentation change</option><option value="HUMAN_UPDATE">Write a human-authored update</option></select></label>
+      <label>Reason<textarea name="reason" required rows="2"></textarea></label>
+      <label>Human-authored documentation text (required for update)<textarea name="content" rows="5"></textarea></label>
+      <button>Save triage</button>
+    </form>{% endif %}</div>
+  {% endif %}
+</article>{% endfor %}
+</section>
+
+<section class="panel"><div class="section-title"><h2>Proposal versions and review</h2><span>Append-only history</span></div>
+{% for card in proposals %}<article class="proposal-card"><div class="card-head"><div><p class="eyebrow">{{ card.proposal.section_id }}</p><h3>Proposal</h3></div><span class="pill neutral">{{ card.proposal.status }}</span></div>
+  {% for version in card.versions %}<details class="version" {% if loop.last %}open{% endif %}><summary>V{{ version.version }} · {{ version.author }}{% if card.proposal.accepted_version_id == version.id %} · accepted{% endif %}</summary><p><strong>Reason:</strong> {{ version.reason }}</p><pre class="doc-text">{{ version.proposed_text }}</pre>
+    {% if version.author == "sarvam" %}<p><strong>Evidence completeness:</strong> {{ version.evidence_completeness or "n/a" }}</p><p><strong>Safe claims:</strong> {{ version.safe_claims|join("; ") or "None supplied" }}</p><p class="risk"><strong>Unsupported claims:</strong> {{ version.unsupported_claims|join("; ") or "None identified" }}</p>{% endif %}
+  </details>{% endfor %}
+  {% if card.proposal.status == "REVISING" %}<div class="notice warning">Targeted Sarvam revision is running for this proposal.</div>
+  {% elif card.proposal.status == "ACCEPTED" %}<div class="notice success">This exact proposal version is accepted.</div>
+  {% else %}<div class="action-grid">
+    <form method="post" action="/proposals/{{ card.proposal.id }}/accept"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Accept current version</button></form>
+    <form method="post" action="/proposals/{{ card.proposal.id }}/modify" class="stack-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Modify documentation text<textarea name="content" rows="7">{{ card.latest.proposed_text if card.latest else "" }}</textarea></label><button class="secondary">Save human modification</button></form>
+    <form method="post" action="/proposals/{{ card.proposal.id }}/reject" class="stack-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Required rejection reason<textarea name="reason" required rows="3"></textarea></label><button class="danger">Reject and request targeted revision</button></form>
+  </div>{% endif %}
+</article>{% else %}<p class="empty">No UPDATE proposals. NO_CHANGE is recorded for inspection; uncertain sections above need human triage.</p>{% endfor %}
+</section>
+{% endblock %}

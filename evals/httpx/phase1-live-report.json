@@ -1,0 +1,557 @@
+{
+  "generated_at": "2026-10-02T22:42:24.703820+00:00",
+  "pinned_base": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+  "original_run_errors": [
+    {
+      "scenario": 2,
+      "previous_result": "ERROR",
+      "error": "ModelError: Sarvam response omitted, duplicated, or introduced candidate section IDs",
+      "identified_root_cause": "Sarvam's parsed impact output failed exact candidate-ID set equality. The old code reported the combined failure but did not retain which IDs were missing, duplicated, or unknown."
+    },
+    {
+      "scenario": 3,
+      "previous_result": "ERROR",
+      "error": "ModelError: Sarvam response content was not text",
+      "identified_root_cause": "The adapter assumed choices[0].message.content must already be a string and rejected the response. The original run stored no content type, finish reason, or message metadata, so the exact provider shape cannot be reconstructed from that report."
+    },
+    {
+      "scenario": 4,
+      "previous_result": "ERROR",
+      "error": "ModelError: Sarvam returned malformed or schema-invalid impact_analysis: 1 validation error for ImpactResponse\n  Invalid JSON: EOF while parsing a string at line 1 column 2884 [type=json_invalid, input_value='{\"decision\":\"NO_CHANGE\",...\\n>>> httpx.get(\\'https', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/json_invalid",
+      "identified_root_cause": "Pydantic received an incomplete JSON string and reported EOF. The old adapter did not inspect finish_reason or token usage, so the report cannot establish whether Sarvam hit its output limit or returned malformed JSON for another reason."
+    },
+    {
+      "scenario": 6,
+      "previous_result": "ERROR",
+      "error": "ModelError: Sarvam response content was not text",
+      "identified_root_cause": "The adapter assumed choices[0].message.content must already be a string and rejected the response. The original run stored no content type, finish reason, or message metadata, so the exact provider shape cannot be reconstructed from that report."
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario": 1,
+      "description": "Default timeout changes from five to eight seconds",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::__intro__",
+            "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+            "docs/quickstart.md::timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 2677,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 1658,
+          "latency_ms": 3979.69,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 719,
+          "prompt_version": "impact.v2",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790980278,
+          "response_id": "20261002_db753c83-8806-48d7-b65f-f89949171d82",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 2377
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG: new_code = Timeout(timeout=8.0)"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n",
+          "reason": "The code change changes DEFAULT_TIMEOUT_CONFIG from 5.0 to 8.0. The __intro__ section explicitly states the default timeout is 5 seconds, which is now incorrect.",
+          "section_id": "docs/advanced/timeouts.md::__intro__"
+        },
+        {
+          "code_evidence": [
+            "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG: new_code = Timeout(timeout=8.0)"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 8s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n\n",
+          "reason": "The example comment in the code block shows 'Use a default 5s timeout everywhere.' which no longer matches the new default of 8s. The comment should be updated to 8s to reflect the new default behavior.",
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client"
+        },
+        {
+          "code_evidence": [
+            "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG: new_code = Timeout(timeout=8.0)"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is eight seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n",
+          "reason": "The quickstart section explicitly states 'The default timeout for network inactivity is five seconds.' This must be updated to 'eight seconds' to match the new DEFAULT_TIMEOUT_CONFIG value of 8.0.",
+          "section_id": "docs/quickstart.md::timeouts"
+        }
+      ],
+      "case_id": "203ecdff-3909-4994-8dc5-a091c4e57601",
+      "actual_decision": "UPDATE",
+      "status": "PASS",
+      "pass": true
+    },
+    {
+      "scenario": 2,
+      "description": "Internal Timeout.as_dict refactor preserves behavior",
+      "expected_decision": "NO_CHANGE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+          ],
+          "choices_count": 1,
+          "content_length": 2207,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 3659,
+          "latency_ms": 3243.97,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 561,
+          "prompt_version": "impact.v2",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790980282,
+          "response_id": "20261002_93160f42-0c8e-40f5-ad7a-3286b74d5ba3",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 4220
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "old_code: 'return {\\n            \"connect\": self.connect,\\n            \"read\": self.read,\\n            \"write\": self.write,\\n            \"pool\": self.pool,\\n        }'",
+            "new_code: 'names = (\"connect\", \"read\", \"write\", \"pool\")\\n        values = (self.connect, self.read, self.write, self.pool)\\n        return {name: value for name, value in zip(names, values)}'",
+            "diff: '@@ -128,16 +128,13 @@ class Timeout:\\n             self.read = timeout if isinstance(read, UnsetType) else read\\n             self.write = timeout if isinstance(write, UnsetType) else write\\n             self.pool = timeout if isinstance(pool, UnsetType) else pool\\n \\n     def as_dict(self) -> dict[str, float | None]:\\n-        return {\\n-            \"connect\": self.connect,\\n-            \"read\": self.read,\\n-            \"write\": self.write,\\n-            \"pool\": self.pool,\\n-        }\\n+        names = (\"connect\", \"read\", \"write\", \"pool\")\\n+        values = (self.connect, self.read, self.write, self.pool)\\n+        return {name: value for name, value in zip(names, values)}'"
+          ],
+          "decision": "NO_CHANGE",
+          "missing_information": [],
+          "proposed_text": null,
+          "reason": "The `as_dict()` implementation change is a structural refactoring (using `zip` instead of a literal dict) that preserves the exact same key-value pairs and return type (`dict[str, float | None]`). The documentation already correctly describes the four timeout types and their configuration. The refactoring does not alter behavior, add features, or fix bugs that would require documentation updates.",
+          "section_id": "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+        }
+      ],
+      "case_id": "b00c7498-8cae-44d2-bef1-0014ea29b112",
+      "actual_decision": "NO_CHANGE",
+      "status": "PASS",
+      "pass": true
+    },
+    {
+      "scenario": 3,
+      "description": "Timeout.is_disabled public property added",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 1698,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 3191,
+          "latency_ms": 3050.48,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 487,
+          "prompt_version": "impact.v2",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790980286,
+          "response_id": "20261002_ee551230-8b9a-4444-89bd-e93694900c11",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 3678
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "new_code: '    @property\\n    def is_disabled(self) -> bool:\\n        return all(value is None for value in self.as_dict().values())'"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "## Setting and disabling timeouts\n\nYou can set timeouts for an individual request:\n\n```python\n# Using the top-level API:\nhttpx.get('http://example.com/api/v1/example', timeout=10.0)\n\n# Using a client instance:\nwith httpx.Client() as client:\n    client.get(\"http://example.com/api/v1/example\", timeout=10.0)\n```\n\nOr disable timeouts for an individual request:\n\n```python\n# Using the top-level API:\nhttpx.get('http://example.com/api/v1/example', timeout=None)\n\n# Using a client instance:\nwith httpx.Client() as client:\n    client.get(\"http://example.com/api/v1/example\", timeout=None)\n```\n\nYou can also check if a `Timeout` object is fully disabled using the `is_disabled` property:\n\n```python\ntimeout = Timeout(None, connect=5.0)\n\nif timeout.is_disabled:\n    print('No timeouts are set.')\n```",
+          "reason": "The diff adds a new `Timeout.is_disabled` property to `httpx/_config.py` that returns `True` when all timeout values (connect, read, write, pool) are `None`. The current section covers setting and disabling timeouts but does not mention this property. Adding a small usage example preserves the existing style and correctly documents the new API without inferring undocumented behavior.",
+          "section_id": "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+        }
+      ],
+      "case_id": "6862a2be-b1fe-4315-b242-317276005e1a",
+      "actual_decision": "UPDATE",
+      "status": "PASS",
+      "pass": true
+    },
+    {
+      "scenario": 4,
+      "description": "Default timeout comes from an unavailable external runtime policy",
+      "expected_decision": "UNCERTAIN",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::__intro__",
+            "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+            "docs/quickstart.md::timeouts"
+          ],
+          "choices_count": 1,
+          "content_length": 2696,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 1705,
+          "latency_ms": 4507.58,
+          "max_tokens": 8192,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "impact",
+          "output_tokens": 694,
+          "prompt_version": "impact.v2",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790980291,
+          "response_id": "20261002_bc461cef-3acd-47d8-9a82-67456f6a2a3e",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "impact_analysis",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 2399
+        }
+      ],
+      "sections": [
+        {
+          "code_evidence": [
+            "old_code: DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)",
+            "new_code: DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=timeout_seconds())",
+            "diff: +from external_runtime_policy import timeout_seconds"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after `timeout_seconds()`\nof network inactivity.\n\n",
+          "reason": "The old text says 5 seconds. The new code uses `timeout_seconds()`, so the exact value is no longer hard-coded in this file. We must remove the hard-coded 5 seconds and cite the runtime policy instead. The rest of the sentence is unchanged.",
+          "section_id": "docs/advanced/timeouts.md::__intro__"
+        },
+        {
+          "code_evidence": [],
+          "decision": "NO_CHANGE",
+          "missing_information": [],
+          "proposed_text": null,
+          "reason": "This section describes how to set a client-level timeout explicitly. It does not mention the global default value, so the change from 5.0 to `timeout_seconds()` is not relevant here.",
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client"
+        },
+        {
+          "code_evidence": [
+            "old_code: DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)",
+            "new_code: DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=timeout_seconds())"
+          ],
+          "decision": "UPDATE",
+          "missing_information": [],
+          "proposed_text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is determined by `timeout_seconds()`.\nYou can modify the value to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n",
+          "reason": "The old text states the default is 'five seconds'. The new code replaces the hard-coded 5.0 with `timeout_seconds()`, so the default is now runtime-configurable. We replace 'five seconds' with 'determined by `timeout_seconds()`' to remain accurate without inventing a new fixed value.",
+          "section_id": "docs/quickstart.md::timeouts"
+        }
+      ],
+      "case_id": "ee967d4e-e4cf-41d6-9e2e-03cb9ba03720",
+      "actual_decision": "UPDATE",
+      "status": "SEMANTIC_FAIL",
+      "pass": false
+    },
+    {
+      "scenario": 5,
+      "description": "Reject a proposal, require an observable scope clarification, then accept V2",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [
+        {
+          "action": "REJECT",
+          "version_id": "9d2a21f2-5849-4da3-ab01-d2e5c80eb2c4",
+          "reason": "The value change is correct, but explicitly clarify that this is a network-inactivity timeout and not an overall deadline for the complete HTTP request."
+        },
+        {
+          "action": "ACCEPT",
+          "version_id": "b30feb09-66ff-4f06-ac37-dec0d6131ae7",
+          "reason": null
+        }
+      ],
+      "sarvam_calls": [
+        {
+          "kind": "sarvam_call",
+          "candidate_section_ids": [
+            "docs/advanced/timeouts.md::__intro__"
+          ],
+          "choices_count": 1,
+          "content_length": 786,
+          "content_type": "str",
+          "error_category": null,
+          "finish_reason": "stop",
+          "input_tokens": 1143,
+          "latency_ms": 1200.59,
+          "max_tokens": 4096,
+          "message_type": "dict",
+          "model": "sarvam-105b",
+          "operation": "revision",
+          "output_tokens": 180,
+          "prompt_version": "revision.v2",
+          "reasoning_content_nonempty": false,
+          "reasoning_content_present": true,
+          "reasoning_effort": null,
+          "refusal_present": false,
+          "request_format": "json_schema",
+          "request_model": "sarvam-105b",
+          "response_contract_validation": "passed",
+          "response_created": 1790980292,
+          "response_id": "20261002_44806d3d-a733-4980-b252-dfacc7c3e86c",
+          "response_model": "sarvam-105b",
+          "response_object": "chat.completion",
+          "response_type": "dict",
+          "retry_count": 0,
+          "schema_name": "proposal_revision",
+          "system_fingerprint": null,
+          "tool_calls_nonempty": false,
+          "tool_calls_present": true,
+          "total_tokens": 1323
+        }
+      ],
+      "case_id": "203ecdff-3909-4994-8dc5-a091c4e57601",
+      "actual_decision": "UPDATE",
+      "revision_checks": {
+        "V1 preserved": true,
+        "rejection event and exact reason preserved": true,
+        "V2 differs from V1": true,
+        "requested feedback appears in V2": true,
+        "only rejected proposal gained a version": true,
+        "V2 explicitly accepted": true
+      },
+      "sections": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "decision": "UPDATE",
+          "reason": "The reviewer rejected the previous proposal because it did not explicitly clarify that the timeout is for network inactivity and not an overall deadline. The revised text adds this clarification while preserving the accurate current documentation (the 8 second value) and satisfying the review reason using only supplied code evidence (the DEFAULT_TIMEOUT_CONFIG change from 5.0 to 8.0).",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of network inactivity, not an overall deadline for the complete HTTP request.\n\n"
+        }
+      ],
+      "status": "PASS",
+      "pass": true,
+      "requested_feedback": "The value change is correct, but explicitly clarify that this is a network-inactivity timeout and not an overall deadline for the complete HTTP request.",
+      "revision_versions": [
+        {
+          "version": 1,
+          "author": "sarvam",
+          "sha256": "daf4b4362e73f3e8e5764e4c25bd3d090e743a48ea5067878b90f5583e488259",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n"
+        },
+        {
+          "version": 2,
+          "author": "sarvam",
+          "sha256": "f4ca47df963f22f2750c28fa0ce03ae39992ce63ac1db858934fbcfc8e44da0c",
+          "proposed_text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of network inactivity, not an overall deadline for the complete HTTP request.\n\n"
+        }
+      ]
+    },
+    {
+      "scenario": 6,
+      "description": "Human-modify a persisted UPDATE, accept it, and apply it without a Sarvam rewrite",
+      "expected_decision": "UPDATE",
+      "mapped_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "human_actions": [
+        {
+          "action": "MODIFY",
+          "version_id": "accf6276-bdd2-49f1-af0b-a2845086de37",
+          "content": "The default timeout is 8 seconds of network inactivity.\n\nThis setting does not impose an overall deadline for the complete HTTP request.\n"
+        },
+        {
+          "action": "ACCEPT",
+          "version_id": "accf6276-bdd2-49f1-af0b-a2845086de37",
+          "content": null
+        }
+      ],
+      "sarvam_calls": [],
+      "case_id": "109e0a2c-d4cb-408a-8cfd-1048f5425459",
+      "actual_decision": "UPDATE",
+      "revision_checks": {
+        "human-authored version stored exactly": true,
+        "no Sarvam rewrite during review": true,
+        "human version explicitly accepted": true
+      },
+      "apply_checks": {
+        "apply command succeeded": true,
+        "exact human text appears in documentation": true,
+        "applied version is the human version": true,
+        "section hash recorded": true,
+        "file hash recorded": true,
+        "no Sarvam calls for human edit": true
+      },
+      "sections": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "decision": "UPDATE",
+          "proposed_text": "The default timeout is 8 seconds of network inactivity.\n\nThis setting does not impose an overall deadline for the complete HTTP request.\n"
+        }
+      ],
+      "final_text": "The default timeout is 8 seconds of network inactivity.\n\nThis setting does not impose an overall deadline for the complete HTTP request.\n",
+      "status": "PASS",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "PASS": 5,
+    "SEMANTIC_FAIL": 1
+  },
+  "legacy_replay_probes": [
+    {
+      "scenario": 3,
+      "outcome": "REPRODUCED_OLD_NON_TEXT_SHAPE",
+      "request_model": "sarvam-105b",
+      "max_tokens": 12000,
+      "response_model": "sarvam-105b",
+      "response_type": "dict",
+      "response_object": "chat.completion",
+      "choices_count": 1,
+      "finish_reason": "length",
+      "message_type": "dict",
+      "content_type": "NoneType",
+      "content_length": null,
+      "reasoning_content_present": true,
+      "reasoning_content_nonempty": true,
+      "tool_calls_present": true,
+      "tool_calls_nonempty": false,
+      "refusal_present": true,
+      "input_tokens": 3169,
+      "output_tokens": 12000,
+      "total_tokens": 15169,
+      "interpretation": "Replaying the original Scenario 3 input with the old request contract reproduced the non-text failure: finish_reason=length, content=null, and reasoning_content was nonempty after the 12,000 completion-token budget was exhausted."
+    },
+    {
+      "scenario": 6,
+      "outcome": "OLD_NON_TEXT_SHAPE_NOT_REPRODUCED",
+      "request_model": "sarvam-105b",
+      "max_tokens": 12000,
+      "response_model": "sarvam-105b",
+      "response_type": "dict",
+      "response_object": "chat.completion",
+      "choices_count": 1,
+      "finish_reason": "stop",
+      "message_type": "dict",
+      "content_type": "str",
+      "content_length": 3648,
+      "reasoning_content_present": true,
+      "reasoning_content_nonempty": true,
+      "tool_calls_present": true,
+      "tool_calls_nonempty": false,
+      "refusal_present": true,
+      "input_tokens": 1636,
+      "output_tokens": 10382,
+      "total_tokens": 12018,
+      "interpretation": "The replay of the old Scenario 6 input returned text and finish_reason=stop, so the old non-text shape did not reproduce. The original response had no structural diagnostics and its exact shape cannot be recovered."
+    },
+    {
+      "scenario": 4,
+      "outcome": "FRESH_LEGACY_REPLAY_RETURNED_TEXT",
+      "request_model": "sarvam-105b",
+      "max_tokens": 12000,
+      "response_model": "sarvam-105b",
+      "response_type": "dict",
+      "response_object": "chat.completion",
+      "choices_count": 1,
+      "finish_reason": "stop",
+      "message_type": "dict",
+      "content_type": "str",
+      "content_length": 4131,
+      "reasoning_content_present": true,
+      "reasoning_content_nonempty": true,
+      "tool_calls_present": true,
+      "tool_calls_nonempty": false,
+      "input_tokens": 1683,
+      "output_tokens": 11920,
+      "total_tokens": 13603,
+      "interpretation": "A fresh replay did not reproduce the original EOF response. The original report did not store its finish_reason or content shape; this replay therefore cannot establish whether that original output was truncated."
+    }
+  ]
+}
