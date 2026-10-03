@@ -2,7 +2,7 @@ import streamlit as st
 from sqlalchemy import select
 from docsync.ui.components import heading, empty, date, short, action
 from docsync.web.chat import answer_question, chat_history
-from docsync.web.models import Repository, IndexedSection
+from docsync.web.models import Repository, IndexedSection, KnowledgeVersion
 from docsync.web.embeddings import SentenceEmbedder
 
 
@@ -22,7 +22,8 @@ def render(ctx, view):
         return
     with ctx.factory() as session:
         turns = chat_history(session, ctx.repo_id)
-        rows = session.scalars(select(IndexedSection).where(IndexedSection.version_id.in_({t.knowledge_version_id for t in turns}))
+        rows = session.scalars(select(IndexedSection).join(KnowledgeVersion, IndexedSection.version_id == KnowledgeVersion.id)
+            .where(KnowledgeVersion.repo_id == ctx.repo_id, IndexedSection.version_id.in_({t.knowledge_version_id for t in turns}))
             .order_by(IndexedSection.chunk_index)).all() if turns else []
     passages = {}
     for row in rows:

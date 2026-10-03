@@ -38,6 +38,25 @@ def heading(title, subtitle, eyebrow='DOCSYNC'):
         f'<h1>{html.escape(title)}</h1><p>{html.escape(subtitle)}</p></div>', unsafe_allow_html=True)
 
 
+def case_title(case, section_count=0):
+    # Stored identifiers/commit metadata determine the title; model prose never does.
+    if section_count:
+        return f'{section_count} documentation section' + ('s' if section_count != 1 else '') + ' to review'
+    return f'Review code change {short(case.after_sha)}' if case.after_sha else 'Review documentation update'
+
+
+def summary_preview(text, limit=180):
+    value = ' '.join((text or '').split())
+    return value if len(value) <= limit else value[:limit - 1].rstrip() + '…'
+
+
+def prose(text, *, preview=False, clamp=False):
+    value = '\n'.join(line for line in (text or '').splitlines() if line.strip() not in {'UPDATE', 'NO_CHANGE', 'UNCERTAIN'})
+    value = summary_preview(value) if preview else value
+    paragraphs = ''.join('<p>' + html.escape(p) + '</p>' for p in value.split('\n\n') if p.strip())
+    st.markdown('<div class="ds-prose' + (' ds-preview' if clamp else '') + '">' + paragraphs + '</div>', unsafe_allow_html=True)
+
+
 def empty(title, text):
     st.markdown(f'<div class="ds-empty"><div class="ds-empty-mark">✓</div><h3>{html.escape(title)}</h3>'
         f'<p>{html.escape(text)}</p></div>', unsafe_allow_html=True)
@@ -71,7 +90,7 @@ def action(call, success):
 def operation(ctx, job_id, retry=False):
     def run():
         with st.spinner('Saving the result. Keep this page open…'):
-            execute(ctx.engine, ctx.settings, job_id, retry=retry)
+            execute(ctx.engine, ctx.settings, job_id, retry=retry, repo_id=ctx.repo_id)
     action(run, 'Operation completed. The saved result is ready to review.')
 
 
@@ -103,7 +122,9 @@ def case_card(ctx, item, key_prefix='case'):
         left, right = st.columns([4, 1])
         with left:
             badge(status.label, status.tone)
-            st.markdown('### ' + (case.summary or f'Code change {short(case.after_sha)}')[:150])
+            st.markdown('### ' + case_title(case, len(item['sections'])))
+            if case.summary:
+                prose(case.summary, preview=True, clamp=True)
             st.caption(f'{ctx.settings.repository} · {short(case.after_sha)} · {date(case.created_at)}')
             st.write(status.message)
             counts = {d: sum(s.decision == d for s in item['sections']) for d in ['UPDATE', 'NO_CHANGE', 'UNCERTAIN']}

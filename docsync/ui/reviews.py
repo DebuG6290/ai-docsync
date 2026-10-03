@@ -3,7 +3,8 @@ import html
 import streamlit as st
 from sqlalchemy import select
 
-from docsync.ui.components import heading, badge, empty, short, date, case_card, action, operation
+from docsync.ui.components import heading, badge, empty, short, date, case_card, action, operation, case_title, prose
+from docsync.ui.workspace import require_review_owner
 from docsync.ui.state import DECISIONS, interrupted
 from docsync.web.models import ProposalVersion, ReviewAction, Job
 from docsync.web.workflow import accept_proposal, modify_proposal, reject_proposal, triage_section, override_no_change
@@ -11,6 +12,7 @@ from docsync.web.workflow import accept_proposal, modify_proposal, reject_propos
 
 def service(ctx, function, *args):
     with ctx.factory() as session:
+        require_review_owner(session, ctx.repo_id, args[0], section=function in {triage_section, override_no_change})
         return function(session, *args)
 
 
@@ -62,7 +64,6 @@ def inspect_evidence(case, section):
             st.code(change.get('diff') or 'No diff recorded.', language='diff')
     with st.expander('View assessment details'):
         st.write('Original recommendation: ' + DECISIONS.get(section.decision, section.decision))
-        st.write(section.rationale)
         st.caption('Section identity: ' + section.section_id)
         provenance = case.case_data.get('context_provenance', {}).get(section.section_id)
         if provenance:
@@ -96,7 +97,8 @@ def review_section(ctx, case, section, proposal, frozen):
     st.caption(section.path)
     badge('Human update' if section.human_resolution == 'HUMAN_UPDATE' else DECISIONS.get(section.decision, section.decision),
         'warning' if section.decision == 'UNCERTAIN' else 'progress' if proposal else 'neutral')
-    st.write(section.rationale)
+    with st.expander('Assessment rationale', expanded=False):
+        prose(section.rationale)
     if section.missing_information and not section.human_resolution:
         st.warning('Missing evidence: ' + '; '.join(map(str, section.missing_information)))
     if section.unsupported_claims:
@@ -170,11 +172,21 @@ def review_section(ctx, case, section, proposal, frozen):
 
 def render_case(ctx, item, view):
     case = item['case']
+    if case.repo_id != ctx.repo_id:
+        raise ValueError('This review belongs to another repository')
     if st.button('← All reviews'):
         st.session_state.pop('case_id', None); st.rerun()
-    heading(case.summary or 'Review this code change', f'{ctx.settings.repository} · {short(case.after_sha)}', 'DOCUMENTATION REVIEW')
+    heading(case_title(case, len(item['sections'])), f'{ctx.settings.repository} · {short(case.after_sha)}', 'DOCUMENTATION REVIEW')
     badge(item['status'].label, item['status'].tone)
     st.write(item['status'].message)
+    count = len(item['sections'])
+    st.write(f"{count} documentation section" + ('s' if count != 1 else '') + ' assessed.')
+    if case.summary:
+        st.subheader('Assessment summary')
+        prose(case.summary, preview=True)
+        if len(case.summary) > 180:
+            with st.expander('Full assessment summary'):
+                prose(case.summary)
     st.link_button('View code change', f'https://github.com/{ctx.settings.repository}/compare/{case.before_sha}...{case.after_sha}')
     if item['required']:
         st.progress(min(item['approved'] / item['required'], 1), text=f"{item['approved']} of {item['required']} required decisions complete")

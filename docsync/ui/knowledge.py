@@ -10,16 +10,18 @@ def render(ctx, view):
     heading('Approved knowledge', 'Follow each documentation update from GitHub merge to the version Chat can use.', 'KNOWLEDGE & RELEASES')
     active = view['active']
     if not active:
-        empty('Start with approved documentation', 'Initialize the explicit HTTPX baseline before asking Chat or analyzing code changes.')
+        empty('Start with approved documentation', 'Choose and explicitly approve a full source commit before asking Chat or analyzing code changes. Connection alone does not approve knowledge.')
         st.link_button('Open baseline indexing workflow', f'https://github.com/{ctx.settings.repository}/actions/workflows/docsync-index.yml', type='primary')
-        st.code('b5addb64f0161ff6bfe94c124ef76f6a1fba5254', language=None)
-        st.caption('Use this approved demo baseline as the workflow input. Initialization does not use the branch tip implicitly.')
+        if ctx.settings.repository.casefold() == 'debug6290/httpx':
+            st.code('b5addb64f0161ff6bfe94c124ef76f6a1fba5254', language=None)
+            st.caption('Original HTTPX demo baseline; use only for its first initialization.')
+        st.caption('Run the index workflow with the reviewed 40-character baseline_sha. Existing knowledge cannot be replaced by baseline initialization.')
     else:
         with st.container(border=True):
             badge('Active · used by Chat', 'success')
             st.subheader(view['version_names'][active.id] + ' · Approved documentation')
             st.caption(f'Activated {date(active.created_at)} · snapshot {short(active.source_commit)}')
-            st.link_button('View approved snapshot', f'https://github.com/{ctx.settings.repository}/tree/{active.source_commit}/docs')
+            st.link_button('View approved snapshot', f'https://github.com/{ctx.settings.repository}/tree/{active.source_commit}')
             with st.expander('Included documentation sections'):
                 with ctx.factory() as session:
                     rows = session.scalars(select(IndexedSection).where(IndexedSection.version_id == active.id)
@@ -51,7 +53,7 @@ def render(ctx, view):
                 st.link_button('Open PR in GitHub', release.pr_url)
             if release.status != 'INDEXED' and release.pr_number:
                 if st.button('Check GitHub status', key='check-' + release.id):
-                    action(lambda: reconcile_release(ctx.factory, release.id), 'GitHub status checked.')
+                    action(lambda: reconcile_release(ctx.factory, release.id, repo_id=ctx.repo_id), 'GitHub status checked.')
             if status.tone == 'error':
                 st.link_button('Open indexing runs', f'https://github.com/{ctx.settings.repository}/actions/workflows/docsync-index.yml')
                 st.caption('For execution failures, rerun the failed Action. For content conflicts, inspect the merged text before retrying.')

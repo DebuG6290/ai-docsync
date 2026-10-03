@@ -66,6 +66,14 @@ def replace_approved_sections(
             staged.append((section, chunk_index, chunk, embedder.embed(chunk)))
 
     old_id = repository.active_index_version_id
+    if old_id:
+        owner = session.get(KnowledgeVersion, old_id)
+        if owner is None or owner.repo_id != repository.id:
+            raise ValueError('The active documentation index belongs to another repository')
+    if case is not None and case.repo_id != repository.id:
+        raise ValueError('The review belongs to another repository')
+    if release is not None and release.repo_id != repository.id:
+        raise ValueError('The release belongs to another repository')
     # Compare-and-swap prevents a concurrent activation from losing approved sections.
     switched = session.execute(update(Repository).where(
         Repository.id == repository.id,
@@ -141,7 +149,7 @@ def retrieve(session: Session, repository: Repository, vector: list[float], limi
     if not version_id:
         raise ValueError("The approved documentation index has not been initialized")
     version = session.get(KnowledgeVersion, version_id)
-    if version is None or not version.active:
+    if version is None or not version.active or version.repo_id != repository.id:
         raise ValueError("The active documentation index pointer is invalid")
     query = select(IndexedSection).where(IndexedSection.version_id == version_id)
     if session.get_bind().dialect.name == "postgresql":

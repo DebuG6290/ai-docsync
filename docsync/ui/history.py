@@ -1,10 +1,11 @@
 import html
 import streamlit as st
 from sqlalchemy import select
-from docsync.ui.components import heading, empty, date
+from docsync.ui.components import heading, empty, date, case_title
 from docsync.web.models import AuditEvent
 
 LABELS = {
+    'repository_connected': 'Repository connected', 'mapping_confirmed': 'Code-to-documentation mapping confirmed',
     'github_commit_received': 'Code change detected', 'action_received': 'GitHub Action received',
     'analysis_started': 'Documentation assessment started', 'analysis_completed': 'Documentation assessment completed',
     'proposal_created': 'Suggested update created', 'review_accept': 'Documentation version approved',
@@ -21,18 +22,27 @@ LABELS = {
 }
 
 
+def activity_rows(session, view, selection='all'):
+    cases = [i['case'].id for i in view['cases']]
+    query = select(AuditEvent).where(
+        AuditEvent.case_id.in_(cases) | (AuditEvent.case_id.is_(None) & (
+            (AuditEvent.payload['repo_id'].as_string() == view['repo'].id)
+            | AuditEvent.payload['job_id'].as_string().in_([j.id for j in view['jobs']])
+            | AuditEvent.payload['version_id'].as_string().in_([v.id for v in view['versions']]))))
+    if selection != 'all':
+        if selection not in cases:
+            raise ValueError('Review belongs to another repository')
+        query = query.where(AuditEvent.case_id == selection)
+    return session.scalars(query.order_by(AuditEvent.created_at.desc()).limit(300)).all()
+
+
 def render(ctx, view):
     heading('A clear record of every decision', 'Trace a code change through review, publication, and approved knowledge.', 'ACTIVITY HISTORY')
     cases = {i['case'].id: i['case'] for i in view['cases']}
     selection = st.selectbox('Show activity for', ['all', *cases], format_func=lambda k: 'All activity' if k == 'all' else
-        (cases[k].summary or 'Code change')[:90] + ' · ' + cases[k].after_sha[:7])
+        case_title(cases[k]))
     with ctx.factory() as session:
-        query = select(AuditEvent).where((AuditEvent.case_id.in_(list(cases))) | AuditEvent.case_id.is_(None))
-        if selection != 'all':
-            query = query.where(AuditEvent.case_id == selection)
-        rows = session.scalars(query.order_by(AuditEvent.created_at.desc()).limit(300)).all()
-    jobs = {j.id for j in view['jobs']}
-    rows = [r for r in rows if r.case_id or r.payload.get('job_id') in jobs or r.kind == 'approved_baseline_indexed']
+        rows = activity_rows(session, view, selection)
     details = st.toggle('Include technical events', value=False)
     visible = rows if details else [r for r in rows if r.kind in LABELS]
     if not visible:

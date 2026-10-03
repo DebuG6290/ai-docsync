@@ -70,6 +70,8 @@ def case_status(case, sections, proposals, release=None, jobs=()):
 def load(ctx):
     with ctx.factory() as session:
         repo = session.get(Repository, ctx.repo_id)
+        if repo is None:
+            raise ValueError('Unknown selected repository')
         cases = session.scalars(select(ChangeCase).where(ChangeCase.repo_id == repo.id).order_by(ChangeCase.created_at.desc())).all()
         ids = [c.id for c in cases]
         sections = session.scalars(select(SectionAssessment).where(SectionAssessment.case_id.in_(ids))).all() if ids else []

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from docsync.web.config import Settings
@@ -16,7 +16,7 @@ def ensure_repository(
     if not settings.repository:
         raise ValueError("DOCSYNC_REPOSITORY is not configured")
     repository = session.scalar(
-        select(Repository).where(Repository.full_name == settings.repository)
+        select(Repository).where(func.lower(Repository.full_name) == settings.repository.casefold())
     )
     if repository is None:
         repository = Repository(
@@ -35,6 +35,8 @@ def ensure_repository(
 
 
 def _seed_mappings(session: Session, repository: Repository) -> None:
+    if repository.full_name.casefold() != 'debug6290/httpx':
+        return
     path = Path(__file__).resolve().parents[2] / "config" / "httpx-mappings.json"
     for item in json.loads(path.read_text(encoding="utf-8")):
         exists = session.scalar(

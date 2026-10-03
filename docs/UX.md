@@ -1,5 +1,7 @@
 # DocSync review workspace
 
+The workspace now supports multiple repositories through an ID-based sidebar selector and progressive onboarding. See [Shared repository workspace](MULTI_REPOSITORY.md) for isolation, setup and review typography. Review titles are deterministic; model summaries are escaped body data rather than heading structure. Repository switches clear unsaved inputs to prevent cross-repository draft reuse.
+
 ## Product decisions
 
 The documentation owner is the primary user. Home answers what needs attention; Reviews answers what changed and what should be approved; Knowledge answers which approved snapshot Chat can use. History preserves decisions and operation milestones. Settings keeps setup information secondary.

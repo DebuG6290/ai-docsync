@@ -8,7 +8,7 @@ from docsync.web.models import AuditEvent, ChangeCase, Job, Proposal, ProposalVe
 from docsync.web.worker import _process_job
 
 
-def execute(engine, settings, job_id, *, run_url="", retry=False):
+def execute(engine, settings, job_id, *, run_url="", retry=False, repo_id=None):
     """Claim one durable operation; no polling or background service required.
 
     A 30-minute lease exceeds our finite execution timeout. A retry is explicit:
@@ -19,6 +19,14 @@ def execute(engine, settings, job_id, *, run_url="", retry=False):
         job = session.scalar(select(Job).where(Job.id == job_id).with_for_update())
         if job is None:
             raise ValueError("Unknown operation")
+        if repo_id is not None and job.repo_id != repo_id:
+            raise ValueError('This operation belongs to another repository')
+        if job.kind in {'publish_docs', 'revise_proposal'}:
+            proposal = session.get(Proposal, job.payload.get('proposal_id')) if job.kind == 'revise_proposal' else None
+            case_id = proposal.case_id if proposal else job.payload.get('case_id')
+            owner = session.get(ChangeCase, case_id) if case_id else None
+            if owner is None or owner.repo_id != job.repo_id:
+                raise ValueError('Operation payload belongs to another repository')
         if job.status == "COMPLETED":
             return False
         if job.status == 'CANCELLED':

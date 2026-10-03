@@ -4,6 +4,9 @@ from docsync.ui.components import heading, empty, case_card, navigate
 
 def render(ctx, view):
     heading('Your documentation, in sync.', 'Review what changed. Approve what matters. Know what Chat is using.', 'WORKSPACE OVERVIEW')
+    if not view['active']:
+        st.info('This repository needs setup. Confirm code-to-documentation mappings in Settings, then explicitly initialize its approved baseline. Chat and analysis require approved knowledge.')
+        st.button('Continue repository setup', on_click=navigate, args=('Settings',), type='primary')
     actionable = [i for i in view['cases'] if i['status'].label in {'Needs attention', 'Human decision needed', 'Ready for review', 'Ready to publish', 'Publication prepared', 'Refresh needs attention', 'Refresh interrupted'}]
     order = {'Needs attention': 0, 'Refresh needs attention': 0, 'Refresh interrupted': 0, 'Human decision needed': 1,
         'Ready for review': 2, 'Ready to publish': 3, 'Publication prepared': 3}

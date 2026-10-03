@@ -1,5 +1,7 @@
 # DocSync: free hosted deployment
 
+For connecting another repository inside the same Streamlit deployment, see [Shared repository workspace](docs/MULTI_REPOSITORY.md). Existing HTTPX configuration remains the bootstrap/default; repository selection now uses durable repository IDs. No new database or Streamlit secrets are required. Install the configured GitHub App on each additional repository and use its repository-specific installation ID.
+
 The supported runtime is GitHub Actions → Neon PostgreSQL/pgvector → Streamlit Community Cloud. Sarvam is the only paid API. The Phase 1 reasoning prompts, schemas, mappings and targeted revision remain frozen.
 
 ## Cost Model

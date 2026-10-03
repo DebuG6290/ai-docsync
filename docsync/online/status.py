@@ -5,9 +5,11 @@ from docsync.web.models import DocumentationRelease, Repository, utcnow
 from docsync.web.workflow import audit
 
 
-def reconcile_release(factory, release_id):
+def reconcile_release(factory, release_id, *, repo_id=None):
     with factory() as session:
         release = session.get(DocumentationRelease, release_id)
+        if release is not None and repo_id is not None and release.repo_id != repo_id:
+            raise ValueError('This release belongs to another repository')
         if release is None or not release.pr_number or release.status == 'INDEXED':
             return
         repo = session.get(Repository, release.repo_id)

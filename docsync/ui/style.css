@@ -16,6 +16,9 @@ p, li { line-height: 1.65; }
 [data-testid="stExpander"] { background: rgba(255,255,255,.7); border-radius: 10px; }
 .ds-heading { margin-bottom: 1.5rem; }
 .ds-heading h1 { font-size: 2.4rem; line-height: 1.15; font-weight: 750; margin: .35rem 0 .55rem; }
+.ds-prose { max-width: 80ch; overflow-wrap: anywhere; white-space: pre-wrap; }
+.ds-prose p { font-size: 1rem; line-height: 1.65; margin: 0 0 1rem; }
+.ds-preview { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .ds-heading p { color: var(--ds-muted); font-size: 1rem; margin: 0; max-width: 700px; }
 .ds-eyebrow { color: var(--ds-blue); font-size: .7rem; font-weight: 750; letter-spacing: .16em; }
 .ds-badge { display: inline-block; padding: .28rem .65rem; border-radius: 6px; font-size: .76rem; font-weight: 650; line-height: 1.4; }

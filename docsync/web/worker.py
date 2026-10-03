@@ -16,6 +16,7 @@ from docsync.apply import apply_case
 from docsync.engine import analyze, revise_rejected
 from docsync.errors import ConflictError
 from docsync.repository.markdown_sections import parse_sections, section_sha256
+from docsync.repository.git_reader import read_file
 from docsync.sarvam import SarvamClient
 from docsync.store import Store
 from docsync.web.config import Settings, get_settings
@@ -302,6 +303,7 @@ def _baseline_index(engine, settings: Settings, job: Job) -> None:
             return
         branch = repo.monitored_branch
         repository_name = repo.full_name
+        mapped_paths = {m['section_id'].partition('::')[0] for m in approved_mappings(session, repo.id)}
     github = GitHubClient(settings)
     try:
         token = _token(github, repo)
@@ -309,17 +311,21 @@ def _baseline_index(engine, settings: Settings, job: Job) -> None:
         if not baseline_sha:
             raise ValueError("An explicit approved baseline SHA is required")
         with cloned_repository(repository_name, token, baseline_sha, baseline_sha) as (root, git, _env):
-            git("checkout", "--detach", baseline_sha)
-            docs = root / "docs"
-            if not docs.is_dir():
-                raise ValueError("The configured repository does not contain a docs/ directory")
+            files = git('ls-tree', '-r', '--name-only', baseline_sha).splitlines()
+            paths = {p for p in files if p.startswith('docs/') and p.endswith('.md')} | mapped_paths
+            if not paths:
+                raise ValueError('No baseline documentation found; confirm mappings or add Markdown under docs/')
             sections: list[IndexInput] = []
-            for path in sorted(docs.rglob("*.md")):
-                relative = path.relative_to(root).as_posix()
-                for section in parse_sections(relative, path.read_text(encoding="utf-8")):
+            for path in sorted(paths):
+                if path not in files or not path.endswith('.md'):
+                    raise ValueError('Mapped documentation is missing from the approved baseline commit')
+                source = read_file(root, baseline_sha, path)
+                if source is None:
+                    raise ValueError('Baseline documentation could not be read')
+                for section in parse_sections(path, source):
                     sections.append(IndexInput(section.section_id, section.path, section.heading, section.text, baseline_sha))
             if not sections:
-                raise ValueError("The configured repository has no Markdown sections under docs/")
+                raise ValueError('The approved baseline contains no Markdown sections')
             embedder = SentenceEmbedder(settings.embedding_model, settings.embedding_cache)
             embedder = prepared_embeddings(sections, embedder)
             with factory() as session:
@@ -327,13 +333,25 @@ def _baseline_index(engine, settings: Settings, job: Job) -> None:
                 if repo.active_index_version_id:
                     return
                 version = replace_approved_sections(session, repo, baseline_sha, sections, embedder)
-                audit(session, "approved_baseline_indexed", {"source_commit": baseline_sha, "section_count": len(sections), "version_id": version.id})
+                audit(session, "approved_baseline_indexed", {"repo_id": repo.id, "source_commit": baseline_sha, "section_count": len(sections), "version_id": version.id})
                 session.commit()
     finally:
         github.close()
 
 
 def _process_job(engine, settings: Settings, job: Job) -> None:
+    # Also protect legacy worker execution, which does not pass through online.execute.
+    with session_factory(engine)() as session:
+        if job.kind in {'publish_docs', 'revise_proposal'}:
+            proposal = session.get(Proposal, job.payload.get('proposal_id')) if job.kind == 'revise_proposal' else None
+            case_id = proposal.case_id if proposal else job.payload.get('case_id')
+            case = session.get(ChangeCase, case_id) if case_id else None
+            if case is None or case.repo_id != job.repo_id:
+                raise ValueError('Operation payload belongs to another repository')
+        if job.kind == 'analyze_push':
+            delivery = session.get(GitHubDelivery, job.delivery_id)
+            if delivery is None or delivery.repo_id != job.repo_id:
+                raise ValueError('Delivery belongs to another repository')
     if job.kind == "analyze_push":
         _process_analysis(engine, settings, job)
     elif job.kind == "revise_proposal":

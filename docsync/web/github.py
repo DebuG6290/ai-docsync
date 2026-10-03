@@ -49,7 +49,7 @@ class GitHubClient:
         if self._owned_http:
             self.http.close()
 
-    def installation_token(self, installation_id: int) -> str:
+    def installation_token(self, installation_id: int, *, require_writes=False) -> str:
         if not self.settings.github_app_id or not self.settings.github_private_key:
             raise GitHubError("GitHub App credentials are not configured")
         now = int(time.time())
@@ -64,6 +64,10 @@ class GitHubClient:
         )
         if response.is_error:
             raise GitHubError(f"GitHub token exchange failed with HTTP {response.status_code}")
+        if require_writes:
+            permissions = response.json().get('permissions', {})
+            if permissions.get('contents') != 'write' or permissions.get('pull_requests') != 'write':
+                raise GitHubError('The GitHub App installation needs the existing contents and pull requests write permissions for approved publication')
         token = response.json().get("token")
         if not isinstance(token, str) or not token:
             raise GitHubError("GitHub returned an invalid installation token response")

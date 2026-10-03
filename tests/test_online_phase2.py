@@ -56,7 +56,7 @@ def settings_for(tmp_path: Path, **overrides) -> Settings:
         "github_private_key": "",
         "github_webhook_secret": "test-webhook-secret",
         "github_installation_id": 77,
-        "repository": "demo-owner/httpx",
+        "repository": "DebuG6290/httpx",
         "monitored_branch": "master",
         "review_username": "reviewer",
         "review_password": "a-long-test-password",
@@ -177,7 +177,7 @@ def sign(secret: str, body: bytes) -> str:
 
 def push_payload():
     return {
-        "repository": {"full_name": "demo-owner/httpx"},
+        "repository": {"full_name": "DebuG6290/httpx"},
         "installation": {"id": 77},
         "ref": "refs/heads/master",
         "before": "a" * 40,
@@ -488,7 +488,7 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
             pr_attempts.append(branch)
             if interrupt_pr and len(pr_attempts) == 1:
                 raise RuntimeError('simulated interruption after branch creation')
-            return 42, "https://github.com/demo-owner/httpx/pull/42"
+            return 42, "https://github.com/DebuG6290/httpx/pull/42"
         def close(self):
             pass
 
@@ -565,7 +565,7 @@ def test_merged_approved_section_enters_index_and_chat_cites_merged_version(syst
         case, _assessment, proposal, version = make_case(session, repo_id, accepted=True)
         release = DocumentationRelease(
             case_id=case.id, repo_id=repo_id, branch="docsync/case-demo", commit_sha="d" * 40,
-            pr_number=51, pr_url="https://github.com/demo-owner/httpx/pull/51", status="PENDING_MERGE",
+            pr_number=51, pr_url="https://github.com/DebuG6290/httpx/pull/51", status="PENDING_MERGE",
         )
         session.add(release)
         session.flush()

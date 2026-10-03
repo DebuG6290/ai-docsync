@@ -11,6 +11,9 @@ from docsync.web.database import make_engine, session_factory
 from docsync.web.models import Repository, utcnow
 from docsync.ui.components import Context, styles, knowledge_summary, heading
 from docsync.ui.state import load
+from docsync.ui.workspace import repositories, select_repository, switch_repository, scoped_settings
+from docsync.ui import onboarding
+from docsync.web.repository import ensure_repository
 from docsync.ui import home, reviews, knowledge, chat, history, settings as settings_page
 from docsync.online.status import reconcile_release
 
@@ -61,31 +64,57 @@ def database(url):
 
 
 login()
+connected_repository_id = st.session_state.pop('connected_repository_id', None)
+if connected_repository_id:
+    switch_repository(st.session_state, connected_repository_id)
+    st.session_state.page = 'Settings'
+    st.session_state.notice = 'Repository connected. Confirm mappings and initialize an approved baseline next.'
 if (os.getenv('STREAMLIT_SHARING_MODE') or os.getenv('DOCSYNC_HOSTED') == 'true') and not settings.database_url.startswith(('postgres://', 'postgresql')):
     st.error('Hosted deployment requires PostgreSQL. Update the deployment configuration.'); st.stop()
 try:
     engine = database(settings.database_url)
     factory = session_factory(engine)
     with factory() as session:
-        repo = session.scalar(select(Repository).where(Repository.full_name == settings.repository))
-    if repo is None:
-        st.info('Initialize the workspace database and approved mappings before opening DocSync. See DEPLOYMENT.md.'); st.stop()
-    ctx = Context(settings, engine, factory, repo.id)
-    view = load(ctx)
+        rows = repositories(session)
+        if settings.repository and not any(r.full_name.casefold() == settings.repository.casefold() for r in rows):
+            ensure_repository(session, settings)
+            session.commit()
+            rows = repositories(session)
+    repo = select_repository(rows, st.session_state, settings.repository)
 except Exception:
     st.error('The workspace could not be loaded. Check the database connection and apply the latest schema migration.'); st.stop()
 
 with st.sidebar:
     st.markdown('<div class="ds-brand"><span class="ds-brand-mark">D</span><span class="ds-brand-name">DocSync</span></div>', unsafe_allow_html=True)
     st.caption('From code changes to trusted answers.')
+    if rows:
+        by_id = {r.id: r for r in rows}
+        def repository_changed():
+            switch_repository(st.session_state, st.session_state.repository_id)
+        st.selectbox('Repository', list(by_id), format_func=lambda rid: by_id[rid].full_name,
+            key='repository_id', on_change=repository_changed)
+        repo = by_id[st.session_state.repository_id]
+    if st.button('+ Connect repository', use_container_width=True):
+        st.session_state.connecting = True
+        st.rerun()
     st.divider()
-    page = st.radio('Workspace', ['Home', 'Reviews', 'Knowledge', 'Chat', 'History', 'Settings'], key='page', label_visibility='collapsed')
+    def workspace_changed():
+        st.session_state.pop('connecting', None)
+    page = st.radio('Workspace', ['Home', 'Reviews', 'Knowledge', 'Chat', 'History', 'Settings'], key='page',
+        label_visibility='collapsed', on_change=workspace_changed)
     st.divider()
     st.caption('MONITORED REPOSITORY')
-    st.write(settings.repository)
-    st.caption(settings.monitored_branch + ' · Human-governed updates')
+    if repo:
+        st.write(repo.full_name)
+        st.caption(repo.monitored_branch + ' · Human-governed updates')
     if st.button('Sign out', use_container_width=True):
         st.session_state.clear(); st.rerun()
+
+if st.session_state.get('connecting') or repo is None:
+    onboarding.connect(settings, factory)
+    st.stop()
+ctx = Context(scoped_settings(settings, repo), engine, factory, repo.id)
+view = load(ctx)
 
 def needs_refresh(snapshot):
     return bool(any(r.status in {'PENDING_MERGE', 'MERGED', 'VERIFYING', 'INDEXING'} for r in snapshot['pending'])
@@ -113,7 +142,7 @@ def live_knowledge():
             if last_attempt is None or last_attempt < utcnow() - timedelta(seconds=60):
                 st.session_state[key] = utcnow()
                 try:
-                    reconcile_release(factory, release.id)
+                    reconcile_release(factory, release.id, repo_id=ctx.repo_id)
                     latest = load(ctx)
                 except Exception:
                     st.caption('GitHub status could not be checked. The last confirmed state is shown.')
