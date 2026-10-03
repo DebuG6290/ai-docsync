@@ -1,0 +1,10 @@
+{
+  "source_commit": "e06f1591a519fc58a26aebadda682c71bb624ac9",
+  "repository": "DebuG6290/openbull",
+  "source": "57 public Markdown files under docs/ parsed with production parse_sections; not reconstructed stored embedding chunks",
+  "sections": 845,
+  "lexical_overlap_v1_pairs": 152303,
+  "distinctive_overlap_v2_pairs": 13837,
+  "semantic_labels": null,
+  "interpretation": "Deterministic candidate workload comparison only. No recall, precision, conflict accuracy, model cost or latency improvement is established. Existing v1 scan remains durable. v2 is a development narrowing policy requiring independently labelled overlap evaluation."
+}

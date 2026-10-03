@@ -68,6 +68,12 @@ Not measured. A controlled manual-vs-DocSync experiment is still required.
 
 ## 9. Claims NOT YET defensible
 
+Operational development evidence: the fixed public OpenBull baseline replay has
+845 sections and 152,303 v1 versus 13,837 v2 candidate pairs (source commit and
+method in `evals/openbull/narrowing-workload.json`). These are workload counts,
+not labelled conflict outcomes. v2 conflict recall/precision and any latency/cost
+improvement remain unmeasured; do not use this as a semantic-quality CV result.
+
 Generalized AI accuracy; conflict-gate accuracy; production reliability percentage;
 OpenBull full lifecycle; cost savings; hours saved; hold-out performance; comparative
 prompt/retrieval gains; dependency-aware candidate benefits; number of human-labelled

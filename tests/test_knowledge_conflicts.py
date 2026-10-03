@@ -66,6 +66,62 @@ def test_openbull_derived_overlap_is_selected_without_inventing_a_quality_label(
     assert fixture['classification_label'] is None and fixture['human_label_source'] is None
 
 
+def test_large_corpus_boilerplate_does_not_create_all_pair_model_work():
+    sections = [{'section_id': f'docs/{i}.md::topic', 'heading': f'Topic {i}',
+        'content': f'API request response JSON endpoint documentation. Entity{i} capability{i}.'}
+        for i in range(80)]
+    sections.extend([
+        {'section_id': 'docs/available.md::exports', 'heading': 'Report exports',
+         'content': 'Report exports are available. API request response JSON endpoint.'},
+        {'section_id': 'docs/planned.md::exports', 'heading': 'Report exports',
+         'content': 'Report exports are planned. API request response JSON endpoint.'}])
+    pairs = candidate_pairs(sections)
+    assert [(a, b) for a, b, _ in pairs] == [('docs/available.md::exports', 'docs/planned.md::exports')]
+    assert pairs[0][2]['corpus_sections'] == 82
+    assert not candidate_pairs(sections, {'docs/0.md::topic'})
+
+
+def test_review_ui_only_renders_assessed_pairs_and_pages_forms(system, monkeypatch):
+    from test_multi_repository import launch
+    settings, engine, factory, repo_id = system
+    sections = [IndexInput(f'docs/{i}.md::export', f'docs/{i}.md', 'Report export',
+        'Report export remains available.', 'a'*40) for i in range(6)]
+    scan_id = staged(factory, repo_id, sections)
+    client = Client('VERSION_DRIFT')
+    for _ in range(4):
+        scan_pending(engine, repo_id, scan_id, client)
+    app = launch(settings, monkeypatch)
+    app.sidebar.radio[0].set_value('Knowledge').run(timeout=20)
+    assert not app.exception
+    assert len([t for t in app.text_area if t.label == 'Rationale and scope evidence']) == 10
+    next(n for n in app.number_input if n.label == 'Review page').set_value(2).run(timeout=20)
+    assert len([t for t in app.text_area if t.label == 'Rationale and scope evidence']) == 5
+    with factory() as session:
+        assert len(unresolved(rows(session, session.get(KnowledgeScan, scan_id)))) == 15
+        assert not session.get(Repository, repo_id).active_index_version_id
+
+
+def test_paged_counts_preserve_offscreen_blockers_and_global_exclusions(system):
+    from docsync.knowledge.gate import review_queries
+    _, _, factory, repo_id = system
+    scan_id = staged(factory, repo_id)
+    with factory() as session:
+        scan = session.get(KnowledgeScan, scan_id)
+        counts, query, _ = review_queries(session, scan)
+        assert counts['pending'] == 1 and counts['assessed'] == 0
+        assert not session.scalars(query.limit(10)).all()
+        pair = rows(session, scan)[0]
+        resolve(session, repo_id, pair.id, 'EXCLUDE_A', 'Human excludes this whole section.', 'human-test')
+        session.commit()
+        counts, query, _ = review_queries(session, scan)
+        assert counts['pending'] == 0 and counts['total'] == 1
+        assert counts['excluded'] == {pair.left_id}
+        other = Repository(full_name='foreign/review', monitored_branch='main')
+        session.add(other); session.flush()
+        fake = KnowledgeScan(id=scan.id, repo_id=other.id)
+        assert review_queries(session, fake)[0]['total'] == 0
+
+
 @pytest.mark.parametrize('classification,uncertain,blocked', [('NO_CONFLICT', False, False),
     ('SCOPE_DIFFERENCE', False, False), ('VERSION_DRIFT', False, True), ('HARD_CONFLICT', False, True),
     ('NO_CONFLICT', True, True)])
