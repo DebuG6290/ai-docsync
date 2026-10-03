@@ -1,4 +1,6 @@
 """Small, explicit setup steps over the existing repository lifecycle."""
+import re
+
 import streamlit as st
 from docsync.ui.components import heading, action, prose
 from docsync.online.onboarding import (verify_access, connect_repository, discover, mapping_suggestions,
@@ -12,6 +14,53 @@ def reset_suggestions():
     for key in list(st.session_state):
         if key in {'mapping_suggestions', 'ignored_mappings'} or key.startswith(('mapping-target-', 'mapping-reason-')):
             st.session_state.pop(key, None)
+
+
+def parse_bulk_selection(raw, options):
+    """Parse newline/comma separated values into matched and unmatched options."""
+    option_set = set(options)
+    matched = []
+    unmatched = []
+    seen = set()
+    for value in re.split(r'[\n,]+', raw or ''):
+        value = value.strip()
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        if value in option_set:
+            matched.append(value)
+        else:
+            unmatched.append(value)
+    return matched, unmatched
+
+
+def bulk_multiselect(label, options, *, key, default=None):
+    """Multiselect with a paste-once helper for long exact option identifiers."""
+    # A repository switch or a new discovery commit can invalidate old widget values.
+    if key in st.session_state:
+        st.session_state[key] = [value for value in st.session_state[key] if value in options]
+
+    paste_key = key + '-paste'
+    unmatched_key = key + '-unmatched'
+    with st.expander('Paste ' + label.lower() + ' list'):
+        st.caption('Paste one exact value per line, or a comma-separated list, then apply it once.')
+        raw = st.text_area('Paste values', key=paste_key, label_visibility='collapsed',
+            placeholder='value-one\nvalue-two')
+        if st.button('Apply pasted list', key=key + '-apply'):
+            matched, unmatched = parse_bulk_selection(raw, options)
+            st.session_state[key] = matched
+            st.session_state[unmatched_key] = unmatched
+            st.rerun()
+        unmatched = st.session_state.get(unmatched_key, [])
+        if unmatched:
+            st.warning('Not found: ' + ', '.join(unmatched))
+        elif st.session_state.get(key) and raw:
+            st.caption(f"{len(st.session_state[key])} pasted values matched.")
+
+    widget_args = {'key': key}
+    if key not in st.session_state:
+        widget_args['default'] = default or []
+    return st.multiselect(label, options, **widget_args)
 
 
 def connect(settings, factory):
@@ -66,18 +115,20 @@ def setup(ctx, view):
             docs = [p for p in snapshot['files'] if p.endswith('.md')]
             code = [p for p in snapshot['files'] if p.endswith('.py')]
             st.write(f'{len(docs)} Markdown files · {len(code)} Python files')
-            with st.form('inspect-paths'):
-                doc_paths = st.multiselect('Documentation files', docs, default=[p for p in docs if p.startswith('docs/')][:5])
-                code_paths = st.multiselect('Python files', code)
-                if st.form_submit_button('Inspect selected files', type='primary'):
-                    try:
-                        with st.spinner('Parsing selected code and documentation…'):
-                            st.session_state.discovery = discover(ctx.settings, view['repo'], code_paths=code_paths,
-                                doc_paths=doc_paths, commit=snapshot['sha'])
-                        reset_suggestions()
-                        st.rerun()
-                    except (GitHubError, ValueError) as exc:
-                        st.error(str(exc))
+            doc_paths = bulk_multiselect('Documentation files', docs,
+                key=f'documentation-files-{ctx.repo_id}',
+                default=[p for p in docs if p.startswith('docs/')][:5])
+            code_paths = bulk_multiselect('Python files', code,
+                key=f'python-files-{ctx.repo_id}')
+            if st.button('Inspect selected files', type='primary'):
+                try:
+                    with st.spinner('Parsing selected code and documentation…'):
+                        st.session_state.discovery = discover(ctx.settings, view['repo'], code_paths=code_paths,
+                            doc_paths=doc_paths, commit=snapshot['sha'])
+                    reset_suggestions()
+                    st.rerun()
+                except (GitHubError, ValueError) as exc:
+                    st.error(str(exc))
             if snapshot['skipped']:
                 st.warning('Unsupported Python syntax in: ' + ', '.join(snapshot['skipped']))
             if snapshot['sections']:
@@ -94,8 +145,10 @@ def setup(ctx, view):
             return
         symbols = {s['code_id']: s for s in snapshot['symbols']}
         sections = {s['section_id']: s for s in snapshot['sections']}
-        selected_code = st.multiselect('Symbols for suggestions', list(symbols), default=list(symbols)[:10])
-        selected_sections = st.multiselect('Documentation for suggestions', list(sections), default=list(sections)[:10])
+        selected_code = bulk_multiselect('Symbols for suggestions', list(symbols),
+            key=f'mapping-symbols-{ctx.repo_id}', default=list(symbols)[:10])
+        selected_sections = bulk_multiselect('Documentation for suggestions', list(sections),
+            key=f'mapping-sections-{ctx.repo_id}', default=list(sections)[:10])
         st.caption('Suggestions use Sarvam and require human confirmation. Select a small batch; manual mappings need no model call.')
         if st.button('Suggest relationships with Sarvam'):
             try:
