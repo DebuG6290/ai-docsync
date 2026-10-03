@@ -6,10 +6,10 @@ permissions:
   contents: read
 jobs:
   analyze:
-    uses: DebuG6290/ai-docsync/.github/workflows/docsync-analysis.yml@main
+    uses: DebuG6290/ai-docsync/.github/workflows/docsync-analysis.yml@d9e6b6257589d6b18b65c5deb9a8b8117a3b0f0b
     with:
-      # Replace both main references with the same released full application SHA.
-      application_ref: main
+      # Workflow and application are pinned to the same reviewed migration release.
+      application_ref: d9e6b6257589d6b18b65c5deb9a8b8117a3b0f0b
       monitored_branch: master
       retry: ${{ github.run_attempt > 1 }}
     secrets:
