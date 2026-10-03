@@ -220,5 +220,6 @@ class Store:
         return {"proposal": proposal, "case": case, "section": section, "versions": self.versions(proposal_id)}
 
     def audit(self, case_id: str) -> list[sqlite3.Row]:
-        return list(self.db.execute("SELECT * FROM audit_events WHERE case_id=? ORDER BY created_at, id", (case_id,)))
+        # UUIDs are not an ordering signal. Equal clock ticks retain append order.
+        return list(self.db.execute("SELECT * FROM audit_events WHERE case_id=? ORDER BY created_at, rowid", (case_id,)))
 
