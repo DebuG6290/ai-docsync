@@ -1,5 +1,7 @@
 # Bounded impact analysis and recovery
 
+Reviewed fix release: `6e5d6449c6d46cea9617c516329ab4f373be7ab1`. The integration templates pin both the reusable workflow and application checkout to this SHA.
+
 ## Root cause and fix
 
 The failed HTTPX run [37126130969](https://github.com/DebuG6290/httpx/actions/runs/37126130969) exhausted Sarvam's 8,192-token impact output budget. The old call requested all mapped sections and its generic contract retry repeated that output scope.
