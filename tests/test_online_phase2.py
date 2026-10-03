@@ -403,7 +403,8 @@ def _git(*args, cwd: Path):
     return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
 
 
-def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path, monkeypatch):
+@pytest.mark.parametrize("interrupt_pr", [False, True])
+def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path, monkeypatch, interrupt_pr):
     _settings, engine, factory, repo_id = system
     bare = tmp_path / "httpx.git"
     bare.mkdir()
@@ -437,16 +438,56 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
         session.add(job)
         session.commit()
         case_id = case.id
+        # The exact accepted V1 remains authoritative even if a later unapproved
+        # version is present in imported history.
+        session.add(ProposalVersion(proposal_id=proposal.id, version=2, author='sarvam',
+            proposed_text='## Default timeout\nUNAPPROVED nine seconds.\n', reason='unapproved', code_evidence=[]))
+        session.commit()
+
+
+    pr_attempts = []
+    class Response:
+        def __init__(self, data, status=200):
+            self.data, self.status_code, self.is_error = data, status, status >= 400
+        def json(self):
+            return self.data
 
     class FakeGitHub:
         def __init__(self, _settings):
-            pass
+            self.settings = _settings
+            self.http = self
         def installation_token(self, _installation_id):
             return "not-a-real-token"
         def branch_sha(self, _repository, _branch, _token):
             return base_sha
+        def get(self, url, **kwargs):
+            branch = url.split('/git/ref/heads/')[1]
+            result = subprocess.run(['git', 'rev-parse', 'refs/heads/' + branch], cwd=bare, capture_output=True, text=True)
+            return Response({'object': {'sha': result.stdout.strip()}}, 200 if result.returncode == 0 else 404)
+        def request(self, method, api, token, **kwargs):
+            clone = tmp_path / 'worker-clone'
+            if method == 'GET' and '/git/commits/' in api:
+                return Response({'tree': {'sha': _git('rev-parse', base_sha + '^{tree}', cwd=source)}})
+            payload = kwargs['json']
+            if api.endswith('/git/trees'):
+                assert {x['path'] for x in payload['tree']} == {'docs/advanced/timeouts.md'}
+                assert 'eight seconds' in payload['tree'][0]['content']
+                _git('add', 'docs/advanced/timeouts.md', cwd=clone)
+                return Response({'sha': _git('write-tree', cwd=clone)})
+            if api.endswith('/git/commits'):
+                _git('config', 'user.name', 'Test', cwd=clone)
+                _git('config', 'user.email', 'test@example.invalid', cwd=clone)
+                commit = _git('commit-tree', payload['tree'], '-p', base_sha, '-m', payload['message'], cwd=clone)
+                return Response({'sha': commit})
+            if api.endswith('/git/refs'):
+                _git('push', 'origin', payload['sha'] + ':' + payload['ref'], cwd=clone)
+                return Response({})
+            raise AssertionError(api)
         def create_pull_request(self, _repository, branch, _base, _case, _token):
-            return 42, f"https://github.com/demo-owner/httpx/pull/42"
+            pr_attempts.append(branch)
+            if interrupt_pr and len(pr_attempts) == 1:
+                raise RuntimeError('simulated interruption after branch creation')
+            return 42, "https://github.com/demo-owner/httpx/pull/42"
         def close(self):
             pass
 
@@ -462,13 +503,20 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
             return result.stdout.strip()
         yield clone, git, env
 
-    monkeypatch.setattr("docsync.web.worker.GitHubClient", FakeGitHub)
-    monkeypatch.setattr("docsync.web.worker.cloned_repository", local_clone)
+    monkeypatch.setattr("docsync.online.publish.GitHubClient", FakeGitHub)
+    monkeypatch.setattr("docsync.online.publish.cloned_repository", local_clone)
     from docsync.web.worker import _process_publish
 
     with factory() as session:
         job_row = session.scalar(select(Job).where(Job.kind == "publish_docs"))
         detached = Job(id=job_row.id, repo_id=job_row.repo_id, kind=job_row.kind, payload=job_row.payload)
+    if interrupt_pr:
+        with pytest.raises(RuntimeError, match='simulated interruption'):
+            _process_publish(engine, _settings, detached)
+        with factory() as session:
+            prepared = session.scalar(select(DocumentationRelease).where(DocumentationRelease.case_id == case_id))
+            assert prepared.status == 'PREPARED'
+            assert prepared.pr_number == 0
     _process_publish(engine, _settings, detached)
 
     with factory() as session:
@@ -478,7 +526,7 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
         assert case.documentation_pr_number == 42
         assert release.commit_sha != base_sha
         assert release.status == "PENDING_MERGE"
-    remote_sha = _git("rev-parse", "refs/heads/docsync/case-" + case_id[:8], cwd=bare)
+    remote_sha = _git("rev-parse", "refs/heads/codex/docsync/case-" + case_id, cwd=bare)
     assert remote_sha == release.commit_sha
     merged_docs = subprocess.run(["git", "show", f"{remote_sha}:docs/advanced/timeouts.md"], cwd=bare, check=True, capture_output=True, text=True).stdout
     assert "eight seconds" in merged_docs
@@ -503,7 +551,8 @@ def test_pending_and_rejected_proposals_have_no_index_release(system, monkeypatc
         assert session.get(ChangeCase, case_id).decision == "UPDATE"
 
 
-def test_merged_approved_section_enters_index_and_chat_cites_merged_version(system, monkeypatch):
+@pytest.mark.parametrize("tamper", [None, "head", "file"])
+def test_merged_approved_section_enters_index_and_chat_cites_merged_version(system, monkeypatch, tamper):
     settings, engine, factory, repo_id = system
     merged_sha = "c" * 40
     updated_doc = "## Default timeout\nThe default timeout is eight seconds.\n"
@@ -529,12 +578,16 @@ def test_merged_approved_section_enters_index_and_chat_cites_merged_version(syst
 
     class FakeGitHub:
         def __init__(self, _settings):
-            pass
+            self.settings = _settings
         def installation_token(self, _installation_id):
             return "token"
+        def request(self, *args, **kwargs):
+            from types import SimpleNamespace
+            return SimpleNamespace(json=lambda: {'merged': True, 'merge_commit_sha': merged_sha,
+                'base': {'ref': 'master'}, 'head': {'sha': ('e' if tamper == 'head' else 'd') * 40, 'repo': {'full_name': settings.repository}}})
         def file_at(self, _repository, _path, _ref, _token):
-            assert _ref == merged_sha
-            return updated_doc
+            assert _ref in {merged_sha, 'd' * 40}
+            return updated_doc + ('\n## Unauthorized section\nUnapproved text.\n' if tamper == 'file' and _ref == merged_sha else '')
         def close(self):
             pass
 
@@ -550,6 +603,13 @@ def test_merged_approved_section_enters_index_and_chat_cites_merged_version(syst
     with factory() as session:
         row = session.scalar(select(Job).where(Job.kind == "activate_release"))
         detached = Job(id=row.id, repo_id=row.repo_id, kind=row.kind, payload=row.payload)
+    if tamper:
+        with pytest.raises(ConflictError):
+            _activate_release(engine, settings, detached)
+        with factory() as session:
+            assert session.get(Repository, repo_id).active_index_version_id is None
+            assert session.get(DocumentationRelease, release_id).status == 'PENDING_MERGE'
+        return
     _activate_release(engine, settings, detached)
 
     with factory() as session:

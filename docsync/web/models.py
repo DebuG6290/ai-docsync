@@ -138,6 +138,7 @@ class ProposalVersion(Base):
     proposal_id: Mapped[str] = mapped_column(ForeignKey("proposals.id"), nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     author: Mapped[str] = mapped_column(String(40), nullable=False)
+    human_modified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     proposed_text: Mapped[str] = mapped_column(Text, nullable=False)
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     code_evidence: Mapped[list] = mapped_column(JSON, default=list, nullable=False)

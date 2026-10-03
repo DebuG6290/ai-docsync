@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from docsync.web.models import (
@@ -65,6 +65,13 @@ def replace_approved_sections(
             staged.append((section, chunk_index, chunk, embedder.embed(chunk)))
 
     old_id = repository.active_index_version_id
+    # Compare-and-swap prevents a concurrent activation from losing approved sections.
+    switched = session.execute(update(Repository).where(
+        Repository.id == repository.id,
+        Repository.active_index_version_id == old_id,
+    ).values(active_index_version_id=old_id))
+    if switched.rowcount != 1:
+        raise ValueError("The active index changed concurrently; retry indexing")
     old_sections = session.scalars(
         select(IndexedSection).where(IndexedSection.version_id == old_id)
     ).all() if old_id else []
@@ -112,8 +119,19 @@ def replace_approved_sections(
         if release is not None:
             release.status = "INDEXED"
             release.merged_sha = source_commit
-    session.commit()
+    session.flush()
     return version
+
+
+def prepared_embeddings(changed, embedder):
+    """Run model initialization/inference before opening an activation transaction."""
+    vectors = {chunk: embedder.embed(chunk) for section in changed for chunk in chunk_text(section.content)}
+
+    class Prepared:
+        def embed(self, text):
+            return vectors[text]
+
+    return Prepared()
 
 
 def retrieve(session: Session, repository: Repository, vector: list[float], limit: int = 6) -> tuple[KnowledgeVersion, list[IndexedSection]]:

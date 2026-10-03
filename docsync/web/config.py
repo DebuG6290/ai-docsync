@@ -21,6 +21,7 @@ class Settings:
     base_url: str
     embedding_model: str
     embedding_cache: str
+    github_token: str = ""
 
 
 def get_settings() -> Settings:
@@ -52,4 +53,5 @@ def get_settings() -> Settings:
         base_url=os.getenv("DOCSYNC_BASE_URL", ""),
         embedding_model=os.getenv("DOCSYNC_EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
         embedding_cache=os.getenv("DOCSYNC_EMBEDDING_CACHE", str(Path(".docsync-state") / "embedding-cache")),
+        github_token=os.getenv("GITHUB_TOKEN", ""),
     )

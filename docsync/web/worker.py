@@ -1,3 +1,4 @@
+"""Finite operation handlers. Polling main is legacy local compatibility only."""
 from __future__ import annotations
 
 import json
@@ -21,13 +22,14 @@ from docsync.web.config import Settings, get_settings
 from docsync.web.database import initialize_database, make_engine, session_factory
 from docsync.web.embeddings import SentenceEmbedder
 from docsync.web.github import GitHubClient, GitHubError, cloned_repository
-from docsync.web.indexing import IndexInput, replace_approved_sections
+from docsync.web.indexing import IndexInput, replace_approved_sections, prepared_embeddings
 from docsync.web.models import (
     AuditEvent,
     ChangeCase,
     DocumentationRelease,
     GitHubDelivery,
     IndexedSection,
+    KnowledgeVersion,
     Job,
     Proposal,
     ProposalVersion,
@@ -48,6 +50,8 @@ from docsync.web.workflow import (
 
 
 def _token(github: GitHubClient, repo: Repository) -> str:
+    if github.settings.github_token:
+        return github.settings.github_token
     if repo.installation_id is None:
         raise GitHubError("GitHub installation ID has not been recorded; set GITHUB_INSTALLATION_ID")
     return github.installation_token(repo.installation_id)
@@ -63,6 +67,8 @@ def _process_analysis(engine, settings: Settings, job: Job) -> None:
         before, after = job.payload["before_sha"], job.payload["after_sha"]
         case = start_case(session, repo, delivery.delivery_id, before, after)
         case_id = case.id
+        case.case_data = {**case.case_data, 'context_provenance': job.payload.get('approved_documentation_commits', {})}
+        session.commit()
         mappings = approved_mappings(session, repo.id)
     github = GitHubClient(settings)
     local = None
@@ -127,6 +133,7 @@ def _process_revision(engine, settings: Settings, job: Job) -> None:
             local_proposal_id = proposal_ids.get(proposal.id)
             if not local_proposal_id:
                 raise ValueError("Could not rehydrate the target proposal for revision")
+            session.commit()
             try:
                 version_id = revise_rejected(local, local_proposal_id, reason, SarvamClient(settings.sarvam_model))
                 local_version = local.db.execute(
@@ -160,6 +167,7 @@ def _process_revision(engine, settings: Settings, job: Job) -> None:
                 session.add(new_version)
                 proposal.status = "PENDING"
                 proposal.accepted_version_id = None
+                session.flush()
                 case.status = "READY_FOR_REVIEW"
                 audit(
                     session, "proposal_revision_completed",
@@ -189,140 +197,8 @@ def _git_file(git, commit: str, path: str) -> str:
 
 
 def _process_publish(engine, settings: Settings, job: Job) -> None:
-    factory = session_factory(engine)
-    with factory() as session:
-        case = session.get(ChangeCase, job.payload["case_id"])
-        if case is None:
-            raise ValueError("Approved case no longer exists")
-        existing = session.scalar(select(DocumentationRelease).where(DocumentationRelease.case_id == case.id))
-        if existing is not None:
-            return
-        repo = session.get(Repository, case.repo_id)
-        proposals = session.scalars(select(Proposal).where(Proposal.case_id == case.id)).all()
-        if not proposals or any(item.status != "ACCEPTED" or not item.accepted_version_id for item in proposals):
-            raise ValueError("Every documentation proposal needs an explicit accepted version")
-        unresolved = session.scalar(
-            select(SectionAssessment.id).where(
-                SectionAssessment.case_id == case.id,
-                SectionAssessment.decision == "UNCERTAIN",
-                SectionAssessment.human_resolution.is_(None),
-            ).limit(1)
-        )
-        if unresolved:
-            raise ValueError("Uncertain sections must be resolved before publication")
-        case_id, base_sha, repository_name, branch = case.id, case.after_sha, repo.full_name, repo.monitored_branch
-        accepted = {
-            item.section_id: session.get(ProposalVersion, item.accepted_version_id)
-            for item in proposals
-        }
-        assessments = {
-            row.section_id: row
-            for row in session.scalars(select(SectionAssessment).where(SectionAssessment.case_id == case.id)).all()
-        }
-        case.status = "PUBLISHING"
-        session.commit()
-
-    github = GitHubClient(settings)
-    try:
-        token = _token(github, repo)
-        current = github.branch_sha(repository_name, branch, token)
-        if current != base_sha:
-            with factory() as session:
-                case = session.get(ChangeCase, case_id)
-                case.status = "CONFLICT"
-                audit(session, "documentation_publish_conflict", {"expected_base_sha": base_sha, "current_branch_sha": current}, case_id)
-                session.commit()
-            return
-
-        with cloned_repository(repository_name, token, base_sha, base_sha) as (root, git, env):
-            git("checkout", "--detach", base_sha)
-            docs_branch = f"docsync/case-{case_id[:8]}"
-            git("checkout", "-b", docs_branch)
-            with factory() as session:
-                case = session.get(ChangeCase, case_id)
-                local, local_case_id, ids = local_store_from_online(session, case, root)
-                try:
-                    for proposal in session.scalars(select(Proposal).where(Proposal.case_id == case_id)).all():
-                        local_id = ids[proposal.id]
-                        local_version = local.latest_version(local_id)
-                        local.set_proposal_status(local_id, "ACCEPTED", accepted_version_id=local_version["id"])
-                    apply_case(local, local_case_id)
-                finally:
-                    local.db.close()
-
-            applied_sections = {}
-            for section_id in accepted:
-                assessment = assessments[section_id]
-                current_path = (root / assessment.path).resolve()
-                current_path.relative_to(root.resolve())
-                current_text = current_path.read_text(encoding="utf-8")
-                parsed = parse_sections(assessment.path, current_text)
-                applied = next((item for item in parsed if item.section_id == section_id), None)
-                if applied is None:
-                    raise ConflictError(f"Applied documentation section disappeared: {section_id}")
-                applied_sections[section_id] = applied.text
-
-            changed_paths = sorted({assessments[sid].path for sid in accepted})
-            git("add", "--", *changed_paths)
-            if not git("status", "--porcelain", "--", *changed_paths):
-                with factory() as session:
-                    case = session.get(ChangeCase, case_id)
-                    case.status = "NO_DOCUMENTATION_DIFF"
-                    audit(session, "documentation_patch_empty", {"paths": changed_paths}, case_id)
-                    session.commit()
-                return
-            git("config", "user.name", "DocSync App")
-            git("config", "user.email", "docsync[bot]@users.noreply.github.com")
-            git("commit", "-m", f"[DocSync] Approved documentation for case {case_id[:8]}", "-m", f"docsync-case:{case_id}")
-            commit_sha = git("rev-parse", "HEAD")
-            if github.branch_sha(repository_name, branch, token) != base_sha:
-                with factory() as session:
-                    case = session.get(ChangeCase, case_id)
-                    case.status = "CONFLICT"
-                    audit(session, "documentation_publish_conflict", {"reason": "monitored branch advanced during approval"}, case_id)
-                    session.commit()
-                return
-            git("push", "origin", f"HEAD:refs/heads/{docs_branch}")
-            pr_number, pr_url = github.create_pull_request(repository_name, docs_branch, branch, case_id, token)
-            with factory() as session:
-                case = session.get(ChangeCase, case_id)
-                release = DocumentationRelease(
-                    case_id=case.id,
-                    repo_id=repo.id,
-                    branch=docs_branch,
-                    commit_sha=commit_sha,
-                    pr_number=pr_number,
-                    pr_url=pr_url,
-                    status="PENDING_MERGE",
-                )
-                session.add(release)
-                session.flush()
-                for section_id, version in accepted.items():
-                    assessment = assessments[section_id]
-                    session.add(
-                        ReleaseSection(
-                            release_id=release.id,
-                            section_id=section_id,
-                            path=assessment.path,
-                            text=applied_sections[section_id],
-                            sha256=section_sha256(applied_sections[section_id]),
-                        )
-                    )
-                    session.add(
-                        ReviewAction(
-                            proposal_id=next(item.id for item in proposals if item.section_id == section_id),
-                            action="DOCUMENTATION_PR_CREATED",
-                            version_id=version.id,
-                            content=pr_url,
-                        )
-                    )
-                case.documentation_pr_number = pr_number
-                case.documentation_pr_url = pr_url
-                case.status = "WAITING_MERGE"
-                audit(session, "documentation_pr_created", {"branch": docs_branch, "commit_sha": commit_sha, "pr_number": pr_number, "pr_url": pr_url}, case.id)
-                session.commit()
-    finally:
-        github.close()
+    from docsync.online.publish import publish
+    publish(engine, settings, job.payload["case_id"])
 
 
 def _activate_release(engine, settings: Settings, job: Job) -> None:
@@ -349,10 +225,25 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
             return
         repo_name = repo.full_name
         installation_id = repo.installation_id
+        active = session.get(KnowledgeVersion, repo.active_index_version_id) if repo.active_index_version_id else None
+        active_commit = active.source_commit if active else None
     github = GitHubClient(settings)
     try:
         token = _token(github, repo)
+        if active_commit and active_commit != merge_sha:
+            comparison = github.request('GET', f'/repos/{repo_name}/compare/{active_commit}...{merge_sha}', token).json()
+            if comparison.get('status') != 'ahead':
+                raise ConflictError('Merged release is not newer than the active approved snapshot')
+        pr = github.request("GET", f"/repos/{repo_name}/pulls/{release.pr_number}", token).json()
+        if (not pr.get("merged") or pr.get("merge_commit_sha") != merge_sha
+            or pr.get("head", {}).get("sha") != release.commit_sha
+            or pr.get("base", {}).get("ref") != repo.monitored_branch
+            or pr.get("head", {}).get("repo", {}).get("full_name") != repo_name):
+            raise ConflictError("Merged PR does not match the durable approved release")
         file_contents = {path: github.file_at(repo_name, path, merge_sha, token) for path in sorted({s.path for s in sections})}
+        for path, text in file_contents.items():
+            if text != github.file_at(repo_name, path, release.commit_sha, token):
+                raise ConflictError("Merged documentation file differs from the approved commit")
         approved: list[IndexInput] = []
         mismatches: list[str] = []
         for expected in sections:
@@ -372,6 +263,7 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
                 session.commit()
             return
         embedder = SentenceEmbedder(settings.embedding_model, settings.embedding_cache)
+        embedder = prepared_embeddings(approved, embedder)
         with factory() as session:
             repo = session.get(Repository, repo.id)
             release = session.get(DocumentationRelease, release.id)
@@ -396,7 +288,9 @@ def _baseline_index(engine, settings: Settings, job: Job) -> None:
     github = GitHubClient(settings)
     try:
         token = _token(github, repo)
-        baseline_sha = github.branch_sha(repository_name, branch, token)
+        baseline_sha = job.payload.get("baseline_sha")
+        if not baseline_sha:
+            raise ValueError("An explicit approved baseline SHA is required")
         with cloned_repository(repository_name, token, baseline_sha, baseline_sha) as (root, git, _env):
             git("checkout", "--detach", baseline_sha)
             docs = root / "docs"
@@ -410,6 +304,7 @@ def _baseline_index(engine, settings: Settings, job: Job) -> None:
             if not sections:
                 raise ValueError("The configured repository has no Markdown sections under docs/")
             embedder = SentenceEmbedder(settings.embedding_model, settings.embedding_cache)
+            embedder = prepared_embeddings(sections, embedder)
             with factory() as session:
                 repo = session.get(Repository, repo.id)
                 if repo.active_index_version_id:

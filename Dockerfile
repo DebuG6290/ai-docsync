@@ -12,7 +12,10 @@ WORKDIR /app
 COPY pyproject.toml requirements.txt ./
 COPY docsync ./docsync
 COPY config ./config
+COPY migrations ./migrations
+COPY alembic.ini streamlit_app.py ./
+COPY .streamlit/config.toml ./.streamlit/config.toml
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8000
-CMD ["uvicorn", "docsync.web.app:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8501
+CMD ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0"]

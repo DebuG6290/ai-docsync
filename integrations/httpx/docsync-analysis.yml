@@ -1,0 +1,17 @@
+name: DocSync code change
+on:
+  push:
+    branches: [master]
+permissions:
+  contents: read
+jobs:
+  analyze:
+    uses: DebuG6290/ai-docsync/.github/workflows/docsync-analysis.yml@main
+    with:
+      # Replace both main references with the same released full application SHA.
+      application_ref: main
+      monitored_branch: master
+      retry: ${{ github.run_attempt > 1 }}
+    secrets:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}

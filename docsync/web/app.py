@@ -1,3 +1,4 @@
+"""Legacy local FastAPI surface. Supported hosting uses streamlit_app.py and Actions."""
 from __future__ import annotations
 
 import difflib

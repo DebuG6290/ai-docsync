@@ -95,7 +95,7 @@ class GitHubClient:
         owner, name = repository.split("/", 1)
         existing = self.request(
             "GET", f"/repos/{owner}/{name}/pulls", token,
-            params={"state": "open", "head": f"{owner}:{branch}", "base": base},
+            params={"state": "all", "head": f"{owner}:{branch}", "base": base},
         ).json()
         if existing:
             return int(existing[0]["number"]), str(existing[0]["html_url"])

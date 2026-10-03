@@ -91,6 +91,7 @@ def persist_analysis(
     if online is None or source is None:
         raise ValueError("The analysis case disappeared before persistence")
     snapshot = local.case_snapshot(local_case_id)
+    snapshot['context_provenance'] = online.case_data.get('context_provenance', {})
     snapshot["repo_root"] = ""
     online.case_data = snapshot
     online.decision = source["decision"]
@@ -246,8 +247,21 @@ def _maybe_queue_publication(session: Session, case: ChangeCase) -> None:
         case.status = "READY_FOR_REVIEW"
 
 
-def accept_proposal(session: Session, proposal_id: str) -> None:
-    proposal = session.get(Proposal, proposal_id)
+def _review_target(session, proposal_id, expected_version_id=None):
+    proposal = session.scalar(select(Proposal).where(Proposal.id == proposal_id).with_for_update())
+    if proposal is None:
+        raise ValueError("Unknown proposal")
+    session.scalar(select(ChangeCase).where(ChangeCase.id == proposal.case_id).with_for_update())
+    latest = _latest(session, proposal_id)
+    if expected_version_id and latest.id != expected_version_id:
+        raise ValueError("Proposal changed since it was displayed; refresh before reviewing")
+    if proposal.status == "REVISING":
+        raise ValueError("Revision is already in progress")
+    return proposal
+
+
+def accept_proposal(session: Session, proposal_id: str, expected_version_id: str | None = None) -> None:
+    proposal = _review_target(session, proposal_id, expected_version_id)
     if proposal is None:
         raise ValueError("Unknown proposal")
     latest = _latest(session, proposal_id)
@@ -262,8 +276,10 @@ def accept_proposal(session: Session, proposal_id: str) -> None:
     session.commit()
 
 
-def modify_proposal(session: Session, proposal_id: str, content: str) -> ProposalVersion:
-    proposal = session.get(Proposal, proposal_id)
+def modify_proposal(session: Session, proposal_id: str, content: str, expected_version_id: str | None = None) -> ProposalVersion:
+    proposal = _review_target(session, proposal_id, expected_version_id)
+    if not content.strip():
+        raise ValueError("Documentation text is required")
     if proposal is None:
         raise ValueError("Unknown proposal")
     if proposal.status in {"ACCEPTED", "APPLIED"}:
@@ -273,6 +289,7 @@ def modify_proposal(session: Session, proposal_id: str, content: str) -> Proposa
         proposal_id=proposal.id,
         version=latest.version + 1,
         author="human",
+        human_modified=True,
         proposed_text=content,
         reason="Human-authored modification",
         code_evidence=[],
@@ -293,8 +310,8 @@ def modify_proposal(session: Session, proposal_id: str, content: str) -> Proposa
     return version
 
 
-def reject_proposal(session: Session, proposal_id: str, reason: str) -> None:
-    proposal = session.get(Proposal, proposal_id)
+def reject_proposal(session: Session, proposal_id: str, reason: str, expected_version_id: str | None = None) -> None:
+    proposal = _review_target(session, proposal_id, expected_version_id)
     if proposal is None:
         raise ValueError("Unknown proposal")
     if not reason.strip():
@@ -306,20 +323,22 @@ def reject_proposal(session: Session, proposal_id: str, reason: str) -> None:
     proposal.status = "REVISING"
     proposal.accepted_version_id = None
     repo = session.get(Repository, session.get(ChangeCase, proposal.case_id).repo_id)
-    enqueue(session, repo.id, "revise_proposal", {"proposal_id": proposal.id, "reason": reason})
+    enqueue(session, repo.id, "revise_proposal", {"proposal_id": proposal.id, "reason": reason, "source_version_id": latest.id})
     audit(session, "review_reject", {"proposal_id": proposal.id, "version_id": latest.id, "reason": reason}, proposal.case_id)
     session.commit()
 
 
 def triage_section(session: Session, section_id: str, resolution: str, reason: str, content: str = "") -> None:
-    section = session.get(SectionAssessment, section_id)
+    section = session.scalar(select(SectionAssessment).where(SectionAssessment.id == section_id).with_for_update())
     if section is None or section.decision != "UNCERTAIN":
         raise ValueError("This section is not awaiting uncertainty triage")
+    if section.human_resolution:
+        raise ValueError("This uncertainty has already been resolved")
     if not reason.strip():
         raise ValueError("A triage reason is required")
     if resolution not in {"NO_CHANGE", "HUMAN_UPDATE"}:
         raise ValueError("Choose NO_CHANGE or HUMAN_UPDATE")
-    case = session.get(ChangeCase, section.case_id)
+    case = session.scalar(select(ChangeCase).where(ChangeCase.id == section.case_id).with_for_update())
     section.human_resolution = resolution
     section.triage_reason = reason
     if resolution == "HUMAN_UPDATE":
@@ -337,6 +356,7 @@ def triage_section(session: Session, section_id: str, resolution: str, reason: s
             proposal_id=proposal.id,
             version=1,
             author="human",
+            human_modified=True,
             proposed_text=content,
             reason=reason,
             code_evidence=[],

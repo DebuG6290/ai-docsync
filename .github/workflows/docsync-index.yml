@@ -1,0 +1,59 @@
+name: DocSync approved index
+on:
+  workflow_call:
+    inputs:
+      application_ref:
+        type: string
+        required: true
+      monitored_branch:
+        type: string
+        default: master
+      baseline_sha:
+        type: string
+        default: ''
+      retry:
+        type: boolean
+        default: false
+    secrets:
+      DATABASE_URL:
+        required: true
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: docsync-index-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DebuG6290/ai-docsync
+          ref: ${{ inputs.application_ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Initialize schema
+        run: python -m docsync.web.migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DOCSYNC_REPOSITORY: ${{ github.repository }}
+          DOCSYNC_MONITORED_BRANCH: ${{ inputs.monitored_branch }}
+      - name: Index approved snapshot
+        run: |
+          args=()
+          if [ -n "$BASELINE_SHA" ]; then args+=(--baseline-sha "$BASELINE_SHA"); fi
+          if [ "$DOCSYNC_RETRY" = "true" ]; then args+=(--retry); fi
+          python -m docsync.online.actions --mode index "${args[@]}"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GITHUB_TOKEN: ${{ github.token }}
+          DOCSYNC_REPOSITORY: ${{ github.repository }}
+          DOCSYNC_MONITORED_BRANCH: ${{ inputs.monitored_branch }}
+          DOCSYNC_EMBEDDING_CACHE: ${{ runner.temp }}/docsync-embeddings
+          BASELINE_SHA: ${{ inputs.baseline_sha }}
+          DOCSYNC_RETRY: ${{ inputs.retry }}

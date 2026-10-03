@@ -25,6 +25,7 @@ def answer_question(
 ) -> ChatTurn:
     if not question.strip():
         raise ValueError("Enter a question")
+    session.commit()
     query_vector = embedder.embed(question)
     version, chunks = retrieve(session, repository, query_vector, limit=10)
     sources: dict[str, dict] = {}
@@ -47,6 +48,7 @@ def answer_question(
         answer = "The active approved documentation index has no sections to answer from."
         citations: list[dict] = []
     else:
+        session.commit()
         client = client or SarvamClient(settings.sarvam_model)
 
         def validate(result: ChatResponse) -> str | None:

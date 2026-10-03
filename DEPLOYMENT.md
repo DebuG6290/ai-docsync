@@ -1,86 +1,121 @@
-# DocSync Phase 2 deployment and demo
+# DocSync: free hosted deployment
 
-## Stack
+The supported runtime is GitHub Actions → Neon PostgreSQL/pgvector → Streamlit Community Cloud. Sarvam is the only paid API. The Phase 1 reasoning prompts, schemas, mappings and targeted revision remain frozen.
 
-- FastAPI backend and server-rendered Jinja pages.
-- Render web service plus a small background worker and managed PostgreSQL.
-- PostgreSQL `pgvector` stores dense vectors for local `sentence-transformers/all-MiniLM-L6-v2` embeddings (FastEmbed, 384 dimensions).
-- GitHub App handles signed push and pull-request webhooks and uses installation-scoped tokens to fetch code and create docs-only branches/PRs.
-- Phase 1's `analyze`, `revise_rejected`, and hash-checked `apply_case` functions remain the impact/revision/patch path.
+## Cost Model
 
-The included Render blueprint uses non-free persistent service/database plans. Render's free Postgres expires after 30 days, and free web-service filesystems are ephemeral, so those plans are unsuitable for the durable case/audit/index state. Review the current [Render pricing](https://render.com/pricing) before creating resources.
-
-## Deploy the DocSync application
-
-The current workspace has no Git remote or connected Render account. To make it available to Render, push this project to an application repository that you control. The HTTPX fork is a separate repository configured below. Do not copy the ignored `.env`, `.docsync-state`, `.httpx-testbed`, `.httpx-scenarios`, or the unrelated `test` path into the application repository.
-
-1. Create an application repository and push the DocSync source, including `render.yaml`.
-2. In Render, choose **New → Blueprint**, connect that application repository, and apply `render.yaml`. This creates the web service, worker, and PostgreSQL database.
-3. In the web and worker services, set the `sync: false` values listed below. Use the same values for both services. Store secrets only in Render's environment-variable UI.
-4. Set `DOCSYNC_BASE_URL` to the web service's HTTPS URL. The webhook endpoint will be `https://<service>.onrender.com/webhooks/github`.
-5. Confirm `/health` returns `{"status":"ok"}`. The UI uses HTTP Basic authentication with the configured review username and password.
-
-## Environment variables
-
-Required on both the web and worker services:
-
-| Variable | Value |
+| Component | Intended demo cost |
 | --- | --- |
-| `DATABASE_URL` | Render's internal PostgreSQL connection string; supplied by the blueprint. |
-| `SARVAM_API_KEY` | Sarvam API key. Never put it in GitHub or audit fields. |
-| `SARVAM_MODEL` | `sarvam-105b` unless the account uses a different supported model. |
-| `GITHUB_APP_ID` | Numeric App ID from GitHub App settings. |
-| `GITHUB_INSTALLATION_ID` | Installation ID for the one HTTPX fork installation. |
-| `GITHUB_PRIVATE_KEY` | Contents of the App's PEM private-key file, pasted into the host secret field. |
-| `GITHUB_WEBHOOK_SECRET` | A new high-entropy secret entered both in the GitHub App and host secret field. |
-| `DOCSYNC_REPOSITORY` | Exact allowlisted fork name, such as `OWNER/httpx`. |
-| `DOCSYNC_MONITORED_BRANCH` | `master` for the current HTTPX baseline, or the fork's actual branch name. |
-| `DOCSYNC_REVIEW_USERNAME` | Reviewer login name. |
-| `DOCSYNC_REVIEW_PASSWORD` | A unique long password for the review surface. |
-| `DOCSYNC_BASE_URL` | Public HTTPS base URL of the Render web service. |
+| Public GitHub repositories / standard hosted Actions | ₹0 |
+| Streamlit Community Cloud | ₹0 under free service limits |
+| Neon PostgreSQL / pgvector | ₹0 within Neon Free limits |
+| Local FastEmbed MiniLM | ₹0 API cost |
+| Sarvam impact, targeted revision, chat | Usage-based API cost |
 
-`DOCSYNC_EMBEDDING_MODEL` defaults to `sentence-transformers/all-MiniLM-L6-v2`. Its ONNX weights download the first time the service indexes or searches documentation. No provider receives embedding requests.
+Free-tier terms and quotas may change; check provider limits before deployment. No required recurring infrastructure payment is the target. Do not provision larger Actions runners, paid Streamlit hosting, a Neon paid plan, or Render resources. Stop when a free quota is exhausted; no automatic upgrades or keep-alive polling.
 
-## Register and install the GitHub App
+Provider references: [GitHub billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions), [Streamlit deployment](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy), [Neon Free storage announcement](https://neon.com/blog/neon-free-plan-1-gb-per-project). Neon announced 1 GB per Free project on October 2, 2026; use the console for the current storage, compute, network and branch quotas.
 
-Create the App under your GitHub account or organization, then configure:
+## 1. Publish this application release
 
-1. **Webhook URL:** `https://<service>.onrender.com/webhooks/github`.
-2. **Webhook secret:** set a fresh random value and copy that same value to `GITHUB_WEBHOOK_SECRET` in Render.
-3. **Repository permissions:** Contents **Read and write**; Pull requests **Read and write**. Metadata read access is GitHub's default. The app uses contents access to fetch code and push the approved docs branch, and pull-request access to open the review PR.
-4. **Events:** `push` and `pull_request` only. The worker processes pushes to the configured monitored branch and indexes only merged DocSync PRs.
-5. Generate an App private key. Enter its PEM text in Render's `GITHUB_PRIVATE_KEY` secret field. Do not commit or paste it into chat.
-6. Install the App on **only the HTTPX fork**. Use the installation ID from the installation settings URL for `GITHUB_INSTALLATION_ID`.
-7. Set `DOCSYNC_REPOSITORY` to the exact `owner/repository` name of that fork. The server rejects all other repositories.
+Application: `DebuG6290/ai-docsync`, branch `main`. Monitored demo: `DebuG6290/httpx`, branch `master`. Publish the migration commit before installing the caller workflows. Note the full application commit SHA.
 
-GitHub's webhook HMAC validation uses `X-Hub-Signature-256` and a constant-time comparison. The App is installation-scoped, and no repository code is run; the worker only fetches Git objects and parses Python/Markdown.
+Copy `integrations/httpx/docsync-analysis.yml` and `docsync-index.yml` into the fork's `.github/workflows/`. Replace BOTH `@main` and `application_ref: main` in each caller with that same full application SHA. The repository has only small integration files; application code stays in ai-docsync. Enable Actions on the fork. Allow reusable workflows and standard Ubuntu runners. Keep Actions permissions read-only. Do not enable secrets for untrusted PR workflows.
 
-## Run locally
+Reusable workflow inputs are plumbing: caller repository, monitored branch, and trusted event JSON. Push analysis reads the complete Git old/new diff, not the potentially truncated event commit list. Unsupported-symbol-only changes are recorded as skipped, never classified semantically as NO_CHANGE. A normal docs-only merge has no changed Python symbols and cannot recurse into Sarvam analysis.
 
-1. Install Docker Desktop and Docker Compose.
-2. Add the variables above to the ignored local `.env` file (the existing file may already contain the Sarvam key; preserve it). Compose supplies `DATABASE_URL` internally; do not replace it with a Render URL locally.
-3. Run `docker compose up --build` from this directory.
-4. Visit `http://localhost:8000`. A local public webhook requires a tunnel whose URL is configured in the GitHub App; never expose a development server without the webhook secret and reviewer password.
+## 2. Neon Free database
 
-## D0 → code change → review → D1
+Create a Neon **Free** project with no paid upgrade. Copy its TLS connection string (`sslmode=require`). Use a direct connection for initialization if your pooler cannot run schema migrations; use a pooled connection for runtime.
 
-1. Sign in and select **Index approved baseline** once. The worker indexes Markdown sections under `docs/` at the configured monitored branch SHA. This is the accepted baseline for the demo.
-2. Open **Chat**, ask exactly `What is the default timeout?`, and record the answer plus its file, heading, approved commit, and index-version citations. This is D0.
-3. In the HTTPX fork, change the default timeout value from 5 to 8 seconds and push/merge that code-only change into the configured monitored branch. No DocSync CLI operation starts the flow.
-4. Open the DocSync review queue. Follow the GitHub delivery and case. Inspect changed code, diff, mapped sections, current text, Sarvam rationale, evidence completeness, missing information, safe claims, and unsupported claims.
-5. Reject one proposal with a concrete reason. Wait for the worker to add the targeted Sarvam revision as a new version, confirm only that proposal changed, then either accept that version or edit it and explicitly accept the human version. Accept every other UPDATE proposal. Resolve any UNCERTAIN sections in the triage panel.
-6. Wait for the case to link a docs-only branch and PR. Review/merge that PR in GitHub; DocSync does not auto-merge.
-7. The `pull_request` merged event verifies that the approved section text is present at the merged SHA, embeds just those sections, copies unchanged active sections forward, and atomically switches the active index pointer. Pending/rejected/revision proposals are never selected for indexing.
-8. In **Chat**, ask exactly `What is the default timeout?` again. This is D1. Verify that the cited section is from the merged approved documentation commit.
-9. Open the case's **Audit timeline** to inspect delivery, analysis, proposal/revision, review, PR, and index events.
-
-## Local test commands
-
-Install the project and test extra into the active virtual environment, then run:
+Set `DATABASE_URL` locally without printing it, then run:
 
 ```powershell
-& .\.venv\Scripts\python.exe -m pip install -e ".[test]"
-& .\.venv\Scripts\python.exe -m pytest -q --basetemp .pytest-tmp
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m docsync.web.migrate
 ```
 
-Infrastructure tests use SQLite and fake GitHub/model boundaries; the deployed case-analysis, revision, and chat paths use real Sarvam calls. The tests do not substitute for installing the App, deploying the services, and completing the D0/D1 GitHub demonstration.
+The versioned Alembic migration enables `CREATE EXTENSION IF NOT EXISTS vector`, creates the existing online tables, and adds/backfills explicit `human_modified` provenance. It preserves existing cases, approvals, audit records and vector chunks. Set `DOCSYNC_REPOSITORY=DebuG6290/httpx` and `DOCSYNC_MONITORED_BRANCH=master` to seed the approved mappings. Migration also runs in Actions before operations; credentials never appear in migration configuration.
+
+Tables retain repositories, mappings, deliveries, finite jobs, cases, section assessments, model calls, proposals, immutable proposal versions, review actions, audit events, releases and hashes, knowledge versions, 384-dimensional chunks and chat turns. `jobs` is an operation ledger, not a continuously polled hosted queue. Temporary SQLite bridges live only during one operation; hosted durable data is PostgreSQL.
+
+## 3. Fork Actions secrets
+
+In HTTPX fork → Settings → Secrets and variables → Actions, add:
+
+- `DATABASE_URL`
+- `SARVAM_API_KEY`
+
+`GITHUB_TOKEN` is built in and read-only. No App private key is needed in Actions. Indexing requires only `DATABASE_URL` and the built-in token. SARVAM_MODEL defaults to sarvam-105b.
+
+The analysis workflow runs on push to master. The indexing workflow runs when a PR is closed and merged into master, or when baseline initialization is manually dispatched. The release must already exist in Neon with the exact PR number and immutable approved commit. PR names and filenames are not approval evidence.
+
+## 4. GitHub App for approved writes
+
+Create an App with webhooks **disabled**, contents read/write, pull requests read/write and metadata read. Install it on **only DebuG6290/httpx**. Record App ID, installation ID and generate a private key. Do not give it Actions administration or organization permissions. Do not use a broad classic PAT.
+
+The App is used only from Streamlit for publication. Actions reads use GITHUB_TOKEN. PRs are manually merged by the reviewer in GitHub.
+
+Publication validates the exact accepted version IDs and original documentation hashes, applies the proven Phase 1 patcher, and creates only those documentation files in the Git tree. Immutable Git objects and the approved release snapshot are persisted before branch/PR creation. Retrying reuses the same branch and commit, and reconciles an already-created PR. A changed base or conflicting branch stops publication rather than overwriting it.
+
+## 5. Streamlit Community Cloud
+
+Deploy `DebuG6290/ai-docsync`, branch `main`, entry point `streamlit_app.py`, Python **3.12**. `requirements.txt` installs the package and its dependencies. Copy `.streamlit/secrets.toml.example` into the Community Cloud secrets editor and replace placeholders. Never commit `.streamlit/secrets.toml`.
+
+Required Streamlit secret names:
+
+- `DATABASE_URL`
+- `SARVAM_API_KEY`
+- `GITHUB_APP_ID`
+- `GITHUB_INSTALLATION_ID`
+- `GITHUB_PRIVATE_KEY` (multiline PEM)
+- `DOCSYNC_REVIEW_USERNAME`
+- `DOCSYNC_REVIEW_PASSWORD` (long random password)
+
+Configuration: `DOCSYNC_REPOSITORY`, `DOCSYNC_MONITORED_BRANCH`, `DOCSYNC_HOSTED=true`, optional `SARVAM_MODEL`. Keep GITHUB_TOKEN unset here. The application requires login before reads, mutations or model calls. Add Community Cloud viewer restrictions under sharing settings where available; provider restrictions are additional protection. The public repository contains no credentials.
+
+Pages: Review Queue, Case Review, Audit Trail, Chat, Settings / Status. Inspect old/new code, Git diff, section text, evidence completeness, missing evidence, safe/unsupported claims, proposal diffs and all versions. Acceptance binds the displayed version. Modify saves an authoritative human version (`human_modified=true`) requiring explicit acceptance. Reject saves the reason first, calls only targeted revision synchronously, and persists the new version/model metadata before reporting success. Uncertain sections require reasoned human triage.
+
+An approved case exposes **Create approved docs PR**. No polling worker is needed. The process records PENDING/PROCESSING/COMPLETED/ERROR operations. Failed/interrupted operations can be explicitly retried in the app; a 30-minute lease prevents a concurrent retry while a call may be running. Actions can be rerun after errors. Sarvam cannot be guaranteed exactly-once if the process stops after a billed response but before saving it. Completed durable results are reconciled before another call.
+
+## 6. Initialize approved baseline
+
+Before changing code, open the fork → Actions → DocSync index → Run workflow, select master and enter:
+
+`b5addb64f0161ff6bfe94c124ef76f6a1fba5254`
+
+This is the explicit human-approved demo baseline. Do not use the current branch tip implicitly: installing integration workflows already advances it. Baseline indexing is idempotent and cannot replace an initialized active index. Check the successful Actions run, Streamlit Status active version/source commit, and approved_baseline_indexed audit.
+
+Ordinary analysis checks candidate documentation against active approved chunks. Unapproved doc drift causes an explicit context conflict before Sarvam sees that text; it must be reconciled by a human.
+
+## 7. Exact D0 → D1 demonstration
+
+1. Ask **What is the default timeout?** in Streamlit Chat. Record D0, expected five seconds, section/file citation, approved commit and knowledge version.
+2. Change `DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)` to `Timeout(timeout=8.0)` in the HTTPX fork and merge to master. This symbol is a demo edit; no application semantic rule is based on its name.
+3. Verify automatic DocSync code-change Actions run → live Sarvam → Neon case → Review Queue. Inspect all candidate sections, including advanced/timeouts and QuickStart.
+4. Reject one proposal with a meaningful wording/evidence reason. Verify only its V2 is added. Inspect history. Accept the precise displayed versions; optionally save a human modification and explicitly accept it. Resolve any UNCERTAIN sections.
+5. Create the approved docs PR from Streamlit. Inspect the docs-only diff; merge manually in GitHub.
+6. Verify automatic DocSync index run. It verifies GitHub merged PR metadata, approved commit identity, merged file text and each section hash. Only changed approved sections get new embeddings; unchanged vectors/source provenance are copied. New version, active pointer, release/case state and activation audit commit atomically. Concurrent activation uses compare-and-swap protection.
+7. Ask the same question. Record D1, expected eight seconds, citation to the newly merged approved documentation commit and new knowledge version. Pending, rejected and draft proposal text cannot enter retrieval.
+
+Do not declare hosted acceptance until these artifacts exist. Local service tests cannot prove the hosted demo.
+
+## Local development
+
+SQLite supports service tests and exact Python cosine retrieval without paid services:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e '.[test]'
+# Configure ignored .env with local DATABASE_URL and review credentials.
+.\.venv\Scripts\python.exe -m docsync.web.migrate
+.\.venv\Scripts\python.exe -m streamlit run streamlit_app.py
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+For local PostgreSQL/pgvector, use `docker compose up --build` after setting .env variables; this starts Postgres and Streamlit on port 8501, with no worker. Existing FastAPI/Jinja routes and worker.main remain **legacy local compatibility** for existing tests; they are not the supported deployment path. render.yaml is removed.
+
+## Resource and recovery limits
+
+Community Cloud may sleep or restart; Neon may scale to zero. Embedding model initialization can be slow and memory intensive. One cached FastEmbed model is shared in Streamlit; the cache directory is temporary and holds no durable state. Standard Actions runners download embeddings during indexing. No keep-alive scheduler is introduced.
+
+GitHub concurrency serializes repository analysis/index runs; the DB operation lease handles Streamlit retries. Streamlit revisions run synchronously. If deployment shows this is unreliable, the next change should dispatch a finite zero-cost Action, not provision a paid worker. Stale branches/context and altered merged text stop for review. There is no chat feedback/root-cause correction loop in this migration.

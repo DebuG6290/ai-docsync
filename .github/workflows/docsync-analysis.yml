@@ -1,0 +1,55 @@
+name: DocSync analysis
+on:
+  workflow_call:
+    inputs:
+      application_ref:
+        type: string
+        required: true
+      monitored_branch:
+        type: string
+        default: master
+      retry:
+        type: boolean
+        default: false
+    secrets:
+      DATABASE_URL:
+        required: true
+      SARVAM_API_KEY:
+        required: true
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: docsync-analysis-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DebuG6290/ai-docsync
+          ref: ${{ inputs.application_ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Initialize schema
+        run: python -m docsync.web.migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DOCSYNC_REPOSITORY: ${{ github.repository }}
+          DOCSYNC_MONITORED_BRANCH: ${{ inputs.monitored_branch }}
+      - name: Analyze provided event
+        run: |
+          args=()
+          if [ "$DOCSYNC_RETRY" = "true" ]; then args+=(--retry); fi
+          python -m docsync.online.actions --mode analysis "${args[@]}"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          DOCSYNC_REPOSITORY: ${{ github.repository }}
+          DOCSYNC_MONITORED_BRANCH: ${{ inputs.monitored_branch }}
+          DOCSYNC_RETRY: ${{ inputs.retry }}
