@@ -20,6 +20,8 @@ def execute(engine, settings, job_id, *, run_url="", retry=False):
             raise ValueError("Unknown operation")
         if job.status == "COMPLETED":
             return False
+        if job.status == 'CANCELLED':
+            raise ValueError('This operation was cancelled because the review changed')
         if job.status == "PROCESSING":
             claim = job.claimed_at
             if claim and claim.replace(tzinfo=utcnow().tzinfo) > utcnow() - timedelta(minutes=30):
@@ -61,6 +63,12 @@ def execute(engine, settings, job_id, *, run_url="", retry=False):
         with factory() as session:
             job = session.get(Job, job_id)
             job.status = "ERROR"
+            job.payload = {**job.payload, 'failure': 'CONFLICT' if type(exc).__name__ == 'ConflictError' else 'EXECUTION_ERROR'}
+            if job.kind == 'activate_release':
+                release = session.scalar(select(DocumentationRelease).where(DocumentationRelease.repo_id == job.repo_id,
+                    DocumentationRelease.pr_number == job.payload.get('pr_number')))
+                if release:
+                    release.status = 'INDEX_CONFLICT' if type(exc).__name__ == 'ConflictError' else 'INDEX_ERROR'
             if job.kind == "revise_proposal":
                 proposal = session.get(Proposal, job.payload['proposal_id'])
                 if proposal:

@@ -608,7 +608,7 @@ def test_merged_approved_section_enters_index_and_chat_cites_merged_version(syst
             _activate_release(engine, settings, detached)
         with factory() as session:
             assert session.get(Repository, repo_id).active_index_version_id is None
-            assert session.get(DocumentationRelease, release_id).status == 'PENDING_MERGE'
+            assert session.get(DocumentationRelease, release_id).status == ('VERIFYING' if tamper == 'file' else 'PENDING_MERGE')
         return
     _activate_release(engine, settings, detached)
 

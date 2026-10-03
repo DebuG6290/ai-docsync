@@ -11,6 +11,7 @@ from docsync.web.models import (
     AuditEvent,
     ChangeCase,
     CodeDocMapping,
+    DocumentationRelease,
     GitHubDelivery,
     Proposal,
     ProposalVersion,
@@ -372,6 +373,41 @@ def triage_section(session: Session, section_id: str, resolution: str, reason: s
         audit(session, "uncertainty_triaged_no_change", {"section_id": section.section_id, "reason": reason}, case.id)
     _maybe_queue_publication(session, case)
     session.commit()
+
+
+def override_no_change(session: Session, assessment_id: str, reason: str, content: str) -> ProposalVersion:
+    """Preserve the model assessment while creating an auditable human update."""
+    section = session.scalar(select(SectionAssessment).where(SectionAssessment.id == assessment_id).with_for_update())
+    if section is None or section.decision != 'NO_CHANGE':
+        raise ValueError('Only a no-update recommendation can be overridden here')
+    case = session.scalar(select(ChangeCase).where(ChangeCase.id == section.case_id).with_for_update())
+    if session.scalar(select(DocumentationRelease.id).where(DocumentationRelease.case_id == case.id)) or case.status in {'PUBLISHING', 'WAITING_MERGE', 'INDEXED'}:
+        raise ValueError('Publication has started. Create a follow-up review for corrections.')
+    if not reason.strip() or not content.strip():
+        raise ValueError('A reason and documentation text are required')
+    if session.scalar(select(Proposal.id).where(Proposal.case_id == case.id, Proposal.section_id == section.section_id)):
+        raise ValueError('This section already has an update; review its existing version')
+    proposal = Proposal(case_id=case.id, section_id=section.section_id, status='PENDING')
+    session.add(proposal)
+    session.flush()
+    version = ProposalVersion(proposal_id=proposal.id, version=1, author='human', human_modified=True,
+        proposed_text=content, reason=reason, code_evidence=[], evidence_completeness=None,
+        missing_information=section.missing_information, safe_claims=[], unsupported_claims=[])
+    session.add(version)
+    session.flush()
+    session.add(ReviewAction(proposal_id=proposal.id, action='OVERRIDE', version_id=version.id, reason=reason, content=content))
+    audit(session, 'no_change_overridden', {'section_id': section.section_id, 'proposal_id': proposal.id,
+        'version_id': version.id, 'reason': reason, 'original_decision': section.decision}, case.id)
+    # Cancel unpublished queued snapshots; approval must include the new human update.
+    from docsync.web.models import Job
+    for job in session.scalars(select(Job).where(Job.repo_id == case.repo_id, Job.kind == 'publish_docs', Job.status == 'PENDING')).all():
+        if job.payload.get('case_id') == case.id:
+            job.status = 'CANCELLED'
+    section.human_resolution = 'HUMAN_UPDATE'
+    section.triage_reason = reason
+    case.status = 'READY_FOR_REVIEW'
+    session.commit()
+    return version
 
 
 def local_store_from_online(session: Session, case: ChangeCase, root: Path) -> tuple[Store, str, dict[str, str]]:

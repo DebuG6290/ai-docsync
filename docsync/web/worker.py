@@ -38,6 +38,7 @@ from docsync.web.models import (
     ReviewAction,
     SarvamCall,
     SectionAssessment,
+    utcnow,
 )
 from docsync.web.workflow import (
     audit,
@@ -240,6 +241,14 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
             or pr.get("base", {}).get("ref") != repo.monitored_branch
             or pr.get("head", {}).get("repo", {}).get("full_name") != repo_name):
             raise ConflictError("Merged PR does not match the durable approved release")
+        with factory() as session:
+            stored = session.get(DocumentationRelease, release.id)
+            stored.merged_sha = merge_sha
+            stored.merged_at = stored.merged_at or utcnow()
+            stored.status_checked_at = utcnow()
+            stored.status = 'VERIFYING'
+            audit(session, 'documentation_merge_verified', {'pr_number': stored.pr_number, 'merged_sha': merge_sha}, stored.case_id)
+            session.commit()
         file_contents = {path: github.file_at(repo_name, path, merge_sha, token) for path in sorted({s.path for s in sections})}
         for path, text in file_contents.items():
             if text != github.file_at(repo_name, path, release.commit_sha, token):
@@ -263,6 +272,12 @@ def _activate_release(engine, settings: Settings, job: Job) -> None:
                 session.commit()
             return
         embedder = SentenceEmbedder(settings.embedding_model, settings.embedding_cache)
+        with factory() as session:
+            stored = session.get(DocumentationRelease, release.id)
+            stored.status = 'INDEXING'
+            stored.index_started_at = utcnow()
+            audit(session, 'knowledge_refresh_started', {'release_id': stored.id, 'merged_sha': merge_sha}, stored.case_id)
+            session.commit()
         embedder = prepared_embeddings(approved, embedder)
         with factory() as session:
             repo = session.get(Repository, repo.id)

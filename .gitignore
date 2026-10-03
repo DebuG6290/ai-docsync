@@ -9,6 +9,7 @@ __pycache__/
 .pytest-tmp-*/
 .cache/
 .pytest-httpx-*/
+.pytest-ux-*/
 .env
 .streamlit/secrets.toml
 *.egg-info/

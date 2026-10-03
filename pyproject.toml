@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Human-approved, online documentation change review and retrieval"
 requires-python = ">=3.10"
 dependencies = [
-  "streamlit>=1.40,<2",
+  "streamlit>=1.65,<2",
   "alembic>=1.13,<2",
   "pydantic>=2.7,<3",
   "fastapi>=0.115,<1",
@@ -40,4 +40,5 @@ include = ["docsync*"]
 
 [tool.setuptools.package-data]
 "docsync.web" = ["templates/*.html", "static/*.css"]
+"docsync.ui" = ["style.css"]
 

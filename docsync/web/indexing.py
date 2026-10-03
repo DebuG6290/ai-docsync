@@ -12,6 +12,7 @@ from docsync.web.models import (
     KnowledgeVersion,
     Repository,
     uid,
+    utcnow,
 )
 
 
@@ -119,6 +120,7 @@ def replace_approved_sections(
         if release is not None:
             release.status = "INDEXED"
             release.merged_sha = source_commit
+            release.activated_at = utcnow()
     session.flush()
     return version
 

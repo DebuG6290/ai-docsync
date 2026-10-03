@@ -179,6 +179,10 @@ class DocumentationRelease(Base):
     pr_number: Mapped[int] = mapped_column(Integer, nullable=False)
     pr_url: Mapped[str] = mapped_column(Text, nullable=False)
     merged_sha: Mapped[str | None] = mapped_column(String(64))
+    merged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    index_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    status_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(24), default="PENDING_MERGE", nullable=False)
 
 

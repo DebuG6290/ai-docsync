@@ -74,7 +74,11 @@ Required Streamlit secret names:
 
 Configuration: `DOCSYNC_REPOSITORY`, `DOCSYNC_MONITORED_BRANCH`, `DOCSYNC_HOSTED=true`, optional `SARVAM_MODEL`. Keep GITHUB_TOKEN unset here. The application requires login before reads, mutations or model calls. Add Community Cloud viewer restrictions under sharing settings where available; provider restrictions are additional protection. The public repository contains no credentials.
 
-Pages: Review Queue, Case Review, Audit Trail, Chat, Settings / Status. Inspect old/new code, Git diff, section text, evidence completeness, missing evidence, safe/unsupported claims, proposal diffs and all versions. Acceptance binds the displayed version. Modify saves an authoritative human version (`human_modified=true`) requiring explicit acceptance. Reject saves the reason first, calls only targeted revision synchronously, and persists the new version/model metadata before reporting success. Uncertain sections require reasoned human triage.
+Pages: **Home, Reviews, Knowledge, Chat, History, Settings**. Home prioritizes reviews needing attention. Reviews opens a focused section-by-section workspace with the recommendation, exact proposed diff, rationale and missing evidence. Code, assessment details and version history are expandable. Approval binds the displayed version. **Edit suggestion → Save edit → Approve update** creates an authoritative human version (`human_modified=true`) with separate explicit approval. Request revision saves the reason first and revises only the selected section. Uncertain sections require reasoned human triage. A NO_CHANGE section can receive a reasoned human override before the publication snapshot is created; the original assessment remains in history.
+
+Streamlit applies additive schema migrations once per database/process after login. The release lifecycle migration adds merge confirmation, verification/index start, activation and status-check timestamps without replacing existing records. Knowledge shows the active approved snapshot separately from pending documentation releases. Chat retains older answers with their original citations/version and offers **Ask again using current documentation**. A merged PR is not labeled available to Chat until verified indexing activates it.
+
+While operations are pending and the workspace is open, a 15-second fragment refreshes durable status. Known public documentation PRs are checked at most once per minute per active session. This is browser-session status refresh, with no permanent worker or keep-alive scheduler. Editor drafts survive navigation and automatic refresh within the session; they are durable only after Save edit. Use Refresh workspace for an immediate database refresh.
 
 An approved case exposes **Create approved docs PR**. No polling worker is needed. The process records PENDING/PROCESSING/COMPLETED/ERROR operations. Failed/interrupted operations can be explicitly retried in the app; a 30-minute lease prevents a concurrent retry while a call may be running. Actions can be rerun after errors. Sarvam cannot be guaranteed exactly-once if the process stops after a billed response but before saving it. Completed durable results are reconciled before another call.
 
@@ -84,7 +88,7 @@ Before changing code, open the fork → Actions → DocSync index → Run workfl
 
 `b5addb64f0161ff6bfe94c124ef76f6a1fba5254`
 
-This is the explicit human-approved demo baseline. Do not use the current branch tip implicitly: installing integration workflows already advances it. Baseline indexing is idempotent and cannot replace an initialized active index. Check the successful Actions run, Streamlit Status active version/source commit, and approved_baseline_indexed audit.
+This is the explicit human-approved demo baseline. Do not use the current branch tip implicitly: installing integration workflows already advances it. Baseline indexing is idempotent and cannot replace an initialized active index. Check the successful Actions run, Knowledge active version/source commit, and approved_baseline_indexed audit.
 
 Ordinary analysis checks candidate documentation against active approved chunks. Unapproved doc drift causes an explicit context conflict before Sarvam sees that text; it must be reconciled by a human.
 
