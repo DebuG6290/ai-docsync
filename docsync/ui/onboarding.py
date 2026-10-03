@@ -57,7 +57,10 @@ def bulk_multiselect(label, options, *, key, default=None):
         elif st.session_state.get(key) and raw:
             st.caption(f"{len(st.session_state[key])} pasted values matched.")
 
-    return st.multiselect(label, options, default=default or [], key=key)
+    widget_args = {'key': key}
+    if key not in st.session_state:
+        widget_args['default'] = default or []
+    return st.multiselect(label, options, **widget_args)
 
 
 def connect(settings, factory):
