@@ -55,9 +55,10 @@ def notify(text):
 
 
 def action(call, success):
+    from docsync.errors import ConflictError
     try:
         call()
-    except ValueError as exc:
+    except (ValueError, ConflictError) as exc:
         st.error(str(exc))
         return False
     except Exception:

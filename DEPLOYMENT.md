@@ -58,7 +58,9 @@ Create an App with webhooks **disabled**, contents read/write, pull requests rea
 
 The App is used only from Streamlit for publication. Actions reads use GITHUB_TOKEN. PRs are manually merged by the reviewer in GitHub.
 
-Publication validates the exact accepted version IDs and original documentation hashes, applies the proven Phase 1 patcher, and creates only those documentation files in the Git tree. Immutable Git objects and the approved release snapshot are persisted before branch/PR creation. Retrying reuses the same branch and commit, and reconciles an already-created PR. A changed base or conflicting branch stops publication rather than overwriting it.
+Publication validates the exact accepted version IDs and original documentation hashes, applies the proven Phase 1 patcher, and creates only those documentation files in the Git tree. Immutable Git objects and the approved release snapshot are persisted before branch/PR creation. Retrying reuses the durable release and reconciles an already-created PR. Relevant context drift or a conflicting publication branch stops publication rather than overwriting it.
+
+An unrelated branch advance can be published safely after ancestry, reviewed-code file overlap and reviewed-section hash checks. The new docs commit uses the validated current tip as parent; the branch is checked again before branch and PR writes. See [publication recovery](docs/PUBLICATION_RECOVERY.md) for safe retries, prepared-snapshot limits and the existing HTTPX case's exact UI steps.
 
 ## 5. Streamlit Community Cloud
 

@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from sqlalchemy import select
+from docsync.errors import ConflictError
 
 from docsync.web.database import session_factory
 from docsync.web.models import AuditEvent, ChangeCase, Job, Proposal, ProposalVersion, DocumentationRelease, utcnow
@@ -64,6 +65,11 @@ def execute(engine, settings, job_id, *, run_url="", retry=False):
             job = session.get(Job, job_id)
             job.status = "ERROR"
             job.payload = {**job.payload, 'failure': 'CONFLICT' if type(exc).__name__ == 'ConflictError' else 'EXECUTION_ERROR'}
+            if job.kind == 'publish_docs':
+                case = session.get(ChangeCase, job.payload['case_id'])
+                if case:
+                    case.status = 'PUBLISH_ERROR'
+                    case.error = str(exc) if isinstance(exc, ConflictError) else 'Publication could not finish. Your approvals are preserved. Resume publication to retry.'
             if job.kind == 'activate_release':
                 release = session.scalar(select(DocumentationRelease).where(DocumentationRelease.repo_id == job.repo_id,
                     DocumentationRelease.pr_number == job.payload.get('pr_number')))

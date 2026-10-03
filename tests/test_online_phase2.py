@@ -446,6 +446,7 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
 
 
     pr_attempts = []
+    worker_clones = []
     class Response:
         def __init__(self, data, status=200):
             self.data, self.status_code, self.is_error = data, status, status >= 400
@@ -465,7 +466,7 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
             result = subprocess.run(['git', 'rev-parse', 'refs/heads/' + branch], cwd=bare, capture_output=True, text=True)
             return Response({'object': {'sha': result.stdout.strip()}}, 200 if result.returncode == 0 else 404)
         def request(self, method, api, token, **kwargs):
-            clone = tmp_path / 'worker-clone'
+            clone = worker_clones[-1]
             if method == 'GET' and '/git/commits/' in api:
                 return Response({'tree': {'sha': _git('rev-parse', base_sha + '^{tree}', cwd=source)}})
             payload = kwargs['json']
@@ -493,7 +494,8 @@ def test_accepted_patch_creates_docs_only_branch_commit_and_pr(system, tmp_path,
 
     @contextmanager
     def local_clone(_repository, _token, _before, _after):
-        clone = tmp_path / "worker-clone"
+        clone = tmp_path / f"worker-clone-{len(worker_clones)}"
+        worker_clones.append(clone)
         _git("clone", str(bare), str(clone), cwd=tmp_path)
         env = os.environ.copy()
         def git(*args):
