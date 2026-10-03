@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import re
+from datetime import timedelta
 from pathlib import Path
 
 from sqlalchemy import select
@@ -13,7 +14,7 @@ from docsync.repository.markdown_sections import parse_sections
 from docsync.web.config import get_settings
 from docsync.web.database import make_engine, session_factory
 from docsync.web.github import cloned_repository
-from docsync.web.models import GitHubDelivery, Job, DocumentationRelease, IndexedSection
+from docsync.web.models import GitHubDelivery, Job, DocumentationRelease, IndexedSection, Repository, utcnow
 from docsync.web.repository import ensure_repository, enqueue
 from docsync.web.workflow import audit, approved_mappings
 
@@ -33,12 +34,32 @@ def event_input(settings, name, payload):
         if payload.get('deleted'):
             return None
         return 'analyze_push', {'before_sha': sha(payload.get('before')), 'after_sha': sha(payload.get('after'))}
+    if name == 'workflow_dispatch':
+        inputs = payload.get('inputs') or {}
+        return 'analyze_push', {'before_sha': sha(inputs.get('before_sha')), 'after_sha': sha(inputs.get('after_sha'))}
     if name == 'pull_request':
         pr = payload.get('pull_request') or {}
         if payload.get('action') != 'closed' or not pr.get('merged') or pr.get('base', {}).get('ref') != settings.monitored_branch:
             return None
         return 'activate_release', {'pr_number': int(pr['number']), 'merge_sha': sha(pr.get('merge_commit_sha'))}
     raise ValueError("Unsupported event")
+
+
+def existing_analysis_job(engine, settings, data):
+    """Manual recovery reuses a known push operation, never creates a new case."""
+    key = f"push:{sha(data['before_sha'])}:{sha(data['after_sha'])}"
+    with session_factory(engine)() as session:
+        repo = session.scalar(select(Repository).where(Repository.full_name == settings.repository))
+        job = session.scalar(select(Job).where(Job.repo_id == repo.id, Job.kind == 'analyze_push',
+            Job.delivery_id == f'{repo.id}:{key}')) if repo else None
+        if job is None or job.payload.get('before_sha') != data['before_sha'] or job.payload.get('after_sha') != data['after_sha']:
+            raise ValueError('No existing analysis operation matches these commits')
+        if job.status not in {'ERROR', 'PROCESSING', 'COMPLETED'}:
+            raise ValueError('Manual recovery requires a failed or interrupted analysis')
+        if job.status == 'PROCESSING':
+            if job.claimed_at and job.claimed_at.replace(tzinfo=utcnow().tzinfo) > utcnow() - timedelta(minutes=30):
+                raise ValueError('Operation is already running')
+        return job.id
 
 
 def register(engine, settings, kind, data, *, run_url='', run_id=''):
@@ -116,6 +137,9 @@ def main():
     if not settings.database_url.startswith(('postgres://', 'postgresql')):
         raise ValueError("Hosted Actions requires PostgreSQL")
     engine = make_engine(settings.database_url)
+    recovery = not args.baseline_sha and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+    if recovery and (args.mode != 'analysis' or not args.retry):
+        raise ValueError('Manual analysis recovery requires explicit --retry')
     if args.baseline_sha:
         if args.mode != 'index':
             raise ValueError("Baseline is an indexing operation")
@@ -128,7 +152,8 @@ def main():
         if (args.mode == 'analysis') != (kind == 'analyze_push'):
             raise ValueError("Event does not match workflow")
     url = f"https://github.com/{settings.repository}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-    job_id = register(engine, settings, kind, data, run_url=url, run_id=os.environ['GITHUB_RUN_ID'])
+    job_id = (existing_analysis_job(engine, settings, data) if recovery else
+        register(engine, settings, kind, data, run_url=url, run_id=os.environ['GITHUB_RUN_ID']))
     if not job_id:
         return
     # Replays check durable completion before spending on Git/model work.

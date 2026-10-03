@@ -56,7 +56,8 @@ class ModelClient:
     ) -> T:
         """Call Sarvam, validate the typed output, and make at most one repair retry.
 
-        Retries repair transport/format/output-contract failures only. The caller's
+        Retries repair transport/format/output-contract failures only, excluding
+        known length truncation, which cannot be repaired at the same budget. The caller's
         validator must check mechanical response requirements, never semantic
         documentation impact.
         """
@@ -116,7 +117,9 @@ class ModelClient:
                 diagnostic["error"] = str(exc)
                 diagnostic["latency_ms"] = round((time.perf_counter() - started) * 1000, 2)
 
-                can_retry = attempt == 0 and (
+                # The same output scope/budget cannot repair a known truncation.
+                # Fail explicitly; orchestration bounds impact scope before calling.
+                can_retry = diagnostic.get('finish_reason') != 'length' and attempt == 0 and (
                     exc.category == MODEL_CONTRACT_ERROR or exc.retryable
                 )
                 diagnostic["retry_scheduled"] = can_retry

@@ -50,6 +50,8 @@ In HTTPX fork → Settings → Secrets and variables → Actions, add:
 
 The analysis workflow runs on push to master. The indexing workflow runs when a PR is closed and merged into master, or when baseline initialization is manually dispatched. The release must already exist in Neon with the exact PR number and immutable approved commit. PR names and filenames are not approval evidence.
 
+Impact output is bounded to one target section per call while retaining full code and documentation context. Failed analysis can be explicitly recovered from the updated analysis caller's Run workflow inputs using the existing before/after SHA pair. See [analysis recovery](docs/ANALYSIS_RECOVERY.md) for call limits, diagnostics and the current HTTPX 8→9 recovery steps. Re-running an old pinned workflow does not load a newly published fix.
+
 ## 4. GitHub App for approved writes
 
 Create an App with webhooks **disabled**, contents read/write, pull requests read/write and metadata read. Install it on **only DebuG6290/httpx**. Record App ID, installation ID and generate a private key. Do not give it Actions administration or organization permissions. Do not use a broad classic PAT.

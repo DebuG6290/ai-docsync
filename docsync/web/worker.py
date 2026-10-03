@@ -68,6 +68,8 @@ def _process_analysis(engine, settings: Settings, job: Job) -> None:
         before, after = job.payload["before_sha"], job.payload["after_sha"]
         case = start_case(session, repo, delivery.delivery_id, before, after)
         case_id = case.id
+        case.status = 'ANALYZING'
+        case.error = None
         case.case_data = {**case.case_data, 'context_provenance': job.payload.get('approved_documentation_commits', {})}
         session.commit()
         mappings = approved_mappings(session, repo.id)

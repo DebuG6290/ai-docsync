@@ -2,6 +2,14 @@ name: DocSync code change
 on:
   push:
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      before_sha:
+        description: Full before SHA of an existing failed analysis (not a new code change)
+        required: true
+      after_sha:
+        description: Full after SHA of that same failed analysis
+        required: true
 permissions:
   contents: read
 jobs:
@@ -11,7 +19,7 @@ jobs:
       # Workflow and application are pinned to the same reviewed UI and lifecycle release.
       application_ref: f40e12ec7555584e3573ecbb7db0878075ddf013
       monitored_branch: master
-      retry: ${{ github.run_attempt > 1 }}
+      retry: ${{ github.event_name == 'workflow_dispatch' || github.run_attempt > 1 }}
     secrets:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}

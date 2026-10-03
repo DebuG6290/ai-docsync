@@ -31,6 +31,10 @@ MAPPING_PROMPT_VERSION = "mapping.v2"
 IMPACT_PROMPT_VERSION = "impact.v4"
 REVISION_PROMPT_VERSION = "revision.v3"
 
+# Bound output scope, not semantic reasoning. Full input context remains available.
+IMPACT_MAX_SECTIONS_PER_CALL = 1
+IMPACT_BATCH_SCOPE = "\n\nAssess exactly the sections in the sections array. related_documentation_sections is read-only context; do not return assessments for those sections."
+
 
 def suggest_mappings(
     client: ModelClient,
@@ -94,7 +98,10 @@ def aggregate_case_decision(sections: list) -> Decision:
     return Decision.NO_CHANGE
 
 
-def analyze(repo: Path, old_rev: str, new_rev: str, store: Store, client: ModelClient | None = None) -> tuple[str, Decision]:
+def analyze(repo: Path, old_rev: str, new_rev: str, store: Store, client: ModelClient | None = None, *,
+            max_sections_per_call: int = IMPACT_MAX_SECTIONS_PER_CALL) -> tuple[str, Decision]:
+    if type(max_sections_per_call) is not int or max_sections_per_call < 1:
+        raise ValueError("max_sections_per_call must be a positive integer")
     repo = repo.resolve()
     old_sha = resolve_commit(repo, old_rev)
     new_sha = resolve_commit(repo, new_rev)
@@ -114,21 +121,20 @@ def analyze(repo: Path, old_rev: str, new_rev: str, store: Store, client: ModelC
         "sections": sections,
     }
     case_id = store.create_case(case_data)
-    user = json.dumps(case_data, ensure_ascii=False)
     try:
         expected = {s["section_id"] for s in sections}
 
-        def validate(result: ImpactResponse) -> str | None:
+        def validate(result: ImpactResponse, required: set[str]) -> str | None:
             if not result.summary.strip():
                 return "Sarvam returned an empty impact summary"
             observed = [s.section_id for s in result.sections]
-            if set(observed) != expected or len(observed) != len(expected):
-                missing = sorted(expected - set(observed))
-                unknown = sorted(set(observed) - expected)
+            if set(observed) != required or len(observed) != len(required):
+                missing = sorted(required - set(observed))
+                unknown = sorted(set(observed) - required)
                 duplicates = sorted({sid for sid in observed if observed.count(sid) > 1})
                 return (
                     "Impact response section_id contract failed: "
-                    f"expected exactly {sorted(expected)}, observed {observed}, "
+                    f"expected exactly {sorted(required)}, observed {observed}, "
                     f"missing={missing}, unknown={unknown}, duplicates={duplicates}"
                 )
             for item in result.sections:
@@ -147,19 +153,43 @@ def analyze(repo: Path, old_rev: str, new_rev: str, store: Store, client: ModelC
                     return f"Sarvam marked {item.section_id} UNCERTAIN without identifying missing information"
             return None
 
-        result = client.structured(
-            IMPACT_SYSTEM,
-            user,
-            ImpactResponse,
-            "impact_analysis",
-            operation="impact",
-            prompt_version=IMPACT_PROMPT_VERSION,
-            candidate_section_ids=sorted(expected),
-            diagnostic_sink=lambda entry: store.event("sarvam_call", entry, case_id),
-            contract_validator=validate,
-        )
+        batches = [sections[i:i + max_sections_per_call] for i in range(0, len(sections), max_sections_per_call)]
+        store.event("impact_batch_plan", {"total_candidate_sections": len(sections), "batch_count": len(batches),
+            "max_sections_per_call": max_sections_per_call,
+            "batches": [{"batch_number": i, "section_ids": [s['section_id'] for s in batch]}
+                for i, batch in enumerate(batches, 1)]}, case_id)
+        outcomes = []
+        summaries = []
+        for number, batch in enumerate(batches, 1):
+            required = {s['section_id'] for s in batch}
+            metadata = {"total_candidate_sections": len(sections), "batch_count": len(batches),
+                "batch_number": number, "batch_section_ids": sorted(required), "batch_scope_version": "sections.v1"}
+            context = {**case_data, "sections": batch}
+            if len(batches) > 1:
+                context['related_documentation_sections'] = [s for s in sections if s['section_id'] not in required]
+            store.event("impact_batch_started", metadata, case_id)
+            try:
+                response = client.structured(
+                    IMPACT_SYSTEM + (IMPACT_BATCH_SCOPE if len(batches) > 1 else ""),
+                    json.dumps(context, ensure_ascii=False), ImpactResponse, "impact_analysis",
+                    operation="impact", prompt_version=IMPACT_PROMPT_VERSION,
+                    candidate_section_ids=sorted(required),
+                    diagnostic_sink=lambda entry: store.event("sarvam_call", {**entry, **metadata,
+                        "attempt_count": entry['retry_count'] + 1}, case_id),
+                    contract_validator=lambda response: validate(response, required),
+                )
+            except Exception as exc:
+                store.event("impact_batch_failed", {**metadata, "error_type": type(exc).__name__}, case_id)
+                raise
+            outcomes.extend(response.sections)
+            summaries.append(response.summary)
+            store.event("impact_batch_completed", metadata, case_id)
+        # No proposals or review assessments are persisted until every batch passes.
+        result = ImpactResponse(summary="\n\n".join(summaries), sections=outcomes)
+        contract_error = validate(result, expected)
+        if contract_error:
+            raise ModelError(contract_error)
         case_decision = aggregate_case_decision(result.sections)
-        store.set_case_result(case_id, case_decision.value, result.summary, "READY")
         store.event(
             "case_workflow_aggregation",
             {
@@ -173,6 +203,7 @@ def analyze(repo: Path, old_rev: str, new_rev: str, store: Store, client: ModelC
             if section_result.decision == Decision.UPDATE:
                 store.add_proposal(case_id, section_result.section_id, section_result.proposed_text or "", section_result.reason, section_result.code_evidence)
             store.event("section_decision", section_result.model_dump(mode="json"), case_id)
+        store.set_case_result(case_id, case_decision.value, result.summary, "READY")
         return case_id, case_decision
     except ModelError as exc:
         store.set_case_error(case_id, str(exc))

@@ -92,17 +92,22 @@ def persist_analysis(
     if online is None or source is None:
         raise ValueError("The analysis case disappeared before persistence")
     snapshot = local.case_snapshot(local_case_id)
+    local_events = local.audit(local_case_id)
+    assessed_ids = [json.loads(e['payload_json'])['section_id'] for e in local_events if e['kind'] == 'section_decision']
+    required_ids = {s['section_id'] for s in snapshot['sections']}
+    if source['status'] != 'READY' or not required_ids or set(assessed_ids) != required_ids or len(assessed_ids) != len(required_ids):
+        raise ValueError('Only a complete, validated analysis can become reviewable')
     snapshot['context_provenance'] = online.case_data.get('context_provenance', {})
     snapshot["repo_root"] = ""
     online.case_data = snapshot
     online.decision = source["decision"]
     online.summary = source["summary"]
+    online.error = None
     online.status = "NEEDS_TRIAGE" if source["decision"] == "UNCERTAIN" else (
         "NO_CHANGE" if source["decision"] == "NO_CHANGE" else "READY_FOR_REVIEW"
     )
 
     assessments: dict[str, dict] = {}
-    local_events = local.audit(local_case_id)
     for event in local_events:
         payload = json.loads(event["payload_json"])
         if event["kind"] == "section_decision":
@@ -169,6 +174,7 @@ def persist_analysis(
             "mapping_imported_as_confirmed", "case_created", "sarvam_call", "impact_decision",
             "case_workflow_aggregation", "sarvam_response_metadata", "proposal_created",
             "proposal_version_created", "section_decision", "proposal_revision_assessment",
+            "impact_batch_plan", "impact_batch_started", "impact_batch_completed", "impact_batch_failed",
         }:
             audit(session, kind, payload, case_id)
     delivery = session.get(GitHubDelivery, delivery_id)
@@ -202,10 +208,11 @@ def persist_analysis_error(
                 local_case_id = row["id"] if row else None
             if local_case_id:
                 for event in local.audit(local_case_id):
-                    if event["kind"] == "sarvam_call":
+                    if event["kind"] in {'sarvam_call', 'impact_batch_plan', 'impact_batch_started', 'impact_batch_completed', 'impact_batch_failed'}:
                         payload = _plain(json.loads(event["payload_json"]))
-                        session.add(SarvamCall(case_id=case_id, operation=payload.get("operation", "impact"), metadata_json=payload))
-                        audit(session, "sarvam_call", payload, case_id)
+                        if event['kind'] == 'sarvam_call':
+                            session.add(SarvamCall(case_id=case_id, operation=payload.get("operation", "impact"), metadata_json=payload))
+                        audit(session, event['kind'], payload, case_id)
     delivery = session.get(GitHubDelivery, delivery_id)
     if delivery is not None:
         delivery.status = "ERROR"
