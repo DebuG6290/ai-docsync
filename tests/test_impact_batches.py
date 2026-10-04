@@ -127,13 +127,34 @@ def test_multiple_batches_preserve_context_coverage_and_semantics(context, tmp_p
             assert system.startswith(IMPACT_SYSTEM)
             assert payload['changes'] == [change.model_dump()]
             assert payload['mappings'] == with_batch.case_snapshot(cid)['mappings']
-            assert sorted(payload['sections'] + payload['related_documentation_sections'], key=lambda s:s['section_id']) == sections
+            assert 'related_documentation_sections' not in payload
+            assert all(s in sections for s in payload['sections'])
         diagnostics = events(with_batch, cid, 'sarvam_call')
         assert [d['batch_number'] for d in diagnostics] == [1, 2, 3]
         assert all(d['total_candidate_sections'] == 5 and d['batch_count'] == 3 and d['attempt_count'] == 1 for d in diagnostics)
         assert all(d['finish_reason'] == 'stop' and d['total_tokens'] == 300 for d in diagnostics)
     finally:
         with_batch.db.close(); single.db.close()
+
+
+def test_one_section_calls_exclude_other_documentation(context, tmp_path):
+    root, sections, change = context
+    store = store_for(tmp_path / 'isolated.sqlite3', sections)
+    try:
+        client = Client()
+        cid, _ = analyze(root, 'a'*40, 'b'*40, store, client)
+        assert len(client.requests) == len(sections)
+        for (_, payload, raw), target in zip(client.requests, sections):
+            assert payload['sections'] == [target]
+            assert 'related_documentation_sections' not in payload
+            assert payload['changes'] == [change.model_dump()]
+            assert payload['mappings'] == store.case_snapshot(cid)['mappings']
+            assert payload['old_sha'] == 'a'*40 and payload['new_sha'] == 'b'*40
+            for other in sections:
+                if other != target:
+                    assert other['text'] not in raw
+    finally:
+        store.db.close()
 
 
 def test_small_case_keeps_original_prompt_and_one_call(context, tmp_path):

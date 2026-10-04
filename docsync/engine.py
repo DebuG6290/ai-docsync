@@ -165,8 +165,6 @@ def analyze(repo: Path, old_rev: str, new_rev: str, store: Store, client: ModelC
             metadata = {"total_candidate_sections": len(sections), "batch_count": len(batches),
                 "batch_number": number, "batch_section_ids": sorted(required), "batch_scope_version": "sections.v1"}
             context = {**case_data, "sections": batch}
-            if len(batches) > 1:
-                context['related_documentation_sections'] = [s for s in sections if s['section_id'] not in required]
             store.event("impact_batch_started", metadata, case_id)
             try:
                 response = client.structured(
