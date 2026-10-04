@@ -1,0 +1,1499 @@
+{
+  "report_version": "httpx-impact-archived-human-v1",
+  "generated_at_utc": "2026-10-04T12:58:09.597585+00:00",
+  "label_version": "httpx-impact-human.v1",
+  "label_commit": "7a1b9a23a1d71c4991c3eddcf3f6ff4ede4017c0",
+  "frozen_label_blob_sha256": "9966d64df2085ea3099ba24293315df22e95be60c57598f6f3c951eaad86a7e6",
+  "prediction_sources": {
+    "evals/phase1_1/original-benchmark-v2.json": "a3be0d552f65e1a45083ad1cc5e3cba8e0661a73fd40a27049d3685efd0e8b1c",
+    "evals/phase1_1/heldout-results-v2.json": "b199461b1c759205beb24957636d9dd5709bc4235cd3e0f1115fa15ccdf6eff5"
+  },
+  "metric_implementation_sha256": "1c87368955a117a847cbe6ebfa54f19aebc438a9a0b26d77d471fabd6e848106",
+  "model": "sarvam-105b",
+  "prompt_version": "impact.v4",
+  "new_model_calls": 0,
+  "populations": {
+    "A_CONTROLLED_REAL_SOURCE_HTTPX": {
+      "candidate_logical_cases": 3,
+      "logical_cases_scored": 3,
+      "candidate_section_judgements": 7,
+      "section_judgements_scored": 7,
+      "usable_prediction_cases": {
+        "numerator": 3,
+        "denominator": 3
+      },
+      "metrics": {
+        "counts": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1
+        },
+        "precision": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 12,
+          "denominator": 12,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 6,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 1,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 7,
+          "denominator": 7,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 7,
+          "denominator": 7,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 7,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      },
+      "status": "scored"
+    },
+    "B_SYNTHETIC": {
+      "candidate_logical_cases": 7,
+      "logical_cases_scored": 7,
+      "candidate_section_judgements": 7,
+      "section_judgements_scored": 7,
+      "usable_prediction_cases": {
+        "numerator": 7,
+        "denominator": 7
+      },
+      "metrics": {
+        "counts": {
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "tn": 2
+        },
+        "precision": {
+          "numerator": 5,
+          "denominator": 5,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 5,
+          "denominator": 5,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 10,
+          "denominator": 10,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 5,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 5,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 2,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 7,
+          "denominator": 7,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 5,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 7,
+          "denominator": 7,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 7,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      },
+      "status": "scored"
+    },
+    "C_LIVE": {
+      "candidate_logical_cases": 2,
+      "logical_cases_scored": 0,
+      "candidate_section_judgements": 6,
+      "section_judgements_scored": 0,
+      "usable_prediction_cases": {
+        "numerator": 0,
+        "denominator": 2
+      },
+      "metrics": null,
+      "status": "UNSCORED_PREDICTIONS_UNAVAILABLE"
+    },
+    "COMBINED_DEVELOPMENT_DIAGNOSTICS_ONLY": {
+      "candidate_logical_cases": 10,
+      "logical_cases_scored": 10,
+      "candidate_section_judgements": 14,
+      "section_judgements_scored": 14,
+      "usable_prediction_cases": {
+        "numerator": 10,
+        "denominator": 10
+      },
+      "metrics": {
+        "counts": {
+          "tp": 11,
+          "fp": 0,
+          "fn": 0,
+          "tn": 3
+        },
+        "precision": {
+          "numerator": 11,
+          "denominator": 11,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 11,
+          "denominator": 11,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 22,
+          "denominator": 22,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 11,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 11,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 3,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 14,
+          "denominator": 14,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 11,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 14,
+          "denominator": 14,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 14,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      },
+      "status": "scored"
+    }
+  },
+  "cases": [
+    {
+      "review_id": "S1",
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "expected": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "predicted": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:38:14.505691+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 3,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "S2",
+      "case_id": "2a03d863-a0d8-4463-be19-d6f1b54235d4",
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "b0314a89445af2838c5fb8291c9fe78f755502af",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "expected": {
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration": "NO_CHANGE"
+      },
+      "predicted": {
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration": "NO_CHANGE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:38:14.505691+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1
+        },
+        "precision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "recall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "f1": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 1,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "S4",
+      "case_id": "9ae0023e-e224-4741-b4e1-eb9ed26a6635",
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "d4cec8d6631cad0099623ea62446ca539c006d74",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "expected": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "predicted": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:38:14.505691+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 3,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H1",
+      "case_id": "9158944b-6afc-40e2-925d-c8f53cdbb226",
+      "population": "B_SYNTHETIC",
+      "before_sha": "a0765e1b0af6c2b791ce8e37eb2d700fa93fd4da",
+      "after_sha": "d0979ebbd0f46a23e01220a459b930b730353475",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::display-title": "UPDATE"
+      },
+      "predicted": {
+        "docs/behavior.md::display-title": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 1,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H2",
+      "case_id": "78445f32-fb89-44b4-b0cb-ddd5dea90130",
+      "population": "B_SYNTHETIC",
+      "before_sha": "e4efff2179cc381334b483b471d7f739a81795e7",
+      "after_sha": "a64da6d8977ebf6a3ddfbd9076c2bdc64bbba072",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::protocol-version": "UPDATE"
+      },
+      "predicted": {
+        "docs/behavior.md::protocol-version": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 1,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H3",
+      "case_id": "a62f47c9-7167-426c-93ce-54b5d95e7d43",
+      "population": "B_SYNTHETIC",
+      "before_sha": "b39fdf9069a48a06853c7d368614f4ec85eb3cb8",
+      "after_sha": "cb91fb1f44528663378e4a5d8645e1508c9642a9",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::normalize-name": "NO_CHANGE"
+      },
+      "predicted": {
+        "docs/behavior.md::normalize-name": "NO_CHANGE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1
+        },
+        "precision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "recall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "f1": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 1,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H4",
+      "case_id": "6c43c850-8f81-47c8-9e16-e7c5fd33b99f",
+      "population": "B_SYNTHETIC",
+      "before_sha": "1040060ab0499b17f2053d6b3a68e78dd1195d57",
+      "after_sha": "38e11d4895ff48f44c4dd86f3122a4de90de2f11",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::maximum-attempts": "NO_CHANGE"
+      },
+      "predicted": {
+        "docs/behavior.md::maximum-attempts": "NO_CHANGE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1
+        },
+        "precision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "recall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "f1": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 1,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null,
+          "status": "no_samples"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H6",
+      "case_id": "b74e6db6-e98c-4567-b961-a9e19d029355",
+      "population": "B_SYNTHETIC",
+      "before_sha": "079ca2bc03255c9131c68045898d445f8f3ee3a5",
+      "after_sha": "1c43e57729e231979ad79cf02f9762cb5cbe33b2",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::worker-count": "UPDATE"
+      },
+      "predicted": {
+        "docs/behavior.md::worker-count": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 1,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H7",
+      "case_id": "345b693d-e7bd-412c-b1e0-e389690d73a5",
+      "population": "B_SYNTHETIC",
+      "before_sha": "6eced2b7278e356e29930e28ba96144a62e4dbce",
+      "after_sha": "592fbaf1082a90f8af40c20eb309b57495db7651",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::retry-classification": "UPDATE"
+      },
+      "predicted": {
+        "docs/behavior.md::retry-classification": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 1,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "H9",
+      "case_id": "b4a7af09-9985-4493-aa3c-e8dc13108a7a",
+      "population": "B_SYNTHETIC",
+      "before_sha": "92bb0d3db84b6f9005cbf5bd851ffdae265fc622",
+      "after_sha": "0098ae93be586c4c1ff1e0cdd0b568ce4a1f7a55",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "expected": {
+        "docs/behavior.md::retention-days": "UPDATE"
+      },
+      "predicted": {
+        "docs/behavior.md::retention-days": "UPDATE"
+      },
+      "scored": true,
+      "archive_generated_at": "2026-10-02T23:41:50.589826+00:00",
+      "metrics": {
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        },
+        "precision": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "recall": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "f1": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "confusion_matrix": {
+          "UPDATE": {
+            "UPDATE": 1,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "NO_CHANGE": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          },
+          "UNCERTAIN": {
+            "UPDATE": 0,
+            "NO_CHANGE": 0,
+            "UNCERTAIN": 0,
+            "MISSING": 0
+          }
+        },
+        "accuracy": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "strict_no_change_false_negative_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "output_coverage": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1.0,
+          "status": "measured"
+        },
+        "abstention_rate": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0.0,
+          "status": "measured"
+        },
+        "unlabelled_prediction_ids": []
+      }
+    },
+    {
+      "review_id": "LIVE-5to8",
+      "case_id": "e20d555b (durable ID prefix from docs PR)",
+      "population": "C_LIVE",
+      "before_sha": "674b1d388f8b9f61e961e5205a64cac7ce8b19b7",
+      "after_sha": "d17b2c7bfbe724e0483a1d2b2ca5110631a88484",
+      "source": "HTTPX code PR #2; docs PR #3",
+      "expected": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "predicted": {},
+      "scored": false,
+      "reason_unscored": "Original per-section model predictions unavailable in inspected read-only archives; human review outcomes and merged documentation are not substituted."
+    },
+    {
+      "review_id": "LIVE-8to9",
+      "case_id": "87c9f891 (durable ID prefix from docs PR)",
+      "population": "C_LIVE",
+      "before_sha": "17eea3e36ca8e90361843e6fc230b13e05d8682d",
+      "after_sha": "0bd67d36a676103794efafdd7f5ea6152f0b71d1",
+      "source": "HTTPX code PR #5; docs PR #7",
+      "expected": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "predicted": {},
+      "scored": false,
+      "reason_unscored": "Original per-section model predictions unavailable in inspected read-only archives; human review outcomes and merged documentation are not substituted."
+    }
+  ],
+  "section_predictions": [
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S1",
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "section_id": "docs/advanced/timeouts.md::__intro__",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S1",
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S1",
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "section_id": "docs/quickstart.md::timeouts",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S2",
+      "case_id": "2a03d863-a0d8-4463-be19-d6f1b54235d4",
+      "section_id": "docs/advanced/timeouts.md::fine-tuning-the-configuration",
+      "expected": "NO_CHANGE",
+      "predicted": "NO_CHANGE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S4",
+      "case_id": "9ae0023e-e224-4741-b4e1-eb9ed26a6635",
+      "section_id": "docs/advanced/timeouts.md::__intro__",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S4",
+      "case_id": "9ae0023e-e224-4741-b4e1-eb9ed26a6635",
+      "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "A_CONTROLLED_REAL_SOURCE_HTTPX",
+      "review_id": "S4",
+      "case_id": "9ae0023e-e224-4741-b4e1-eb9ed26a6635",
+      "section_id": "docs/quickstart.md::timeouts",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "source_collection": "scenarios",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H1",
+      "case_id": "9158944b-6afc-40e2-925d-c8f53cdbb226",
+      "section_id": "docs/behavior.md::display-title",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H2",
+      "case_id": "78445f32-fb89-44b4-b0cb-ddd5dea90130",
+      "section_id": "docs/behavior.md::protocol-version",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H3",
+      "case_id": "a62f47c9-7167-426c-93ce-54b5d95e7d43",
+      "section_id": "docs/behavior.md::normalize-name",
+      "expected": "NO_CHANGE",
+      "predicted": "NO_CHANGE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H4",
+      "case_id": "6c43c850-8f81-47c8-9e16-e7c5fd33b99f",
+      "section_id": "docs/behavior.md::maximum-attempts",
+      "expected": "NO_CHANGE",
+      "predicted": "NO_CHANGE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H6",
+      "case_id": "b74e6db6-e98c-4567-b961-a9e19d029355",
+      "section_id": "docs/behavior.md::worker-count",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H7",
+      "case_id": "345b693d-e7bd-412c-b1e0-e389690d73a5",
+      "section_id": "docs/behavior.md::retry-classification",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    },
+    {
+      "population": "B_SYNTHETIC",
+      "review_id": "H9",
+      "case_id": "b4a7af09-9985-4493-aa3c-e8dc13108a7a",
+      "section_id": "docs/behavior.md::retention-days",
+      "expected": "UPDATE",
+      "predicted": "UPDATE",
+      "correct": true,
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "source_collection": "cases",
+      "model": "sarvam-105b",
+      "prompt_version": "impact.v4"
+    }
+  ],
+  "availability": {
+    "confirmed_candidate_cases": 12,
+    "usable_prediction_cases": 10,
+    "original_review_packet_cases": 13,
+    "excluded_ambiguous_cases": 1
+  },
+  "excluded": [
+    {
+      "review_id": "S3",
+      "status": "EXCLUDED_AMBIGUOUS_NOT_ADJUDICATED",
+      "reason": "Adding the new public Timeout.is_disabled property does not by itself make the existing setting-and-disabling-timeouts section materially inaccurate or stale; an adjacent capability is not automatically UPDATE."
+    },
+    {
+      "review_ids": [
+        "H5",
+        "H8",
+        "H10",
+        "H11"
+      ],
+      "reason": "No independent human confirmation in this batch; archived UNCERTAIN fixtures are retained but excluded from this UPDATE/NO_CHANGE task. No claim about uncertainty performance."
+    },
+    {
+      "review_ids": [
+        "S5",
+        "S6"
+      ],
+      "reason": "HITL revision/modification replays, not independent impact cases or original impact predictions."
+    },
+    {
+      "sources": [
+        "evals/httpx/live-report.json",
+        "evals/httpx/phase1-live-report.json",
+        "evals/phase1_1/original-benchmark.json",
+        "evals/phase1_1/report.json"
+      ],
+      "reason": "Legacy/mismatched impact reasoning contract or incomplete section outputs; no compatibility coercion or selection across repeated runs."
+    },
+    {
+      "source": "evals/phase1_1/report-v2.json",
+      "reason": "Composite duplicates underlying v2 artifacts; not additional cases."
+    }
+  ],
+  "limitations": [
+    "Retrospective DEVELOPMENT labels after historical outputs were observed; not hold-out, current-release or generalized performance.",
+    "Synthetic cases are excluded from any CV headline metric; combined aggregate is diagnostics only.",
+    "S1, LIVE-5to8 and LIVE-8to9 are one timeout-change family, not three independent capability families.",
+    "The scored controlled population is only three logical changes / seven sections; sections within a change are correlated.",
+    "Selected binary cases do not assess UNCERTAIN correctness. Excluded fixtures remain visible.",
+    "LIVE cases have frozen labels but no recovered original per-section predictions; do not count them as failures or successes."
+  ]
+}
