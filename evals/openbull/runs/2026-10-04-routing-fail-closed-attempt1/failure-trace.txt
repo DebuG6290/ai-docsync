@@ -1,0 +1,15 @@
+2026-10-04T05:55:28.5941145Z Traceback (most recent call last):
+2026-10-04T05:55:28.5950705Z   File "<frozen runpy>", line 198, in _run_module_as_main
+2026-10-04T05:55:28.5951187Z   File "<frozen runpy>", line 88, in _run_code
+2026-10-04T05:55:28.5952158Z   File "/home/runner/work/openbull/openbull/docsync/online/actions.py", line 186, in <module>
+2026-10-04T05:55:28.5953151Z   File "/home/runner/work/openbull/openbull/docsync/online/actions.py", line 182, in main
+2026-10-04T05:55:28.5954283Z   File "/home/runner/work/openbull/openbull/docsync/online/operations.py", line 71, in execute
+2026-10-04T05:55:28.5962105Z   File "/home/runner/work/openbull/openbull/docsync/web/worker.py", line 364, in _process_job
+2026-10-04T05:55:28.5982908Z   File "/home/runner/work/openbull/openbull/docsync/web/worker.py", line 90, in _process_analysis
+2026-10-04T05:55:28.5984783Z   File "/home/runner/work/openbull/openbull/docsync/engine.py", line 172, in analyze
+2026-10-04T05:55:28.5986470Z   File "/home/runner/work/openbull/openbull/docsync/sarvam.py", line 316, in structured
+2026-10-04T05:55:28.5987759Z   File "/home/runner/work/openbull/openbull/docsync/sarvam.py", line 85, in structured
+2026-10-04T05:55:28.5989075Z   File "/home/runner/work/openbull/openbull/docsync/sarvam.py", line 280, in complete
+2026-10-04T05:55:28.5989502Z     raise ModelError(
+2026-10-04T05:55:28.5989886Z docsync.errors.ModelError: Sarvam output was truncated because finish_reason=length
+2026-10-04T05:55:28.7335337Z ##[error]Process completed with exit code 1.
