@@ -19,12 +19,23 @@ human resolutions before a new immutable version activates. See
 - HTTPX: archived code-change evaluations and [human-merged documentation PR #7](https://github.com/DebuG6290/httpx/pull/7).
   Production Chat/activation totals need a scoped export before quantified reporting.
 - OpenBull: [successful baseline index](https://github.com/DebuG6290/openbull/actions/runs/37153352939).
-  Full mapped code-change → review → merge → Chat validation remains outstanding.
+  The frozen helper-change case is permanently closed as an operational failure for
+  this evaluation cycle. Original failure evidence is preserved in unmerged
+  [PR #5](https://github.com/DebuG6290/ai-docsync/pull/5). Recovery experiments
+  [PR #6](https://github.com/DebuG6290/ai-docsync/pull/6) and
+  [PR #7](https://github.com/DebuG6290/ai-docsync/pull/7) are closed unmerged;
+  the final recovery failed during summary aggregation before predictions/proposals
+  persisted. No successful full OpenBull lifecycle is claimed.
 
 ## 3. Current benchmark metrics
 
 No new independently human-labelled benchmark scores reported. Archived reports
 remain evidence artifacts with their original rubrics and provenance limitations.
+The [HTTPX measurement inventory](../evals/httpx/measurement-review/INVENTORY.md)
+separates live fork changes, controlled real-source changes, synthetic fixtures,
+repeated executions and HITL replays. Proposed labels await independent human
+confirmation; retrospective archive review is development evidence, not hold-out
+performance. No new model calls or aggregate quality percentages were generated.
 New deterministic metric primitives define precision, recall, F1, false negatives,
 decision accuracy and retrieval recall; their tests are not an AI benchmark.
 
