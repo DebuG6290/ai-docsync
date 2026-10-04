@@ -1,6 +1,6 @@
 # HTTPX / Phase 1 evidence inventory
 
-OpenBull is permanently closed for this cycle. PRs #6/#7 are closed unmerged; no further calls or tuning. PR #5 is evidence-only and green at 8d7f3b2f80f99c81a75e1e8ce759754f0617cc45 (CI 37181702431); merge awaits human approval.
+OpenBull is permanently closed for this cycle. PRs #6/#7 are closed unmerged; no further calls or tuning. PR #5 is evidence-only and green at 8d7f3b2f80f99c81a75e1e8ce759754f0617cc45 (CI 37181702431); merged at 66de90babba58102fc41bab254d279f3f390f293.
 
 No new model calls or scores. Y under usable means the output can support a historical impact.v4 aggregate after human labels are confirmed; it does not mean current deployed-release quality. Archived rubric/adjudication files do not establish independent human identity. Repeated runs are executions, not additional independent cases.
 

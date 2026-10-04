@@ -1,4 +1,4 @@
-# Proposed human labels â€” one batch
+# Proposed human labels - one batch
 
 13 code-change cases, 21 section judgements: 2 live fork changes, 4 controlled real-source changes, 7 synthetic fixtures. No labels are frozen yet. These are retrospective development labels; historical results have already been observed, so no hold-out claim. S1 and the two LIVE cases share the default-timeout family. Predictions are intentionally omitted from this reviewer packet.
 
