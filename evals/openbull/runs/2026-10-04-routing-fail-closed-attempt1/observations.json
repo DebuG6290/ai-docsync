@@ -1,0 +1,103 @@
+{
+  "case_id": "openbull-sandbox-missing-callback-001",
+  "attempt_id": "2026-10-04-routing-fail-closed-attempt1",
+  "case_database_id": "c906609a-7706-4bc6-a0cd-046720596c98",
+  "dataset_version": "openbull-real-human.v1",
+  "split": "development_real_human_labelled",
+  "label_path": "evals/openbull/routing-fail-closed.human-labels.v1.json",
+  "label_git_commit": "3a37f9ab33ac20e3a7943bf8d5d4467e61de6f72",
+  "repository": "DebuG6290/openbull",
+  "before_sha": "bce9dc7bff5ff9cd9053d8a273f948fa41e183b4",
+  "after_sha": "60bd5b7155bcbfc38495124d53ab88f866a8da1c",
+  "application_release": "028113e1e223c2aa96bb6fe351e5ce5ef8264149",
+  "workflow": {
+    "id": 37181176962,
+    "status": "completed",
+    "conclusion": "failure",
+    "run_attempt": 1,
+    "created_at": "2026-10-04T05:53:35Z",
+    "run_started_at": "2026-10-04T05:53:35Z",
+    "updated_at": "2026-10-04T05:55:31Z",
+    "head_sha": "60bd5b7155bcbfc38495124d53ab88f866a8da1c",
+    "url": "https://github.com/DebuG6290/openbull/actions/runs/37181176962",
+    "event": "push"
+  },
+  "outcome": "MODEL_CONTRACT_ERROR",
+  "terminal_error": "Sarvam output was truncated because finish_reason=length",
+  "predictions": {},
+  "proposals": [],
+  "missing_prediction_ids": [
+    "docs/design/SERVICES.md::trading-mode-service",
+    "docs/PRODUCT.md::32-external-api-apiv1"
+  ],
+  "batch_plan": {
+    "total_candidate_sections": 2,
+    "batch_count": 2,
+    "max_sections_per_call": 1,
+    "batch_scope_version": "sections.v1"
+  },
+  "attempted_batch_section_ids": [
+    "docs/PRODUCT.md::32-external-api-apiv1"
+  ],
+  "unattempted_batch_section_ids": [
+    "docs/design/SERVICES.md::trading-mode-service"
+  ],
+  "provider_attempts": [
+    {
+      "attempt_count": 1,
+      "batch_count": 2,
+      "batch_number": 1,
+      "batch_scope_version": "sections.v1",
+      "batch_section_ids": [
+        "docs/PRODUCT.md::32-external-api-apiv1"
+      ],
+      "candidate_section_ids": [
+        "docs/PRODUCT.md::32-external-api-apiv1"
+      ],
+      "choices_count": 1,
+      "content_length": 9209,
+      "content_type": "str",
+      "error": "Sarvam output was truncated because finish_reason=length",
+      "error_category": "MODEL_CONTRACT_ERROR",
+      "finish_reason": "length",
+      "input_tokens": 13426,
+      "latency_ms": 69511.85,
+      "max_tokens": 8192,
+      "message_type": "dict",
+      "model": "sarvam-105b",
+      "operation": "impact",
+      "output_tokens": 8192,
+      "prompt_version": "impact.v4",
+      "reasoning_content_nonempty": false,
+      "reasoning_content_present": true,
+      "reasoning_effort": null,
+      "refusal_present": false,
+      "request_format": "json_schema",
+      "request_model": "sarvam-105b",
+      "response_contract_validation": "failed",
+      "response_created": 1791093327,
+      "response_id": "20261004_23ef0764-5c1b-4208-9d96-ecfc871078a7",
+      "response_model": "sarvam-105b",
+      "response_object": "chat.completion",
+      "response_type": "dict",
+      "retry_count": 0,
+      "retry_scheduled": false,
+      "schema_name": "impact_analysis",
+      "system_fingerprint": null,
+      "tool_calls_nonempty": false,
+      "tool_calls_present": true,
+      "total_candidate_sections": 2,
+      "total_tokens": 21618
+    }
+  ],
+  "diagnostic_source": "Authenticated repository/case-scoped Streamlit History technical event; transcription corroborated by raw-audit-ui.txt and GitHub job logs.",
+  "raw_response_text": null,
+  "raw_response_limitation": "The deployed Sarvam client persisted shape/usage diagnostics, not the truncated response body. That body cannot be recovered from retained application data; do not fabricate it or rerun for capture.",
+  "baseline_integrity_status": "OpenBull K1 unchanged; large v1/v2 audits unresolved; neither semantic scan invoked.",
+  "human_review_actions": [],
+  "claim_adjudications": [],
+  "cost": null,
+  "cost_limitation": "No versioned price configuration applied; token observations are provider-reported, not estimates.",
+  "scoring_rules": "Frozen two-section universe; missing UPDATE is an operational missed impact; missing NO_CHANGE is not TN. No valid outputs means proposal quality unavailable. This is one failed real case, not generalized semantic accuracy.",
+  "execution_rules": "Exactly one push-triggered analysis execution, one provider attempt, no workflow rerun, no prompt changes."
+}

@@ -1,0 +1,419 @@
+- iframe [active]:
+  - log
+  - log
+  - button "keyboard_double_arrow_left":
+    - generic: keyboard_double_arrow_left
+  - generic: D
+  - generic: DocSync
+  - paragraph: From code changes to trusted answers.
+  - paragraph: Repository
+  - combobox "Repository"
+  - button "Open":
+  - button "+ Connect repository":
+    - paragraph: + Connect repository
+  - separator
+  - radiogroup "Workspace":
+    - radio "Home"
+    - paragraph: Home
+    - radio "Reviews"
+    - paragraph: Reviews
+    - radio "Knowledge"
+    - paragraph: Knowledge
+    - radio "Chat"
+    - paragraph: Chat
+    - radio "History" [checked]
+    - paragraph: History
+    - radio "Settings"
+    - paragraph: Settings
+  - separator
+  - paragraph: MONITORED REPOSITORY
+  - paragraph: DebuG6290/openbull
+  - paragraph: main · Human-governed updates
+  - button "Sign out":
+    - paragraph: Sign out
+  - banner:
+    - button "keyboard_double_arrow_right":
+      - generic: keyboard_double_arrow_right
+    - button "Share":
+      - generic: Share
+    - button
+    - button
+    - button
+    - button "Main menu":
+  - strong: K1 · Approved knowledge active
+  - generic: Snapshot e06f159 · 03 Oct 2026 · 20:58 UTC
+  - button "Refresh workspace":
+    - paragraph: Refresh workspace
+  - generic: ACTIVITY HISTORY
+  - heading "A clear record of every decision" [level=1]:
+    - text: A clear record of every decision
+    - link "Link to heading":
+      - /url: "#a-clear-record-of-every-decision"
+  - paragraph: Trace a code change through review, publication, and approved knowledge.
+  - paragraph: Show activity for
+  - combobox "Show activity for"
+  - button "Open":
+  - switch "Include technical events" [checked]
+  - paragraph: Include technical events
+  - text: 04 Oct 2026 · 05:55 UTC
+  - heading "Impact batch failed" [level=4]:
+    - text: Impact batch failed
+    - link "Link to heading":
+      - /url: "#impact-batch-failed"
+  - generic "keyboard_arrow_down Event details":
+    - generic: keyboard_arrow_down
+    - paragraph: Event details
+  - paragraph: "Review identity: c906609a-7706-4bc6-a0cd-046720596c98"
+  - generic: "{"
+  - text: "\""
+  - generic: batch_count
+  - text: "\""
+  - generic: ":"
+  - generic: "2"
+  - text: "\""
+  - generic: batch_number
+  - text: "\""
+  - generic: ":"
+  - generic: "1"
+  - text: "\""
+  - generic: batch_scope_version
+  - text: "\""
+  - generic: ":"
+  - generic: "\"sections.v1\""
+  - generic: "\"batch_section_ids\""
+  - generic: ":"
+  - generic: "["
+  - text: "0"
+  - generic: ":"
+  - generic: "\"docs/PRODUCT.md::32-external-api-apiv1\""
+  - generic: "]"
+  - text: "\""
+  - generic: error_type
+  - text: "\""
+  - generic: ":"
+  - generic: "\"ModelError\""
+  - text: "\""
+  - generic: total_candidate_sections
+  - text: "\""
+  - generic: ":"
+  - generic: "2"
+  - generic: "}"
+  - text: 04 Oct 2026 · 05:55 UTC
+  - heading "Sarvam call" [level=4]:
+    - text: Sarvam call
+    - link "Link to heading":
+      - /url: "#sarvam-call"
+  - generic "keyboard_arrow_down Event details" [active]:
+    - generic: keyboard_arrow_down
+    - paragraph: Event details
+  - paragraph: "Review identity: c906609a-7706-4bc6-a0cd-046720596c98"
+  - generic: "{"
+  - text: "\""
+  - generic: attempt_count
+  - text: "\""
+  - generic: ":"
+  - generic: "1"
+  - text: "\""
+  - generic: batch_count
+  - text: "\""
+  - generic: ":"
+  - generic: "2"
+  - text: "\""
+  - generic: batch_number
+  - text: "\""
+  - generic: ":"
+  - generic: "1"
+  - text: "\""
+  - generic: batch_scope_version
+  - text: "\""
+  - generic: ":"
+  - generic: "\"sections.v1\""
+  - generic: "\"batch_section_ids\""
+  - generic: ":"
+  - generic: "["
+  - text: "0"
+  - generic: ":"
+  - generic: "\"docs/PRODUCT.md::32-external-api-apiv1\""
+  - generic: "]"
+  - generic: "\"candidate_section_ids\""
+  - generic: ":"
+  - generic: "["
+  - text: "0"
+  - generic: ":"
+  - generic: "\"docs/PRODUCT.md::32-external-api-apiv1\""
+  - generic: "]"
+  - text: "\""
+  - generic: choices_count
+  - text: "\""
+  - generic: ":"
+  - generic: "1"
+  - text: "\""
+  - generic: content_length
+  - text: "\""
+  - generic: ":"
+  - generic: "9209"
+  - text: "\""
+  - generic: content_type
+  - text: "\""
+  - generic: ":"
+  - generic: "\"str\""
+  - text: "\""
+  - generic: error
+  - text: "\""
+  - generic: ":"
+  - generic: "\"Sarvam output was truncated because finish_reason=length\""
+  - text: "\""
+  - generic: error_category
+  - text: "\""
+  - generic: ":"
+  - generic: "\"MODEL_CONTRACT_ERROR\""
+  - text: "\""
+  - generic: finish_reason
+  - text: "\""
+  - generic: ":"
+  - generic: "\"length\""
+  - text: "\""
+  - generic: input_tokens
+  - text: "\""
+  - generic: ":"
+  - generic: "13426"
+  - text: "\""
+  - generic: latency_ms
+  - text: "\""
+  - generic: ":"
+  - generic: "69511.85"
+  - text: "\""
+  - generic: max_tokens
+  - text: "\""
+  - generic: ":"
+  - generic: "8192"
+  - text: "\""
+  - generic: message_type
+  - text: "\""
+  - generic: ":"
+  - generic: "\"dict\""
+  - text: "\""
+  - generic: model
+  - text: "\""
+  - generic: ":"
+  - generic: "\"sarvam-105b\""
+  - text: "\""
+  - generic: operation
+  - text: "\""
+  - generic: ":"
+  - generic: "\"impact\""
+  - text: "\""
+  - generic: output_tokens
+  - text: "\""
+  - generic: ":"
+  - generic: "8192"
+  - text: "\""
+  - generic: prompt_version
+  - text: "\""
+  - generic: ":"
+  - generic: "\"impact.v4\""
+  - text: "\""
+  - generic: reasoning_content_nonempty
+  - text: "\""
+  - generic: ":"
+  - generic: "false"
+  - text: "\""
+  - generic: reasoning_content_present
+  - text: "\""
+  - generic: ":"
+  - generic: "true"
+  - text: "\""
+  - generic: reasoning_effort
+  - text: "\""
+  - generic: ":"
+  - generic: "NULL"
+  - text: "\""
+  - generic: refusal_present
+  - text: "\""
+  - generic: ":"
+  - generic: "false"
+  - text: "\""
+  - generic: request_format
+  - text: "\""
+  - generic: ":"
+  - generic: "\"json_schema\""
+  - text: "\""
+  - generic: request_model
+  - text: "\""
+  - generic: ":"
+  - generic: "\"sarvam-105b\""
+  - text: "\""
+  - generic: response_contract_validation
+  - text: "\""
+  - generic: ":"
+  - generic: "\"failed\""
+  - text: "\""
+  - generic: response_created
+  - text: "\""
+  - generic: ":"
+  - generic: "1791093327"
+  - text: "\""
+  - generic: response_id
+  - text: "\""
+  - generic: ":"
+  - generic: "\"20261004_23ef0764-5c1b-4208-9d96-ecfc871078a7\""
+  - text: "\""
+  - generic: response_model
+  - text: "\""
+  - generic: ":"
+  - generic: "\"sarvam-105b\""
+  - text: "\""
+  - generic: response_object
+  - text: "\""
+  - generic: ":"
+  - generic: "\"chat.completion\""
+  - text: "\""
+  - generic: response_type
+  - text: "\""
+  - generic: ":"
+  - generic: "\"dict\""
+  - text: "\""
+  - generic: retry_count
+  - text: "\""
+  - generic: ":"
+  - generic: "0"
+  - text: "\""
+  - generic: retry_scheduled
+  - text: "\""
+  - generic: ":"
+  - generic: "false"
+  - text: "\""
+  - generic: schema_name
+  - text: "\""
+  - generic: ":"
+  - generic: "\"impact_analysis\""
+  - text: "\""
+  - generic: system_fingerprint
+  - text: "\""
+  - generic: ":"
+  - generic: "NULL"
+  - text: "\""
+  - generic: tool_calls_nonempty
+  - text: "\""
+  - generic: ":"
+  - generic: "false"
+  - text: "\""
+  - generic: tool_calls_present
+  - text: "\""
+  - generic: ":"
+  - generic: "true"
+  - text: "\""
+  - generic: total_candidate_sections
+  - text: "\""
+  - generic: ":"
+  - generic: "2"
+  - text: "\""
+  - generic: total_tokens
+  - text: "\""
+  - generic: ":"
+  - generic: "21618"
+  - generic: "}"
+  - text: 04 Oct 2026 · 05:55 UTC
+  - heading "Impact batch started" [level=4]:
+    - text: Impact batch started
+    - link "Link to heading":
+      - /url: "#impact-batch-started"
+  - generic "keyboard_arrow_down Event details":
+    - generic: keyboard_arrow_down
+    - paragraph: Event details
+  - paragraph: "Review identity: c906609a-7706-4bc6-a0cd-046720596c98"
+  - generic: "{"
+  - text: "\""
+  - generic: batch_count
+  - text: "\""
+  - generic: ":"
+  - generic: "2"
+  - text: "\""
+  - generic: batch_number
+  - text: "\""
+  - generic: ":"
+  - generic: "1"
+  - text: "\""
+  - generic: batch_scope_version
+  - text: "\""
+  - generic: ":"
+  - generic: "\"sections.v1\""
+  - generic: "\"batch_section_ids\""
+  - generic: ":"
+  - generic: "["
+  - text: "0"
+  - generic: ":"
+  - generic: "\"docs/PRODUCT.md::32-external-api-apiv1\""
+  - generic: "]"
+  - text: "\""
+  - generic: total_candidate_sections
+  - text: "\""
+  - generic: ":"
+  - generic: "2"
+  - generic: "}"
+  - text: 04 Oct 2026 · 05:55 UTC
+  - heading "Impact batch plan" [level=4]:
+    - text: Impact batch plan
+    - link "Link to heading":
+      - /url: "#impact-batch-plan"
+  - generic "keyboard_arrow_right Event details":
+    - generic: keyboard_arrow_right
+    - paragraph: Event details
+  - text: 04 Oct 2026 · 05:55 UTC
+  - heading "Assessment could not finish" [level=4]:
+    - text: Assessment could not finish
+    - link "Link to heading":
+      - /url: "#assessment-could-not-finish"
+  - generic "keyboard_arrow_down Event details":
+    - generic: keyboard_arrow_down
+    - paragraph: Event details
+  - paragraph: "Review identity: c906609a-7706-4bc6-a0cd-046720596c98"
+  - generic: "{"
+  - text: "\""
+  - generic: error_type
+  - text: "\""
+  - generic: ":"
+  - generic: "\"ModelError\""
+  - text: "\""
+  - generic: message
+  - text: "\""
+  - generic: ":"
+  - generic: "\"Sarvam output was truncated because finish_reason=length\""
+  - generic: "}"
+  - text: 04 Oct 2026 · 05:54 UTC
+  - heading "Documentation assessment started" [level=4]:
+    - text: Documentation assessment started
+    - link "Link to heading":
+      - /url: "#documentation-assessment-started"
+  - generic "keyboard_arrow_right Event details":
+    - generic: keyboard_arrow_right
+    - paragraph: Event details
+  - text: 04 Oct 2026 · 05:54 UTC
+  - heading "Code change detected" [level=4]:
+    - text: Code change detected
+    - link "Link to heading":
+      - /url: "#code-change-detected"
+  - generic "keyboard_arrow_down Event details":
+    - generic: keyboard_arrow_down
+    - paragraph: Event details
+  - paragraph: "Review identity: c906609a-7706-4bc6-a0cd-046720596c98"
+  - generic: "{"
+  - text: "\""
+  - generic: before_sha
+  - text: "\""
+  - generic: ":"
+  - generic: "\"bce9dc7bff5ff9cd9053d8a273f948fa41e183b4\""
+  - text: "\""
+  - generic: after_sha
+  - text: "\""
+  - generic: ":"
+  - generic: "\"60bd5b7155bcbfc38495124d53ab88f866a8da1c\""
+  - text: "\""
+  - generic: repository
+  - text: "\""
+  - generic: ":"
+  - generic: "\"DebuG6290/openbull\""
+  - generic: "}"
+- button "Manage app":
+  - text: Manage app
+- iframe
