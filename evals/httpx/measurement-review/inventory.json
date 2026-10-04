@@ -1,0 +1,919 @@
+{
+  "rules": {
+    "status": "AWAITING_HUMAN_CONFIRMATION",
+    "new_model_calls": 0,
+    "selection_rule": "Include all four archived controlled HTTPX changes; all seven synthetic fixtures with clear UPDATE/NO_CHANGE labels; both live HTTPX changes. Exclude four synthetic uncertainty fixtures only from this binary review packet, never from the inventory. Selection is based on evidence type and adjudicability, not model correctness.",
+    "populations_must_remain_separate": true,
+    "retrospective_development_labels_not_holdout": true,
+    "deduplicate_replays_and_report_shared_timeout_family": true,
+    "scoring_unit": "unique code-change/section pair; report code-case and section counts separately",
+    "canonical_historical_run": "impact.v4 v2 artifact for controlled and synthetic cases; preserve earlier runs separately",
+    "no_quality_scores_computed_before_confirmation": true
+  },
+  "executions": [
+    {
+      "case_id": "45dbdb29-d6a8-4225-8967-f3dc084b452b",
+      "logical_case_id": 1,
+      "source": "evals/httpx/live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "legacy",
+      "input_sha256": "4161d01e145b98694d4c12a16e1a2648e695507f1a0414acc745fa814dcc74a2",
+      "description": "Default timeout changes from five to eight seconds"
+    },
+    {
+      "case_id": null,
+      "logical_case_id": 2,
+      "source": "evals/httpx/live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "b0314a89445af2838c5fb8291c9fe78f755502af",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "legacy",
+      "input_sha256": null,
+      "description": "Internal Timeout.as_dict refactor preserves behavior"
+    },
+    {
+      "case_id": null,
+      "logical_case_id": 3,
+      "source": "evals/httpx/live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "77efbedc5eef29fd9cb378572f26f232391eecd2",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "legacy",
+      "input_sha256": null,
+      "description": "Timeout.is_disabled public property added"
+    },
+    {
+      "case_id": null,
+      "logical_case_id": 4,
+      "source": "evals/httpx/live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "d4cec8d6631cad0099623ea62446ca539c006d74",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "legacy",
+      "input_sha256": null,
+      "description": "Default timeout comes from an unavailable external runtime policy"
+    },
+    {
+      "case_id": null,
+      "logical_case_id": 5,
+      "source": "evals/httpx/live-report.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": null,
+      "after_sha": null,
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "legacy",
+      "input_sha256": null,
+      "description": "Reject one proposal with network-inactivity feedback; leave other sections unchanged"
+    },
+    {
+      "case_id": null,
+      "logical_case_id": 6,
+      "source": "evals/httpx/live-report.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": null,
+      "after_sha": null,
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "legacy",
+      "input_sha256": null,
+      "description": "Human-modify a proposal, explicitly accept, then apply the human-authored version"
+    },
+    {
+      "case_id": "203ecdff-3909-4994-8dc5-a091c4e57601",
+      "logical_case_id": 1,
+      "source": "evals/httpx/phase1-live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "impact.v2",
+      "input_sha256": "bdcb51a007bb526b688de4d08159e0c020fb08d5528582f81d5a398bec3c0e82",
+      "description": "Default timeout changes from five to eight seconds"
+    },
+    {
+      "case_id": "b00c7498-8cae-44d2-bef1-0014ea29b112",
+      "logical_case_id": 2,
+      "source": "evals/httpx/phase1-live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "b0314a89445af2838c5fb8291c9fe78f755502af",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "impact.v2",
+      "input_sha256": "0b23f1033a624a0b132e5c8d17166d0151f4d3ee3729b84f7ab4adf3472e519f",
+      "description": "Internal Timeout.as_dict refactor preserves behavior"
+    },
+    {
+      "case_id": "6862a2be-b1fe-4315-b242-317276005e1a",
+      "logical_case_id": 3,
+      "source": "evals/httpx/phase1-live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "77efbedc5eef29fd9cb378572f26f232391eecd2",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "impact.v2",
+      "input_sha256": "86d79452aa24eb521f787f6011cfcfcccb2a4cb440351340200493c47da507fe",
+      "description": "Timeout.is_disabled public property added"
+    },
+    {
+      "case_id": "ee967d4e-e4cf-41d6-9e2e-03cb9ba03720",
+      "logical_case_id": 4,
+      "source": "evals/httpx/phase1-live-report.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "d4cec8d6631cad0099623ea62446ca539c006d74",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "impact.v2",
+      "input_sha256": "89b3e16a73132f58e52e2ccfb1bc3cbb01cd2dae98b080828ce7de46240b9f40",
+      "description": "Default timeout comes from an unavailable external runtime policy"
+    },
+    {
+      "case_id": "203ecdff-3909-4994-8dc5-a091c4e57601",
+      "logical_case_id": 5,
+      "source": "evals/httpx/phase1-live-report.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "impact.v2",
+      "input_sha256": "bdcb51a007bb526b688de4d08159e0c020fb08d5528582f81d5a398bec3c0e82",
+      "description": "Reject a proposal, require an observable scope clarification, then accept V2"
+    },
+    {
+      "case_id": "109e0a2c-d4cb-408a-8cfd-1048f5425459",
+      "logical_case_id": 6,
+      "source": "evals/httpx/phase1-live-report.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "impact.v2",
+      "input_sha256": "577540e888af33a339506b8a1fb4804c91955afd54d55a695d5dbdff445b72a9",
+      "description": "Human-modify a persisted UPDATE, accept it, and apply it without a Sarvam rewrite"
+    },
+    {
+      "case_id": "9c4f9ba4-d8f0-4410-aa80-1cb1464734eb",
+      "logical_case_id": 1,
+      "source": "evals/phase1_1/original-benchmark.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "19c5667710c833b0b21d0f51c43638a75530cf8a7ac815ad4c079ec14febe373",
+      "description": "Default timeout changes from five to eight seconds"
+    },
+    {
+      "case_id": "e6dc6892-31d1-43a3-ac2a-8f27b29cd649",
+      "logical_case_id": 2,
+      "source": "evals/phase1_1/original-benchmark.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "b0314a89445af2838c5fb8291c9fe78f755502af",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "5e3e85aaf233903ceebef57a753c4a46ef6f7e06e6d26abc3f2a4bfadaeb9e5e",
+      "description": "Internal Timeout.as_dict refactor preserves behavior"
+    },
+    {
+      "case_id": "7885070f-c15f-40b0-88ea-6b5239f795b2",
+      "logical_case_id": 3,
+      "source": "evals/phase1_1/original-benchmark.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "77efbedc5eef29fd9cb378572f26f232391eecd2",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "8cb810bb8a297b8e2cc146f7ce5c4da92808bab172d950bcede06d9c64ba5c18",
+      "description": "Timeout.is_disabled public property added"
+    },
+    {
+      "case_id": "ebf9b31f-54a5-4ec2-a761-7bce787716b6",
+      "logical_case_id": 4,
+      "source": "evals/phase1_1/original-benchmark.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "d4cec8d6631cad0099623ea62446ca539c006d74",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "4a7a60210646e85ca62e862f09af83c92b4f49e164db5f811389e3bfd0fbfaee",
+      "description": "Default timeout comes from an unavailable external runtime policy"
+    },
+    {
+      "case_id": "9c4f9ba4-d8f0-4410-aa80-1cb1464734eb",
+      "logical_case_id": 5,
+      "source": "evals/phase1_1/original-benchmark.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "19c5667710c833b0b21d0f51c43638a75530cf8a7ac815ad4c079ec14febe373",
+      "description": "Reject a proposal, require an observable scope clarification, then accept V2"
+    },
+    {
+      "case_id": "04eae1f2-9868-43a6-a961-70f7bc042eeb",
+      "logical_case_id": 6,
+      "source": "evals/phase1_1/original-benchmark.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "1d7dd2cf7d8397d233021866803d3cf29cd8555ae7507701d8b4c896a7804a5d",
+      "description": "Human-modify a persisted UPDATE, accept it, and apply it without a Sarvam rewrite"
+    },
+    {
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "logical_case_id": 1,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "248fe3dda690ae5afda761c462d2eb4b947fa12898b17e95384d2d95f98b5e85",
+      "description": "Default timeout changes from five to eight seconds"
+    },
+    {
+      "case_id": "2a03d863-a0d8-4463-be19-d6f1b54235d4",
+      "logical_case_id": 2,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "b0314a89445af2838c5fb8291c9fe78f755502af",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "86a74ff2663c6dc77b8d456496617c1de9b650a4b91f62061b6448adda9ae7b1",
+      "description": "Internal Timeout.as_dict refactor preserves behavior"
+    },
+    {
+      "case_id": "f0051fc8-973a-4415-bc9a-4c290b0a6f4b",
+      "logical_case_id": 3,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "77efbedc5eef29fd9cb378572f26f232391eecd2",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "6087e8bb8a37d4318e95d5760ce3e608adf2555716f772b53618c576f0c561c6",
+      "description": "Timeout.is_disabled public property added"
+    },
+    {
+      "case_id": "9ae0023e-e224-4741-b4e1-eb9ed26a6635",
+      "logical_case_id": 4,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "real_or_synthetic": "controlled change on real HTTPX source",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "d4cec8d6631cad0099623ea62446ca539c006d74",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "74e44e9cda049a681166aff96fe5149bb41958abf1ceb5da8ee655a96ea30091",
+      "description": "Default timeout comes from an unavailable external runtime policy"
+    },
+    {
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "logical_case_id": 5,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "248fe3dda690ae5afda761c462d2eb4b947fa12898b17e95384d2d95f98b5e85",
+      "description": "Reject a proposal, require an observable scope clarification, then accept V2"
+    },
+    {
+      "case_id": "8ed22ce0-07a4-454c-aa6d-1b79d6dc213a",
+      "logical_case_id": 6,
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "real_or_synthetic": "HITL replay",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "HITL replay, not independent impact case.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "2177acd764b38f36c4c6847250ad922b1930e99d56c4d0c4e09e114f47b7e881",
+      "description": "Human-modify a persisted UPDATE, accept it, and apply it without a Sarvam rewrite"
+    },
+    {
+      "case_id": "3ec27506-c081-46f2-b39f-978c340a9bb7",
+      "logical_case_id": "H1",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "a0765e1b0af6c2b791ce8e37eb2d700fa93fd4da",
+      "after_sha": "d0979ebbd0f46a23e01220a459b930b730353475",
+      "candidate_sections": [
+        "docs/behavior.md::display-title"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "41728521add74ae41d477dda7ee18ad119063303bccd29ae356f14d98e7e4148",
+      "description": "A presentation helper changes its output transformation directly in supplied code"
+    },
+    {
+      "case_id": "7e68813e-ca53-443e-b4a9-31cce384a39b",
+      "logical_case_id": "H2",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "e4efff2179cc381334b483b471d7f739a81795e7",
+      "after_sha": "a64da6d8977ebf6a3ddfbd9076c2bdc64bbba072",
+      "candidate_sections": [
+        "docs/behavior.md::protocol-version"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "cdfb11997b5ea378553886b86dd47314a6acadd87b4711cd7daa2669b801f2bf",
+      "description": "A directly returned protocol default changes from one literal to another"
+    },
+    {
+      "case_id": "69775b7a-25f4-482f-b47e-d95a05fed2a6",
+      "logical_case_id": "H3",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "b39fdf9069a48a06853c7d368614f4ec85eb3cb8",
+      "after_sha": "cb91fb1f44528663378e4a5d8645e1508c9642a9",
+      "candidate_sections": [
+        "docs/behavior.md::normalize-name"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "24a05c787b54273549613661f2c34dc8de9879f50d599a5236e09e2a46914a8f",
+      "description": "A whitespace normalizer is refactored while preserving the same visible operations"
+    },
+    {
+      "case_id": "9c6e60f7-e660-4e91-be9b-18b636670647",
+      "logical_case_id": "H4",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "1040060ab0499b17f2053d6b3a68e78dd1195d57",
+      "after_sha": "38e11d4895ff48f44c4dd86f3122a4de90de2f11",
+      "candidate_sections": [
+        "docs/behavior.md::maximum-attempts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "fd2654affeee62ec5ef72dfab6096ddfd129a57487c3768d0bfd325f09cbe346",
+      "description": "A constant return is given a local name without changing the function result"
+    },
+    {
+      "case_id": "3c7d4e64-ed3d-49bd-9e8d-abac919e7cc8",
+      "logical_case_id": "H5",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "f75f378d7f9e54c278e098c422348f813c8c6dc8",
+      "after_sha": "320b77aad60609206df322d6b91723f25231c8f9",
+      "candidate_sections": [
+        "docs/behavior.md::eligibility"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "cedd76076421d2350698c508c22968977d96a470cb36adc296ad6d2ff61e7d63",
+      "description": "Eligibility behavior is delegated to a policy object with no implementation supplied"
+    },
+    {
+      "case_id": "5e57e043-79e8-448d-ae9a-00e78970e9d1",
+      "logical_case_id": "H6",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "079ca2bc03255c9131c68045898d445f8f3ee3a5",
+      "after_sha": "1c43e57729e231979ad79cf02f9762cb5cbe33b2",
+      "candidate_sections": [
+        "docs/behavior.md::worker-count"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "60a16bd57643b3ac315d6b25c2fe33113990220df345e95d9773ae854a946165",
+      "description": "A worker count changes from a literal to a value read from an unavailable deployment configuration"
+    },
+    {
+      "case_id": "74cd2f45-7614-4f25-9735-2c1f2cac158e",
+      "logical_case_id": "H7",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "6eced2b7278e356e29930e28ba96144a62e4dbce",
+      "after_sha": "592fbaf1082a90f8af40c20eb309b57495db7651",
+      "candidate_sections": [
+        "docs/behavior.md::retry-classification"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "ecfe8cc1f0cb03ad4a4cfbaeb9e328d789015af68c92701c1309255953515032",
+      "description": "Retry classification is delegated to a third-party client integration"
+    },
+    {
+      "case_id": "f849a3a6-08cf-45ca-8c9d-6c2855177494",
+      "logical_case_id": "H8",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "8aebc90dfc2e86791a3a6c4e3ac2748fc7a57073",
+      "after_sha": "6ada4d54c7629b098a12f25c47c89a27e2b10be0",
+      "candidate_sections": [
+        "docs/behavior.md::open-session"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "3c3f148cba6574feb9f34615ea973f611313b412330d82af6a2e133d0407ffd9",
+      "description": "A connection wrapper changes to a manager whose implementation is absent"
+    },
+    {
+      "case_id": "615fa824-3dae-4732-97e7-ba1bc744abc3",
+      "logical_case_id": "H9",
+      "source": "evals/phase1_1/report.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "92bb0d3db84b6f9005cbf5bd851ffdae265fc622",
+      "after_sha": "0098ae93be586c4c1ff1e0cdd0b568ce4a1f7a55",
+      "candidate_sections": [
+        "docs/behavior.md::retention-days"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Legacy/mismatched reasoning contract or incomplete per-section output; retain artifact, exclude from primary aggregate.",
+      "prompt_contract": "older reasoning contract",
+      "input_sha256": "e3dca612e75e7c7a17151b5ee2a9e32e95d86a600b5eeea52072235ddd7224a0",
+      "description": "A fixed retention value changes to a deployment environment variable"
+    },
+    {
+      "case_id": "9158944b-6afc-40e2-925d-c8f53cdbb226",
+      "logical_case_id": "H1",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "a0765e1b0af6c2b791ce8e37eb2d700fa93fd4da",
+      "after_sha": "d0979ebbd0f46a23e01220a459b930b730353475",
+      "candidate_sections": [
+        "docs/behavior.md::display-title"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "841082337a1a4a1c3171c19b91e8c8291ff931a05c03a09430a51f59c8e1b5b9",
+      "description": "A presentation helper changes its output transformation directly in supplied code"
+    },
+    {
+      "case_id": "78445f32-fb89-44b4-b0cb-ddd5dea90130",
+      "logical_case_id": "H2",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "e4efff2179cc381334b483b471d7f739a81795e7",
+      "after_sha": "a64da6d8977ebf6a3ddfbd9076c2bdc64bbba072",
+      "candidate_sections": [
+        "docs/behavior.md::protocol-version"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "ee81f2cf1ac1f068a22dd36de4580f33dc0d7fe3246d9de79bea4a3ad4841b85",
+      "description": "A directly returned protocol default changes from one literal to another"
+    },
+    {
+      "case_id": "a62f47c9-7167-426c-93ce-54b5d95e7d43",
+      "logical_case_id": "H3",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "b39fdf9069a48a06853c7d368614f4ec85eb3cb8",
+      "after_sha": "cb91fb1f44528663378e4a5d8645e1508c9642a9",
+      "candidate_sections": [
+        "docs/behavior.md::normalize-name"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "e13604bd8ad6571436557be0da1d3e2b34d61e7b3f08b662695ab59f4e3d11cf",
+      "description": "A whitespace normalizer is refactored while preserving the same visible operations"
+    },
+    {
+      "case_id": "6c43c850-8f81-47c8-9e16-e7c5fd33b99f",
+      "logical_case_id": "H4",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "1040060ab0499b17f2053d6b3a68e78dd1195d57",
+      "after_sha": "38e11d4895ff48f44c4dd86f3122a4de90de2f11",
+      "candidate_sections": [
+        "docs/behavior.md::maximum-attempts"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "86260cc9dd556e972c978784160532c64af41713354232ad17842cc58056cf9e",
+      "description": "A constant return is given a local name without changing the function result"
+    },
+    {
+      "case_id": "a5d56135-a2e9-4a53-8087-8848a8fb389d",
+      "logical_case_id": "H5",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "f75f378d7f9e54c278e098c422348f813c8c6dc8",
+      "after_sha": "320b77aad60609206df322d6b91723f25231c8f9",
+      "candidate_sections": [
+        "docs/behavior.md::eligibility"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "daa4e7a4563dbd6846b774f4246a2569f98b10347083da1bc90aa23f3bc3e5f1",
+      "description": "Eligibility behavior is delegated to a policy object with no implementation supplied"
+    },
+    {
+      "case_id": "b74e6db6-e98c-4567-b961-a9e19d029355",
+      "logical_case_id": "H6",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "079ca2bc03255c9131c68045898d445f8f3ee3a5",
+      "after_sha": "1c43e57729e231979ad79cf02f9762cb5cbe33b2",
+      "candidate_sections": [
+        "docs/behavior.md::worker-count"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "ee9f36e1e2cc486adb446fafd32cfbe336d9fd6dc41e5bb9d18a7f5a634b9fd1",
+      "description": "A worker count changes from a literal to a value read from an unavailable deployment configuration"
+    },
+    {
+      "case_id": "345b693d-e7bd-412c-b1e0-e389690d73a5",
+      "logical_case_id": "H7",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "6eced2b7278e356e29930e28ba96144a62e4dbce",
+      "after_sha": "592fbaf1082a90f8af40c20eb309b57495db7651",
+      "candidate_sections": [
+        "docs/behavior.md::retry-classification"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "62eb1138dc508eee4a01663f9c8b83633d210efde17176e26c3c86f59e04ee90",
+      "description": "Retry classification is delegated to a third-party client integration"
+    },
+    {
+      "case_id": "3ba038fb-32cb-43c7-a756-9168406e6ba3",
+      "logical_case_id": "H8",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "8aebc90dfc2e86791a3a6c4e3ac2748fc7a57073",
+      "after_sha": "6ada4d54c7629b098a12f25c47c89a27e2b10be0",
+      "candidate_sections": [
+        "docs/behavior.md::open-session"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "49e0f3e0c548453c48fcba4de9189ee4e6e0130bf741f55b7706f26d4327c756",
+      "description": "A connection wrapper changes to a manager whose implementation is absent"
+    },
+    {
+      "case_id": "b4a7af09-9985-4493-aa3c-e8dc13108a7a",
+      "logical_case_id": "H9",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "92bb0d3db84b6f9005cbf5bd851ffdae265fc622",
+      "after_sha": "0098ae93be586c4c1ff1e0cdd0b568ce4a1f7a55",
+      "candidate_sections": [
+        "docs/behavior.md::retention-days"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "90cdc680a518047077fe80538da825a52e5c69e9d044f672912d3ed570649d51",
+      "description": "A fixed retention value changes to a deployment environment variable"
+    },
+    {
+      "case_id": "3d0e2b2f-f8f5-419c-a7cc-08de05c3b31e",
+      "logical_case_id": "H10",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "aa5d8a956faf4faa5d997d41740eed53c13f17be",
+      "after_sha": "8eca7af6ff35ea0b0d2e476f8aa7198582ae590d",
+      "candidate_sections": [
+        "docs/behavior.md::protocol-preference"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "f6354f84b9bbaf6ef46f5485b4e1aca680d3517b46ac522d92e518bed5f3f9d4",
+      "description": "Protocol preference now depends on an unavailable runtime profile"
+    },
+    {
+      "case_id": "d8236b38-0d35-4dff-925a-fbc262237b56",
+      "logical_case_id": "H11",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "real_or_synthetic": "synthetic",
+      "before_sha": "39c6a293468557d9aa2956fab6d2e6f24226b503",
+      "after_sha": "b29012dce0c8752880d4c18e3b81d6797e6004f0",
+      "candidate_sections": [
+        "docs/behavior.md::encryption-policy"
+      ],
+      "existing_prediction_available": true,
+      "existing_expected_label_available": true,
+      "label_provenance": "Archived engineering fixture/rubric; independent human reviewer identity not established. Fresh human confirmation required.",
+      "usable_under_current_metric_contract": true,
+      "reason": "Reusable historical impact.v4 section decisions after independent human confirmation; not current-release or hold-out evidence.",
+      "prompt_contract": "impact.v4",
+      "input_sha256": "92137979a63186d05ad3e84c69521f9e1adca194b6f522010bf764f69475329f",
+      "description": "Sensitive-data encryption policy is delegated to an unavailable third-party provider"
+    },
+    {
+      "case_id": "e20d555b (durable ID prefix from docs PR)",
+      "logical_case_id": "LIVE-5to8",
+      "source": "HTTPX code PR #2; docs PR #3",
+      "real_or_synthetic": "live fork change on real HTTPX source",
+      "before_sha": "674b1d388f8b9f61e961e5205a64cac7ce8b19b7",
+      "after_sha": "d17b2c7bfbe724e0483a1d2b2ca5110631a88484",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": false,
+      "label_provenance": "Merged docs/human actions are outcome evidence; original model decision export unavailable in inspected archive.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Original per-section model decisions and full durable ID require read-only export. Merged docs must not be substituted for model predictions.",
+      "description": "Default timeout 5 \u2192 8 seconds"
+    },
+    {
+      "case_id": "87c9f891 (durable ID prefix from docs PR)",
+      "logical_case_id": "LIVE-8to9",
+      "source": "HTTPX code PR #5; docs PR #7",
+      "real_or_synthetic": "live fork change on real HTTPX source",
+      "before_sha": "17eea3e36ca8e90361843e6fc230b13e05d8682d",
+      "after_sha": "0bd67d36a676103794efafdd7f5ea6152f0b71d1",
+      "candidate_sections": [
+        "docs/advanced/timeouts.md::__intro__",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+        "docs/quickstart.md::timeouts"
+      ],
+      "existing_prediction_available": false,
+      "existing_expected_label_available": false,
+      "label_provenance": "Merged docs/human actions are outcome evidence; original model decision export unavailable in inspected archive.",
+      "usable_under_current_metric_contract": false,
+      "reason": "Original per-section model decisions and full durable ID require read-only export. Merged docs must not be substituted for model predictions.",
+      "description": "Default timeout 8 \u2192 9 seconds"
+    }
+  ]
+}

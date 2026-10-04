@@ -19,13 +19,45 @@ human resolutions before a new immutable version activates. See
 - HTTPX: archived code-change evaluations and [human-merged documentation PR #7](https://github.com/DebuG6290/httpx/pull/7).
   Production Chat/activation totals need a scoped export before quantified reporting.
 - OpenBull: [successful baseline index](https://github.com/DebuG6290/openbull/actions/runs/37153352939).
-  Human-labelled helper change [PR #3](https://github.com/DebuG6290/openbull/pull/3)
-  merged as `60bd5b7155bcbfc38495124d53ab88f866a8da1c`. First analysis failed
-  terminally on truncation; full code-change → review → docs merge → Chat remains outstanding.
+  The frozen helper-change case is permanently closed as an operational failure for
+  this evaluation cycle. Original failure evidence is preserved in merged
+  [PR #5](https://github.com/DebuG6290/ai-docsync/pull/5). Recovery experiments
+  [PR #6](https://github.com/DebuG6290/ai-docsync/pull/6) and
+  [PR #7](https://github.com/DebuG6290/ai-docsync/pull/7) are closed unmerged;
+  the final recovery failed during summary aggregation before predictions/proposals
+  persisted. No successful full OpenBull lifecycle is claimed.
 
 ## 3. Current benchmark metrics
 
-One real independently human-labelled development case (two sections) now has a
+The owner-confirmed `httpx-impact-human.v1` labels are frozen separately in commit
+`7a1b9a23a1d71c4991c3eddcf3f6ff4ede4017c0`. S3 is excluded as ambiguous / not
+adjudicated: an adjacent public capability does not automatically require a section
+update. The original proposed packet and archived outputs remain unchanged.
+
+Retrospective **development** scoring of archived `sarvam-105b` / `impact.v4`
+predictions, dated 2026-10-02, on **3 controlled HTTPX source changes / 7 section
+judgements**: TP=6, FP=0, FN=0, TN=1; precision **6/6**, recall **6/6**, F1
+**12/12**, false-negative rate **0/6**, accuracy **7/7**, output coverage **7/7**.
+This is a small correlated source-fixture population, not three live production
+changes, hold-out performance, or quality of the currently deployed release.
+See the [complete scoring report](../evals/httpx/measurement-review/SCORING.v1.md).
+
+Seven synthetic cases are reported separately for diagnostics and excluded from
+any CV headline metric. The two live HTTPX cases have frozen labels but remain
+unscored because original per-section predictions are unavailable in the inspected
+read-only archives. S1 and both live changes form one timeout-change capability
+family. No new model calls, prompt tuning or model evaluation reruns were used.
+The [HTTPX measurement inventory](../evals/httpx/measurement-review/INVENTORY.md)
+separates live fork changes, controlled real-source changes, synthetic fixtures,
+repeated executions and HITL replays. Archived rubric files remain historical
+artifacts; only the separate owner-confirmed label version supplies ground truth
+for this score. Retrospective archive review is development evidence, not hold-out
+performance.
+
+Historical OpenBull evidence, separate from the HTTPX scoring population:
+human-labelled helper change [PR #3](https://github.com/DebuG6290/openbull/pull/3)
+merged as `60bd5b7155bcbfc38495124d53ab88f866a8da1c`.
+One real independently human-labelled development case (two sections) has a
 preserved [first-attempt report](../evals/openbull/runs/2026-10-04-routing-fail-closed-attempt1/README.md).
 Its single execution failed with `finish_reason=length`: no valid section outputs
 or proposals. TP=0, FP=0, FN=1, TN=0; recall 0/1, F1 0/1, false-negative rate 1/1,
@@ -93,5 +125,6 @@ improvement remain unmeasured; do not use this as a semantic-quality CV result.
 
 Generalized AI accuracy; conflict-gate accuracy; production reliability percentage;
 OpenBull full lifecycle; cost savings; hours saved; hold-out performance; comparative
-prompt/retrieval gains; dependency-aware candidate benefits; number of human-labelled
-benchmark cases. Do not substitute synthetic tests or unverified archived rubrics.
+prompt/retrieval gains; dependency-aware candidate benefits; large-scale or independent
+capability-family coverage. Do not substitute synthetic tests or unverified archived
+rubrics for real-repository headline claims.

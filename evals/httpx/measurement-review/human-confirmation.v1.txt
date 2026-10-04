@@ -1,0 +1,22 @@
+Approved to merge evidence-only PR #5.
+
+FINAL HUMAN LABELS
+
+CONFIRMED:
+- S1: UPDATE x3
+- S2: NO_CHANGE
+- S4: UPDATE x3
+- H1: UPDATE
+- H2: UPDATE
+- H3: NO_CHANGE
+- H4: NO_CHANGE
+- H6: UPDATE
+- H7: UPDATE
+- H9: UPDATE
+- LIVE-5to8: UPDATE x3
+- LIVE-8to9: UPDATE x3
+
+S3: EXCLUDE AS AMBIGUOUS / NOT ADJUDICATED.
+Reason: Adding the new public Timeout.is_disabled property does not by itself make the existing setting-and-disabling-timeouts section materially inaccurate or stale. Do not force it into UPDATE merely because a related public capability was added.
+
+Ground-truth principle: A section is UPDATE when the code change makes the existing section materially incorrect, misleading, or insufficient for that section's intended job. A merely adjacent new capability is not automatically an UPDATE.

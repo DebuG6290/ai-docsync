@@ -1,0 +1,506 @@
+{
+  "rules": {
+    "status": "AWAITING_HUMAN_CONFIRMATION",
+    "new_model_calls": 0,
+    "selection_rule": "Include all four archived controlled HTTPX changes; all seven synthetic fixtures with clear UPDATE/NO_CHANGE labels; both live HTTPX changes. Exclude four synthetic uncertainty fixtures only from this binary review packet, never from the inventory. Selection is based on evidence type and adjudicability, not model correctness.",
+    "populations_must_remain_separate": true,
+    "retrospective_development_labels_not_holdout": true,
+    "deduplicate_replays_and_report_shared_timeout_family": true,
+    "scoring_unit": "unique code-change/section pair; report code-case and section counts separately",
+    "canonical_historical_run": "impact.v4 v2 artifact for controlled and synthetic cases; preserve earlier runs separately",
+    "no_quality_scores_computed_before_confirmation": true
+  },
+  "cases": [
+    {
+      "review_id": "S1",
+      "case_id": "1943d8a1-3fbc-49c2-9a84-444cae4e320a",
+      "population": "controlled change on real HTTPX source",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "4c5a8e547df6620fba52c8eef985623ae655e47d",
+      "change_summary": "Default timeout changes from five to eight seconds",
+      "proposed_labels": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 5 seconds of\nnetwork inactivity.\n\n"
+        },
+        {
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+          "text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 5s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n\n"
+        },
+        {
+          "section_id": "docs/quickstart.md::timeouts",
+          "text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is five seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG",
+          "diff": "diff --git a/httpx/_config.py b/httpx/_config.py\nindex 467a6c9..cd65bbc 100644\n--- a/httpx/_config.py\n+++ b/httpx/_config.py\n@@ -241,8 +241,8 @@ class Proxy:\n         auth_str = f\", auth={auth!r}\" if auth else \"\"\n         headers_str = f\", headers={dict(self.headers)!r}\" if self.headers else \"\"\n         return f\"Proxy({url_str}{auth_str}{headers_str})\"\n \n \n-DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)\n+DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)\n DEFAULT_LIMITS = Limits(max_connections=100, max_keepalive_connections=20)\n DEFAULT_MAX_REDIRECTS = 20\n",
+          "kind": "assignment",
+          "name": "DEFAULT_TIMEOUT_CONFIG",
+          "new_code": "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=8.0)",
+          "old_code": "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)",
+          "path": "httpx/_config.py"
+        }
+      ],
+      "rationale": "All three candidate sections assert the old five-second default, including the client-example comment, so all require eight seconds.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "default-timeout"
+    },
+    {
+      "review_id": "S2",
+      "case_id": "2a03d863-a0d8-4463-be19-d6f1b54235d4",
+      "population": "controlled change on real HTTPX source",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "b0314a89445af2838c5fb8291c9fe78f755502af",
+      "change_summary": "Internal Timeout.as_dict refactor preserves behavior",
+      "proposed_labels": {
+        "docs/advanced/timeouts.md::fine-tuning-the-configuration": "NO_CHANGE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/advanced/timeouts.md::fine-tuning-the-configuration",
+          "text": "## Fine tuning the configuration\n\nHTTPX also allows you to specify the timeout behavior in more fine grained detail.\n\nThere are four different types of timeouts that may occur. These are **connect**,\n**read**, **write**, and **pool** timeouts.\n\n* The **connect** timeout specifies the maximum amount of time to wait until\na socket connection to the requested host is established. If HTTPX is unable to connect\nwithin this time frame, a `ConnectTimeout` exception is raised.\n* The **read** timeout specifies the maximum duration to wait for a chunk of\ndata to be received (for example, a chunk of the response body). If HTTPX is\nunable to receive data within this time frame, a `ReadTimeout` exception is raised.\n* The **write** timeout specifies the maximum duration to wait for a chunk of\ndata to be sent (for example, a chunk of the request body). If HTTPX is unable\nto send data within this time frame, a `WriteTimeout` exception is raised.\n* The **pool** timeout specifies the maximum duration to wait for acquiring\na connection from the connection pool. If HTTPX is unable to acquire a connection\nwithin this time frame, a `PoolTimeout` exception is raised. A related\nconfiguration here is the maximum number of allowable connections in the\nconnection pool, which is configured by the `limits` argument.\n\nYou can configure the timeout behavior for any of these values...\n\n```python\n# A client with a 60s timeout for connecting, and a 10s timeout elsewhere.\ntimeout = httpx.Timeout(10.0, connect=60.0)\nclient = httpx.Client(timeout=timeout)\n\nresponse = client.get('http://example.com/')\n```"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "httpx/_config.py::Timeout",
+          "diff": "diff --git a/httpx/_config.py b/httpx/_config.py\nindex 467a6c9..88dd6ae 100644\n--- a/httpx/_config.py\n+++ b/httpx/_config.py\n@@ -128,16 +128,13 @@ class Timeout:\n             self.read = timeout if isinstance(read, UnsetType) else read\n             self.write = timeout if isinstance(write, UnsetType) else write\n             self.pool = timeout if isinstance(pool, UnsetType) else pool\n \n     def as_dict(self) -> dict[str, float | None]:\n-        return {\n-            \"connect\": self.connect,\n-            \"read\": self.read,\n-            \"write\": self.write,\n-            \"pool\": self.pool,\n-        }\n+        names = (\"connect\", \"read\", \"write\", \"pool\")\n+        values = (self.connect, self.read, self.write, self.pool)\n+        return {name: value for name, value in zip(names, values)}\n \n     def __eq__(self, other: typing.Any) -> bool:\n         return (\n             isinstance(other, self.__class__)\n             and self.connect == other.connect\n",
+          "kind": "class",
+          "name": "Timeout",
+          "new_code": "class Timeout:\n    \"\"\"\n    Timeout configuration.\n\n    **Usage**:\n\n    Timeout(None)               # No timeouts.\n    Timeout(5.0)                # 5s timeout on all operations.\n    Timeout(None, connect=5.0)  # 5s timeout on connect, no other timeouts.\n    Timeout(5.0, connect=10.0)  # 10s timeout on connect. 5s timeout elsewhere.\n    Timeout(5.0, pool=None)     # No timeout on acquiring connection from pool.\n                                # 5s timeout elsewhere.\n    \"\"\"\n\n    def __init__(\n        self,\n        timeout: TimeoutTypes | UnsetType = UNSET,\n        *,\n        connect: None | float | UnsetType = UNSET,\n        read: None | float | UnsetType = UNSET,\n        write: None | float | UnsetType = UNSET,\n        pool: None | float | UnsetType = UNSET,\n    ) -> None:\n        if isinstance(timeout, Timeout):\n            # Passed as a single explicit Timeout.\n            assert connect is UNSET\n            assert read is UNSET\n            assert write is UNSET\n            assert pool is UNSET\n            self.connect = timeout.connect  # type: typing.Optional[float]\n            self.read = timeout.read  # type: typing.Optional[float]\n            self.write = timeout.write  # type: typing.Optional[float]\n            self.pool = timeout.pool  # type: typing.Optional[float]\n        elif isinstance(timeout, tuple):\n            # Passed as a tuple.\n            self.connect = timeout[0]\n            self.read = timeout[1]\n            self.write = None if len(timeout) < 3 else timeout[2]\n            self.pool = None if len(timeout) < 4 else timeout[3]\n        elif not (\n            isinstance(connect, UnsetType)\n            or isinstance(read, UnsetType)\n            or isinstance(write, UnsetType)\n            or isinstance(pool, UnsetType)\n        ):\n            self.connect = connect\n            self.read = read\n            self.write = write\n            self.pool = pool\n        else:\n            if isinstance(timeout, UnsetType):\n                raise ValueError(\n                    \"httpx.Timeout must either include a default, or set all \"\n                    \"four parameters explicitly.\"\n                )\n            self.connect = timeout if isinstance(connect, UnsetType) else connect\n            self.read = timeout if isinstance(read, UnsetType) else read\n            self.write = timeout if isinstance(write, UnsetType) else write\n            self.pool = timeout if isinstance(pool, UnsetType) else pool\n\n    def as_dict(self) -> dict[str, float | None]:\n        names = (\"connect\", \"read\", \"write\", \"pool\")\n        values = (self.connect, self.read, self.write, self.pool)\n        return {name: value for name, value in zip(names, values)}\n\n    def __eq__(self, other: typing.Any) -> bool:\n        return (\n            isinstance(other, self.__class__)\n            and self.connect == other.connect\n            and self.read == other.read\n            and self.write == other.write\n            and self.pool == other.pool\n        )\n\n    def __repr__(self) -> str:\n        class_name = self.__class__.__name__\n        if len({self.connect, self.read, self.write, self.pool}) == 1:\n            return f\"{class_name}(timeout={self.connect})\"\n        return (\n            f\"{class_name}(connect={self.connect}, \"\n            f\"read={self.read}, write={self.write}, pool={self.pool})\"\n        )",
+          "old_code": "class Timeout:\n    \"\"\"\n    Timeout configuration.\n\n    **Usage**:\n\n    Timeout(None)               # No timeouts.\n    Timeout(5.0)                # 5s timeout on all operations.\n    Timeout(None, connect=5.0)  # 5s timeout on connect, no other timeouts.\n    Timeout(5.0, connect=10.0)  # 10s timeout on connect. 5s timeout elsewhere.\n    Timeout(5.0, pool=None)     # No timeout on acquiring connection from pool.\n                                # 5s timeout elsewhere.\n    \"\"\"\n\n    def __init__(\n        self,\n        timeout: TimeoutTypes | UnsetType = UNSET,\n        *,\n        connect: None | float | UnsetType = UNSET,\n        read: None | float | UnsetType = UNSET,\n        write: None | float | UnsetType = UNSET,\n        pool: None | float | UnsetType = UNSET,\n    ) -> None:\n        if isinstance(timeout, Timeout):\n            # Passed as a single explicit Timeout.\n            assert connect is UNSET\n            assert read is UNSET\n            assert write is UNSET\n            assert pool is UNSET\n            self.connect = timeout.connect  # type: typing.Optional[float]\n            self.read = timeout.read  # type: typing.Optional[float]\n            self.write = timeout.write  # type: typing.Optional[float]\n            self.pool = timeout.pool  # type: typing.Optional[float]\n        elif isinstance(timeout, tuple):\n            # Passed as a tuple.\n            self.connect = timeout[0]\n            self.read = timeout[1]\n            self.write = None if len(timeout) < 3 else timeout[2]\n            self.pool = None if len(timeout) < 4 else timeout[3]\n        elif not (\n            isinstance(connect, UnsetType)\n            or isinstance(read, UnsetType)\n            or isinstance(write, UnsetType)\n            or isinstance(pool, UnsetType)\n        ):\n            self.connect = connect\n            self.read = read\n            self.write = write\n            self.pool = pool\n        else:\n            if isinstance(timeout, UnsetType):\n                raise ValueError(\n                    \"httpx.Timeout must either include a default, or set all \"\n                    \"four parameters explicitly.\"\n                )\n            self.connect = timeout if isinstance(connect, UnsetType) else connect\n            self.read = timeout if isinstance(read, UnsetType) else read\n            self.write = timeout if isinstance(write, UnsetType) else write\n            self.pool = timeout if isinstance(pool, UnsetType) else pool\n\n    def as_dict(self) -> dict[str, float | None]:\n        return {\n            \"connect\": self.connect,\n            \"read\": self.read,\n            \"write\": self.write,\n            \"pool\": self.pool,\n        }\n\n    def __eq__(self, other: typing.Any) -> bool:\n        return (\n            isinstance(other, self.__class__)\n            and self.connect == other.connect\n            and self.read == other.read\n            and self.write == other.write\n            and self.pool == other.pool\n        )\n\n    def __repr__(self) -> str:\n        class_name = self.__class__.__name__\n        if len({self.connect, self.read, self.write, self.pool}) == 1:\n            return f\"{class_name}(timeout={self.connect})\"\n        return (\n            f\"{class_name}(connect={self.connect}, \"\n            f\"read={self.read}, write={self.write}, pool={self.pool})\"\n        )",
+          "path": "httpx/_config.py"
+        },
+        {
+          "change_kind": "modified",
+          "code_id": "httpx/_config.py::Timeout.as_dict",
+          "diff": "diff --git a/httpx/_config.py b/httpx/_config.py\nindex 467a6c9..88dd6ae 100644\n--- a/httpx/_config.py\n+++ b/httpx/_config.py\n@@ -128,16 +128,13 @@ class Timeout:\n             self.read = timeout if isinstance(read, UnsetType) else read\n             self.write = timeout if isinstance(write, UnsetType) else write\n             self.pool = timeout if isinstance(pool, UnsetType) else pool\n \n     def as_dict(self) -> dict[str, float | None]:\n-        return {\n-            \"connect\": self.connect,\n-            \"read\": self.read,\n-            \"write\": self.write,\n-            \"pool\": self.pool,\n-        }\n+        names = (\"connect\", \"read\", \"write\", \"pool\")\n+        values = (self.connect, self.read, self.write, self.pool)\n+        return {name: value for name, value in zip(names, values)}\n \n     def __eq__(self, other: typing.Any) -> bool:\n         return (\n             isinstance(other, self.__class__)\n             and self.connect == other.connect\n",
+          "kind": "function",
+          "name": "Timeout.as_dict",
+          "new_code": "    def as_dict(self) -> dict[str, float | None]:\n        names = (\"connect\", \"read\", \"write\", \"pool\")\n        values = (self.connect, self.read, self.write, self.pool)\n        return {name: value for name, value in zip(names, values)}",
+          "old_code": "    def as_dict(self) -> dict[str, float | None]:\n        return {\n            \"connect\": self.connect,\n            \"read\": self.read,\n            \"write\": self.write,\n            \"pool\": self.pool,\n        }",
+          "path": "httpx/_config.py"
+        }
+      ],
+      "rationale": "Both complete implementations return the same four key/value pairs, preserving the documented timeout configuration behavior.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "2"
+    },
+    {
+      "review_id": "S3",
+      "case_id": "f0051fc8-973a-4415-bc9a-4c290b0a6f4b",
+      "population": "controlled change on real HTTPX source",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "77efbedc5eef29fd9cb378572f26f232391eecd2",
+      "change_summary": "Timeout.is_disabled public property added",
+      "proposed_labels": {
+        "docs/advanced/timeouts.md::setting-and-disabling-timeouts": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/advanced/timeouts.md::setting-and-disabling-timeouts",
+          "text": "## Setting and disabling timeouts\n\nYou can set timeouts for an individual request:\n\n```python\n# Using the top-level API:\nhttpx.get('http://example.com/api/v1/example', timeout=10.0)\n\n# Using a client instance:\nwith httpx.Client() as client:\n    client.get(\"http://example.com/api/v1/example\", timeout=10.0)\n```\n\nOr disable timeouts for an individual request:\n\n```python\n# Using the top-level API:\nhttpx.get('http://example.com/api/v1/example', timeout=None)\n\n# Using a client instance:\nwith httpx.Client() as client:\n    client.get(\"http://example.com/api/v1/example\", timeout=None)\n```\n\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "httpx/_config.py::Timeout",
+          "diff": "diff --git a/httpx/_config.py b/httpx/_config.py\nindex 467a6c9..d7f65a0 100644\n--- a/httpx/_config.py\n+++ b/httpx/_config.py\n@@ -135,10 +135,14 @@ class Timeout:\n             \"read\": self.read,\n             \"write\": self.write,\n             \"pool\": self.pool,\n         }\n \n+    @property\n+    def is_disabled(self) -> bool:\n+        return all(value is None for value in self.as_dict().values())\n+\n     def __eq__(self, other: typing.Any) -> bool:\n         return (\n             isinstance(other, self.__class__)\n             and self.connect == other.connect\n             and self.read == other.read\n",
+          "kind": "class",
+          "name": "Timeout",
+          "new_code": "class Timeout:\n    \"\"\"\n    Timeout configuration.\n\n    **Usage**:\n\n    Timeout(None)               # No timeouts.\n    Timeout(5.0)                # 5s timeout on all operations.\n    Timeout(None, connect=5.0)  # 5s timeout on connect, no other timeouts.\n    Timeout(5.0, connect=10.0)  # 10s timeout on connect. 5s timeout elsewhere.\n    Timeout(5.0, pool=None)     # No timeout on acquiring connection from pool.\n                                # 5s timeout elsewhere.\n    \"\"\"\n\n    def __init__(\n        self,\n        timeout: TimeoutTypes | UnsetType = UNSET,\n        *,\n        connect: None | float | UnsetType = UNSET,\n        read: None | float | UnsetType = UNSET,\n        write: None | float | UnsetType = UNSET,\n        pool: None | float | UnsetType = UNSET,\n    ) -> None:\n        if isinstance(timeout, Timeout):\n            # Passed as a single explicit Timeout.\n            assert connect is UNSET\n            assert read is UNSET\n            assert write is UNSET\n            assert pool is UNSET\n            self.connect = timeout.connect  # type: typing.Optional[float]\n            self.read = timeout.read  # type: typing.Optional[float]\n            self.write = timeout.write  # type: typing.Optional[float]\n            self.pool = timeout.pool  # type: typing.Optional[float]\n        elif isinstance(timeout, tuple):\n            # Passed as a tuple.\n            self.connect = timeout[0]\n            self.read = timeout[1]\n            self.write = None if len(timeout) < 3 else timeout[2]\n            self.pool = None if len(timeout) < 4 else timeout[3]\n        elif not (\n            isinstance(connect, UnsetType)\n            or isinstance(read, UnsetType)\n            or isinstance(write, UnsetType)\n            or isinstance(pool, UnsetType)\n        ):\n            self.connect = connect\n            self.read = read\n            self.write = write\n            self.pool = pool\n        else:\n            if isinstance(timeout, UnsetType):\n                raise ValueError(\n                    \"httpx.Timeout must either include a default, or set all \"\n                    \"four parameters explicitly.\"\n                )\n            self.connect = timeout if isinstance(connect, UnsetType) else connect\n            self.read = timeout if isinstance(read, UnsetType) else read\n            self.write = timeout if isinstance(write, UnsetType) else write\n            self.pool = timeout if isinstance(pool, UnsetType) else pool\n\n    def as_dict(self) -> dict[str, float | None]:\n        return {\n            \"connect\": self.connect,\n            \"read\": self.read,\n            \"write\": self.write,\n            \"pool\": self.pool,\n        }\n\n    @property\n    def is_disabled(self) -> bool:\n        return all(value is None for value in self.as_dict().values())\n\n    def __eq__(self, other: typing.Any) -> bool:\n        return (\n            isinstance(other, self.__class__)\n            and self.connect == other.connect\n            and self.read == other.read\n            and self.write == other.write\n            and self.pool == other.pool\n        )\n\n    def __repr__(self) -> str:\n        class_name = self.__class__.__name__\n        if len({self.connect, self.read, self.write, self.pool}) == 1:\n            return f\"{class_name}(timeout={self.connect})\"\n        return (\n            f\"{class_name}(connect={self.connect}, \"\n            f\"read={self.read}, write={self.write}, pool={self.pool})\"\n        )",
+          "old_code": "class Timeout:\n    \"\"\"\n    Timeout configuration.\n\n    **Usage**:\n\n    Timeout(None)               # No timeouts.\n    Timeout(5.0)                # 5s timeout on all operations.\n    Timeout(None, connect=5.0)  # 5s timeout on connect, no other timeouts.\n    Timeout(5.0, connect=10.0)  # 10s timeout on connect. 5s timeout elsewhere.\n    Timeout(5.0, pool=None)     # No timeout on acquiring connection from pool.\n                                # 5s timeout elsewhere.\n    \"\"\"\n\n    def __init__(\n        self,\n        timeout: TimeoutTypes | UnsetType = UNSET,\n        *,\n        connect: None | float | UnsetType = UNSET,\n        read: None | float | UnsetType = UNSET,\n        write: None | float | UnsetType = UNSET,\n        pool: None | float | UnsetType = UNSET,\n    ) -> None:\n        if isinstance(timeout, Timeout):\n            # Passed as a single explicit Timeout.\n            assert connect is UNSET\n            assert read is UNSET\n            assert write is UNSET\n            assert pool is UNSET\n            self.connect = timeout.connect  # type: typing.Optional[float]\n            self.read = timeout.read  # type: typing.Optional[float]\n            self.write = timeout.write  # type: typing.Optional[float]\n            self.pool = timeout.pool  # type: typing.Optional[float]\n        elif isinstance(timeout, tuple):\n            # Passed as a tuple.\n            self.connect = timeout[0]\n            self.read = timeout[1]\n            self.write = None if len(timeout) < 3 else timeout[2]\n            self.pool = None if len(timeout) < 4 else timeout[3]\n        elif not (\n            isinstance(connect, UnsetType)\n            or isinstance(read, UnsetType)\n            or isinstance(write, UnsetType)\n            or isinstance(pool, UnsetType)\n        ):\n            self.connect = connect\n            self.read = read\n            self.write = write\n            self.pool = pool\n        else:\n            if isinstance(timeout, UnsetType):\n                raise ValueError(\n                    \"httpx.Timeout must either include a default, or set all \"\n                    \"four parameters explicitly.\"\n                )\n            self.connect = timeout if isinstance(connect, UnsetType) else connect\n            self.read = timeout if isinstance(read, UnsetType) else read\n            self.write = timeout if isinstance(write, UnsetType) else write\n            self.pool = timeout if isinstance(pool, UnsetType) else pool\n\n    def as_dict(self) -> dict[str, float | None]:\n        return {\n            \"connect\": self.connect,\n            \"read\": self.read,\n            \"write\": self.write,\n            \"pool\": self.pool,\n        }\n\n    def __eq__(self, other: typing.Any) -> bool:\n        return (\n            isinstance(other, self.__class__)\n            and self.connect == other.connect\n            and self.read == other.read\n            and self.write == other.write\n            and self.pool == other.pool\n        )\n\n    def __repr__(self) -> str:\n        class_name = self.__class__.__name__\n        if len({self.connect, self.read, self.write, self.pool}) == 1:\n            return f\"{class_name}(timeout={self.connect})\"\n        return (\n            f\"{class_name}(connect={self.connect}, \"\n            f\"read={self.read}, write={self.write}, pool={self.pool})\"\n        )",
+          "path": "httpx/_config.py"
+        },
+        {
+          "change_kind": "added",
+          "code_id": "httpx/_config.py::Timeout.is_disabled",
+          "diff": "diff --git a/httpx/_config.py b/httpx/_config.py\nindex 467a6c9..d7f65a0 100644\n--- a/httpx/_config.py\n+++ b/httpx/_config.py\n@@ -135,10 +135,14 @@ class Timeout:\n             \"read\": self.read,\n             \"write\": self.write,\n             \"pool\": self.pool,\n         }\n \n+    @property\n+    def is_disabled(self) -> bool:\n+        return all(value is None for value in self.as_dict().values())\n+\n     def __eq__(self, other: typing.Any) -> bool:\n         return (\n             isinstance(other, self.__class__)\n             and self.connect == other.connect\n             and self.read == other.read\n",
+          "kind": "function",
+          "name": "Timeout.is_disabled",
+          "new_code": "    def is_disabled(self) -> bool:\n        return all(value is None for value in self.as_dict().values())",
+          "old_code": null,
+          "path": "httpx/_config.py"
+        }
+      ],
+      "rationale": "The new public property exposes whether every timeout component is None and is missing from the setting/disabling documentation.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "3"
+    },
+    {
+      "review_id": "S4",
+      "case_id": "9ae0023e-e224-4741-b4e1-eb9ed26a6635",
+      "population": "controlled change on real HTTPX source",
+      "source": "evals/phase1_1/original-benchmark-v2.json",
+      "before_sha": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "after_sha": "d4cec8d6631cad0099623ea62446ca539c006d74",
+      "change_summary": "Default timeout comes from an unavailable external runtime policy",
+      "proposed_labels": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 5 seconds of\nnetwork inactivity.\n\n"
+        },
+        {
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+          "text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 5s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n\n"
+        },
+        {
+          "section_id": "docs/quickstart.md::timeouts",
+          "text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is five seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "httpx/_config.py::DEFAULT_TIMEOUT_CONFIG",
+          "diff": "diff --git a/httpx/_config.py b/httpx/_config.py\nindex 467a6c9..8ab7062 100644\n--- a/httpx/_config.py\n+++ b/httpx/_config.py\n@@ -1,5 +1,6 @@\n+from external_runtime_policy import timeout_seconds\n from __future__ import annotations\n \n import os\n import typing\n \n@@ -241,8 +242,8 @@ class Proxy:\n         auth_str = f\", auth={auth!r}\" if auth else \"\"\n         headers_str = f\", headers={dict(self.headers)!r}\" if self.headers else \"\"\n         return f\"Proxy({url_str}{auth_str}{headers_str})\"\n \n \n-DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)\n+DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=timeout_seconds())\n DEFAULT_LIMITS = Limits(max_connections=100, max_keepalive_connections=20)\n DEFAULT_MAX_REDIRECTS = 20\n",
+          "kind": "assignment",
+          "name": "DEFAULT_TIMEOUT_CONFIG",
+          "new_code": "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=timeout_seconds())",
+          "old_code": "DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)",
+          "path": "httpx/_config.py"
+        }
+      ],
+      "rationale": "The fixed five-second assertions should be replaced with the visible runtime-policy source, without asserting its unavailable numeric output.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "4"
+    },
+    {
+      "review_id": "H1",
+      "case_id": "9158944b-6afc-40e2-925d-c8f53cdbb226",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "a0765e1b0af6c2b791ce8e37eb2d700fa93fd4da",
+      "after_sha": "d0979ebbd0f46a23e01220a459b930b730353475",
+      "change_summary": "display_title changes from returning input unchanged to value.strip().title().",
+      "proposed_labels": {
+        "docs/behavior.md::display-title": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::display-title",
+          "text": "## Display title\n\nThe display helper returns the supplied title exactly as received.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::display_title",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex 5766fa2..bf91dad 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,2 @@\n def display_title(value):\n-    return value\n+    return value.strip().title()\n",
+          "kind": "function",
+          "name": "display_title",
+          "new_code": "def display_title(value):\n    return value.strip().title()",
+          "old_code": "def display_title(value):\n    return value",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "The documented unchanged input is contradicted by the new whitespace stripping and title casing.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H1"
+    },
+    {
+      "review_id": "H2",
+      "case_id": "78445f32-fb89-44b4-b0cb-ddd5dea90130",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "e4efff2179cc381334b483b471d7f739a81795e7",
+      "after_sha": "a64da6d8977ebf6a3ddfbd9076c2bdc64bbba072",
+      "change_summary": "protocol_version changes its returned literal from 'v1' to 'v2'.",
+      "proposed_labels": {
+        "docs/behavior.md::protocol-version": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::protocol-version",
+          "text": "## Protocol version\n\nThe default protocol version is v1.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::protocol_version",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex 02eb461..4466d46 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,2 @@\n def protocol_version():\n-    return 'v1'\n+    return 'v2'\n",
+          "kind": "function",
+          "name": "protocol_version",
+          "new_code": "def protocol_version():\n    return 'v2'",
+          "old_code": "def protocol_version():\n    return 'v1'",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "The documented v1 literal contradicts the new v2 return value.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H2"
+    },
+    {
+      "review_id": "H3",
+      "case_id": "a62f47c9-7167-426c-93ce-54b5d95e7d43",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "b39fdf9069a48a06853c7d368614f4ec85eb3cb8",
+      "after_sha": "cb91fb1f44528663378e4a5d8645e1508c9642a9",
+      "change_summary": "normalize_name is refactored but still strips outer whitespace then lowercases.",
+      "proposed_labels": {
+        "docs/behavior.md::normalize-name": "NO_CHANGE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::normalize-name",
+          "text": "## Normalize name\n\nThe helper removes outer whitespace and lowercases the value.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::normalize_name",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex eabc5a5..8585384 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,3 @@\n def normalize_name(value):\n-    return value.strip().lower()\n+    value = value.strip()\n+    return value.lower()\n",
+          "kind": "function",
+          "name": "normalize_name",
+          "new_code": "def normalize_name(value):\n    value = value.strip()\n    return value.lower()",
+          "old_code": "def normalize_name(value):\n    return value.strip().lower()",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "Both implementations perform the same operations in the same order, matching the existing text.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H3"
+    },
+    {
+      "review_id": "H4",
+      "case_id": "6c43c850-8f81-47c8-9e16-e7c5fd33b99f",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "1040060ab0499b17f2053d6b3a68e78dd1195d57",
+      "after_sha": "38e11d4895ff48f44c4dd86f3122a4de90de2f11",
+      "change_summary": "max_attempts now names a local variable but still returns integer 3.",
+      "proposed_labels": {
+        "docs/behavior.md::maximum-attempts": "NO_CHANGE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::maximum-attempts",
+          "text": "## Maximum attempts\n\nThe helper returns a maximum of three attempts.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::max_attempts",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex 06a56f6..5616a7a 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,3 @@\n def max_attempts():\n-    return 3\n+    attempts = 3\n+    return attempts\n",
+          "kind": "function",
+          "name": "max_attempts",
+          "new_code": "def max_attempts():\n    attempts = 3\n    return attempts",
+          "old_code": "def max_attempts():\n    return 3",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "Naming the local variable leaves the documented return value unchanged.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H4"
+    },
+    {
+      "review_id": "H6",
+      "case_id": "b74e6db6-e98c-4567-b961-a9e19d029355",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "079ca2bc03255c9131c68045898d445f8f3ee3a5",
+      "after_sha": "1c43e57729e231979ad79cf02f9762cb5cbe33b2",
+      "change_summary": "worker_count changes from returning 4 to returning deployment_config['workers'].",
+      "proposed_labels": {
+        "docs/behavior.md::worker-count": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::worker-count",
+          "text": "## Worker count\n\nThe default worker count is four.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::worker_count",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex 6ab37d8..2e944db 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,2 @@\n def worker_count():\n-    return 4\n+    return deployment_config['workers']\n",
+          "kind": "function",
+          "name": "worker_count",
+          "new_code": "def worker_count():\n    return deployment_config['workers']",
+          "old_code": "def worker_count():\n    return 4",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "A fixed count is no longer established; document the configuration source without inventing its active value.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H6"
+    },
+    {
+      "review_id": "H7",
+      "case_id": "345b693d-e7bd-412c-b1e0-e389690d73a5",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "6eced2b7278e356e29930e28ba96144a62e4dbce",
+      "after_sha": "592fbaf1082a90f8af40c20eb309b57495db7651",
+      "change_summary": "can_retry replaces the explicit 408/429/5xx rule with client.retry_provider.is_retryable(response).",
+      "proposed_labels": {
+        "docs/behavior.md::retry-classification": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::retry-classification",
+          "text": "## Retry classification\n\nResponses with status 408, 429, or 5xx are retryable.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::can_retry",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex c17c67d..0e4b1b6 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,2 @@\n-def can_retry(response):\n-    return response.status_code in {408, 429} or response.status_code >= 500\n+def can_retry(response, client):\n+    return client.retry_provider.is_retryable(response)\n",
+          "kind": "function",
+          "name": "can_retry",
+          "new_code": "def can_retry(response, client):\n    return client.retry_provider.is_retryable(response)",
+          "old_code": "def can_retry(response):\n    return response.status_code in {408, 429} or response.status_code >= 500",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "Document the visible provider delegation without claiming its unavailable status-classification policy.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H7"
+    },
+    {
+      "review_id": "H9",
+      "case_id": "b4a7af09-9985-4493-aa3c-e8dc13108a7a",
+      "population": "synthetic",
+      "source": "evals/phase1_1/heldout-results-v2.json",
+      "before_sha": "92bb0d3db84b6f9005cbf5bd851ffdae265fc622",
+      "after_sha": "0098ae93be586c4c1ff1e0cdd0b568ce4a1f7a55",
+      "change_summary": "retention_days changes from returning 30 to int(os.environ['RETENTION_DAYS']).",
+      "proposed_labels": {
+        "docs/behavior.md::retention-days": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/behavior.md::retention-days",
+          "text": "## Retention days\n\nRecords are retained for 30 days by default.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "change_kind": "modified",
+          "code_id": "scenario.py::retention_days",
+          "diff": "diff --git a/scenario.py b/scenario.py\nindex f5ddc4d..4b3eafd 100644\n--- a/scenario.py\n+++ b/scenario.py\n@@ -1,2 +1,4 @@\n+import os\n+\n def retention_days():\n-    return 30\n+    return int(os.environ['RETENTION_DAYS'])\n",
+          "kind": "function",
+          "name": "retention_days",
+          "new_code": "def retention_days():\n    return int(os.environ['RETENTION_DAYS'])",
+          "old_code": "def retention_days():\n    return 30",
+          "path": "scenario.py"
+        }
+      ],
+      "rationale": "The fixed default is replaced by an environment-controlled value, whose runtime setting must not be invented.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": true,
+      "family": "H9"
+    },
+    {
+      "review_id": "LIVE-5to8",
+      "case_id": "e20d555b (durable ID prefix from docs PR)",
+      "population": "live fork change on real HTTPX source",
+      "source": "HTTPX code PR #2; docs PR #3",
+      "before_sha": "674b1d388f8b9f61e961e5205a64cac7ce8b19b7",
+      "after_sha": "d17b2c7bfbe724e0483a1d2b2ca5110631a88484",
+      "change_summary": "DEFAULT_TIMEOUT_CONFIG changes from Timeout(timeout=5.0) to Timeout(timeout=8.0).",
+      "proposed_labels": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 5 seconds of\nnetwork inactivity.\n\n"
+        },
+        {
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+          "text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 5s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n"
+        },
+        {
+          "section_id": "docs/quickstart.md::timeouts",
+          "text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is five seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n"
+        }
+      ],
+      "rationale": "Both prose defaults and the client-example comment say five seconds and require eight seconds.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": false,
+      "family": "default-timeout"
+    },
+    {
+      "review_id": "LIVE-8to9",
+      "case_id": "87c9f891 (durable ID prefix from docs PR)",
+      "population": "live fork change on real HTTPX source",
+      "source": "HTTPX code PR #5; docs PR #7",
+      "before_sha": "17eea3e36ca8e90361843e6fc230b13e05d8682d",
+      "after_sha": "0bd67d36a676103794efafdd7f5ea6152f0b71d1",
+      "change_summary": "DEFAULT_TIMEOUT_CONFIG changes from Timeout(timeout=8.0) to Timeout(timeout=9.0).",
+      "proposed_labels": {
+        "docs/advanced/timeouts.md::__intro__": "UPDATE",
+        "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client": "UPDATE",
+        "docs/quickstart.md::timeouts": "UPDATE"
+      },
+      "documentation_excerpts": [
+        {
+          "section_id": "docs/advanced/timeouts.md::__intro__",
+          "text": "HTTPX is careful to enforce timeouts everywhere by default.\n\nThe default behavior is to raise a `TimeoutException` after 8 seconds of\nnetwork inactivity.\n\n"
+        },
+        {
+          "section_id": "docs/advanced/timeouts.md::setting-a-default-timeout-on-a-client",
+          "text": "## Setting a default timeout on a client\n\nYou can set a timeout on a client instance, which results in the given\n`timeout` being used as the default for requests made with this client:\n\n```python\nclient = httpx.Client()              # Use a default 5s timeout everywhere.\nclient = httpx.Client(timeout=10.0)  # Use a default 10s timeout everywhere.\nclient = httpx.Client(timeout=None)  # Disable all timeouts by default.\n```\n"
+        },
+        {
+          "section_id": "docs/quickstart.md::timeouts",
+          "text": "## Timeouts\n\nHTTPX defaults to including reasonable timeouts for all network operations,\nmeaning that if a connection is not properly established then it should always\nraise an error rather than hanging indefinitely.\n\nThe default timeout for network inactivity is eight seconds. You can modify the\nvalue to be more or less strict:\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=0.001)\n```\n\nYou can also disable the timeout behavior completely...\n\n```pycon\n>>> httpx.get('https://github.com/', timeout=None)\n```\n\nFor advanced timeout management, see [Timeout fine-tuning](advanced/timeouts.md#fine-tuning-the-configuration).\n"
+        }
+      ],
+      "rationale": "The prose still says eight seconds and the client-example comment still says five seconds, so all three require nine seconds.",
+      "status": "PROPOSED_AWAITING_HUMAN",
+      "label_provenance": "Engineering proposal only; not human ground truth",
+      "historical_output_available": false,
+      "family": "default-timeout"
+    }
+  ]
+}
