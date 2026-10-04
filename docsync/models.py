@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StrictModel(BaseModel):
@@ -22,20 +22,24 @@ class EvidenceCompleteness(str, Enum):
     INSUFFICIENT = "INSUFFICIENT"
 
 
+# Mechanical output bounds; never truncate replacement documentation or infer a decision.
+ImpactNote = Annotated[str, Field(max_length=400)]
+
+
 class SectionAnalysis(StrictModel):
     section_id: str
     decision: Decision
     proposed_text: str | None
-    reason: str
-    code_evidence: list[str]
+    reason: str = Field(max_length=800)
+    code_evidence: list[ImpactNote] = Field(max_length=8)
     evidence_completeness: EvidenceCompleteness
-    missing_information: list[str]
-    safe_claims: list[str]
-    unsupported_claims: list[str]
+    missing_information: list[ImpactNote] = Field(max_length=8)
+    safe_claims: list[ImpactNote] = Field(max_length=8)
+    unsupported_claims: list[ImpactNote] = Field(max_length=8)
 
 
 class ImpactResponse(StrictModel):
-    summary: str
+    summary: str = Field(max_length=600)
     sections: list[SectionAnalysis]
 
 

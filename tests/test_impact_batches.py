@@ -58,6 +58,30 @@ def assessment(sid):
         'safe_claims': ['A supported statement.'], 'unsupported_claims': ['An unsupported detail.']}
 
 
+def test_impact_schema_bounds_explanations_without_clipping_proposal():
+    from pydantic import ValidationError
+    from docsync.models import ImpactResponse
+    schema = ImpactResponse.model_json_schema()
+    assert schema['properties']['summary']['maxLength'] == 600
+    fields = schema['$defs']['SectionAnalysis']['properties']
+    assert fields['reason']['maxLength'] == 800
+    for name in ('code_evidence', 'missing_information', 'safe_claims', 'unsupported_claims'):
+        assert fields[name]['maxItems'] == 8
+        assert fields[name]['items']['maxLength'] == 400
+    row = assessment('docs/guide.md::s0')
+    row['proposed_text'] = 'Approved details preserved.\n' * 1000
+    payload = {'summary': 'Bounded explanation.', 'sections': [row]}
+    result = ImpactResponse.model_validate(payload)
+    assert result.sections[0].proposed_text == row['proposed_text']
+    assert result.sections[0].decision == Decision.UPDATE
+    for name, value in (('reason', 'x' * 801), ('safe_claims', ['x'] * 9),
+                        ('missing_information', ['x' * 401])):
+        with pytest.raises(ValidationError):
+            ImpactResponse.model_validate({**payload, 'sections': [{**row, name: value}]})
+    with pytest.raises(ValidationError):
+        ImpactResponse.model_validate({**payload, 'summary': 'x' * 601})
+
+
 @pytest.fixture
 def context(tmp_path, monkeypatch):
     root = tmp_path / 'repo'
