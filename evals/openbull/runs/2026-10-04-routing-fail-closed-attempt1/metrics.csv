@@ -1,0 +1,9 @@
+metric,numerator,denominator,value,status,dataset_version,release_sha,prompt_version
+precision,0,0,,no_samples,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+recall,0,1,0.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+f1,0,1,0.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+false_negative_rate,1,1,1.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+accuracy,0,2,0.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+strict_no_change_false_negative_rate,0,1,0.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+output_coverage,0,2,0.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4
+abstention_rate,0,2,0.0,measured,openbull-real-human.v1,028113e1e223c2aa96bb6fe351e5ce5ef8264149,impact.v4

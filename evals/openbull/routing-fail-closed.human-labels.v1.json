@@ -1,0 +1,44 @@
+{
+  "case_id": "openbull-sandbox-missing-callback-001",
+  "repository": "DebuG6290/openbull",
+  "label_version": "human.v1",
+  "status": "HUMAN_CONFIRMED_BEFORE_MODEL_ANALYSIS",
+  "reviewer": "Project owner: direct user confirmation in the DocSync conversation",
+  "recorded_at": "2026-10-04T05:49:19Z",
+  "timestamp_semantics": "UTC record creation time; exact user-message delivery timestamp is unavailable.",
+  "label_source": "Independent human ground-truth confirmation, supplied before model analysis",
+  "source_statement": "Confirmed as independent human ground truth.",
+  "preregistration_path": "evals/openbull/routing-fail-closed.preregistration.json",
+  "preregistration_sha256": "42857e7596a187b16a678992fa3b46fda573e73d6f0f577d28e43c7142105557",
+  "application_release": "028113e1e223c2aa96bb6fe351e5ce5ef8264149",
+  "before_sha": "bce9dc7bff5ff9cd9053d8a273f948fa41e183b4",
+  "proposed_code_head_sha": "f1cb56a785cab360645f734eacc6a4e34186aae1",
+  "code_pr": "https://github.com/DebuG6290/openbull/pull/3",
+  "split": "development_real_human_labelled",
+  "expected_impacted_sections": ["docs/design/SERVICES.md::trading-mode-service"],
+  "expected_non_impacted_sections": ["docs/PRODUCT.md::32-external-api-apiv1"],
+  "expected_decisions": {
+    "docs/design/SERVICES.md::trading-mode-service": "UPDATE",
+    "docs/PRODUCT.md::32-external-api-apiv1": "NO_CHANGE"
+  },
+  "human_rationales": {
+    "docs/design/SERVICES.md::trading-mode-service": "The SERVICES section explicitly documents fallback to live_fn when sandbox_fn is absent, and PR #3 changes that behavior to fail closed with ValueError.",
+    "docs/PRODUCT.md::32-external-api-apiv1": "The PRODUCT external-api section does not document the missing-sandbox-callback branch; it only describes the broader API groups and normal sandbox routing, so this helper-level change should not require an update there."
+  },
+  "expected_safe_claims": [
+    "dispatch_by_mode raises ValueError when sandbox mode is selected without a sandbox callback.",
+    "The missing-sandbox-callback branch does not invoke the live callback.",
+    "Live mode still invokes live_fn; sandbox mode with a callback still invokes sandbox_fn."
+  ],
+  "forbidden_claims": [
+    "All OpenBull order entry points now fail closed.",
+    "All order services use dispatch_by_mode.",
+    "Broker failures or missing trading-mode records now fail closed.",
+    "Public endpoint response schemas, HTTP status codes or authentication behavior changed.",
+    "The entire Strategy Module is shipped or in-flight based on this helper change."
+  ],
+  "claim_boundary_provenance": "Copied unchanged from the engineering preregistration as evidence boundaries. Human explicitly confirmed decisions and rationales; generated atomic claims still require separate independent adjudication.",
+  "expected_conflicts": [],
+  "baseline_integrity_status": "Unresolved baseline audit preserved; not a semantic no-conflict label.",
+  "evaluation_rules": "One analysis execution; no prompt tuning after output; retain failures, missing outputs, raw predictions and provider diagnostics. Actual merged after_sha is recorded separately."
+}

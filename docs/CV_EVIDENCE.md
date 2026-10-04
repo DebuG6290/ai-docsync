@@ -53,6 +53,18 @@ repeated executions and HITL replays. Archived rubric files remain historical
 artifacts; only the separate owner-confirmed label version supplies ground truth
 for this score. Retrospective archive review is development evidence, not hold-out
 performance.
+
+Historical OpenBull evidence, separate from the HTTPX scoring population:
+human-labelled helper change [PR #3](https://github.com/DebuG6290/openbull/pull/3)
+merged as `60bd5b7155bcbfc38495124d53ab88f866a8da1c`.
+One real independently human-labelled development case (two sections) has a
+preserved [first-attempt report](../evals/openbull/runs/2026-10-04-routing-fail-closed-attempt1/README.md).
+Its single execution failed with `finish_reason=length`: no valid section outputs
+or proposals. TP=0, FP=0, FN=1, TN=0; recall 0/1, F1 0/1, false-negative rate 1/1,
+decision accuracy 0/2 and coverage 0/2; precision is unknown (0/0).
+These include an operational contract failure, not independently scored semantic
+decisions. No generalized quality claim or proposal-support percentage follows.
+Archived reports remain evidence artifacts with original rubrics/provenance limitations.
 New deterministic metric primitives define precision, recall, F1, false negatives,
 decision accuracy and retrieval recall; their tests are not an AI benchmark.
 
@@ -69,6 +81,10 @@ exercise PostgreSQL/pgvector and concurrent scan deduplication/ownership in CI.
 Batch 1 [CI run 37157275980](https://github.com/DebuG6290/ai-docsync/actions/runs/37157275980)
 at `effccc06acd37ad0713e870f1968c57b5cf1673d`: **164 passed**, including both PostgreSQL checks.
 These counts establish regression coverage, not model accuracy or field reliability.
+Latest main [CI run 37161393354](https://github.com/DebuG6290/ai-docsync/actions/runs/37161393354)
+at `028113e1e223c2aa96bb6fe351e5ce5ef8264149`: **167 passed**, including PostgreSQL checks.
+OpenBull first frozen-label [analysis run 37181176962](https://github.com/DebuG6290/openbull/actions/runs/37181176962)
+failed; it is retained in the evaluation denominator. No successful full OpenBull lifecycle claimed.
 
 ## 5. Human-review metrics
 
@@ -80,6 +96,11 @@ rates, independent factual support scores or reviewer-effort claims reported yet
 Provider latency and token diagnostics exist for recorded attempts; release timing
 fields exist. No cost claim without observable usage and versioned pricing; no
 end-to-end latency claim from provider-only timing.
+The failed OpenBull attempt recorded one `sarvam-105b` / `impact.v4` call, zero
+retries, 69,511.85 ms attempt latency, and provider-reported 13,426 input + 8,192
+output = 21,618 tokens. This is one failed attempt, not a latency distribution,
+review turnaround, cost estimate or performance improvement. Raw truncated text
+was not retained by the deployed client; diagnostics are preserved and the gap disclosed.
 
 ## 7. Business-impact experiment metrics
 

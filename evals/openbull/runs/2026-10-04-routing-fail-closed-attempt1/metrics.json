@@ -1,0 +1,90 @@
+{
+  "population": "one real human-labelled case, two sections, failed execution retained",
+  "dataset_version": "openbull-real-human.v1",
+  "release_sha": "028113e1e223c2aa96bb6fe351e5ce5ef8264149",
+  "prompt_version": "impact.v4",
+  "metrics": {
+    "counts": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 0
+    },
+    "precision": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null,
+      "status": "no_samples"
+    },
+    "recall": {
+      "numerator": 0,
+      "denominator": 1,
+      "value": 0.0,
+      "status": "measured"
+    },
+    "f1": {
+      "numerator": 0,
+      "denominator": 1,
+      "value": 0.0,
+      "status": "measured"
+    },
+    "false_negative_rate": {
+      "numerator": 1,
+      "denominator": 1,
+      "value": 1.0,
+      "status": "measured"
+    },
+    "confusion_matrix": {
+      "UPDATE": {
+        "UPDATE": 0,
+        "NO_CHANGE": 0,
+        "UNCERTAIN": 0,
+        "MISSING": 1
+      },
+      "NO_CHANGE": {
+        "UPDATE": 0,
+        "NO_CHANGE": 0,
+        "UNCERTAIN": 0,
+        "MISSING": 1
+      },
+      "UNCERTAIN": {
+        "UPDATE": 0,
+        "NO_CHANGE": 0,
+        "UNCERTAIN": 0,
+        "MISSING": 0
+      }
+    },
+    "accuracy": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0.0,
+      "status": "measured"
+    },
+    "strict_no_change_false_negative_rate": {
+      "numerator": 0,
+      "denominator": 1,
+      "value": 0.0,
+      "status": "measured"
+    },
+    "output_coverage": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0.0,
+      "status": "measured"
+    },
+    "abstention_rate": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0.0,
+      "status": "measured"
+    },
+    "unlabelled_prediction_ids": []
+  },
+  "claims": {
+    "supported": 0,
+    "unsupported": 0,
+    "insufficient_evidence": 0,
+    "adjudicated_claims": 0,
+    "rates": null
+  }
+}
