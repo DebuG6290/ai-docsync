@@ -3,7 +3,8 @@ import html
 import streamlit as st
 from sqlalchemy import select
 
-from docsync.ui.components import heading, badge, empty, short, date, case_card, action, operation, case_title, prose
+from docsync.ui.components import heading, badge, empty, short, date, case_card, action, operation, case_title, prose, navigate
+from docsync.ui.mapping_health import changed_symbol_coverage
 from docsync.ui.workspace import require_review_owner
 from docsync.ui.state import DECISIONS, interrupted
 from docsync.web.models import ProposalVersion, ReviewAction, Job
@@ -216,6 +217,12 @@ def render_case(ctx, item, view):
     st.write(item['status'].message)
     count = len(item['sections'])
     st.write(f"{count} documentation section" + ('s' if count != 1 else '') + ' assessed.')
+    coverage = changed_symbol_coverage(case.case_data)
+    if coverage['unmapped_code_ids']:
+        st.warning('Not assessed through approved mappings: ' + ', '.join(coverage['unmapped_code_ids']))
+        st.caption('An unmapped change is not a NO_CHANGE decision. Confirm mappings in Settings for future analysis.')
+        st.button('Review mappings in Settings', key='mapping-health-' + case.id,
+            on_click=navigate, args=('Settings',))
     if case.summary:
         st.subheader('Assessment summary')
         prose(case.summary, preview=True)

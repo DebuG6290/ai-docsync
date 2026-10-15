@@ -20,3 +20,17 @@ immutable version IDs; this display change grants no approval or activation.
 The archived HTTPX labels, scoring artifacts and proposal review packets are not
 modified by these product changes. No production analysis or model evaluation is
 required to test the UI: the regression tests use persisted synthetic test records.
+
+## Mapping health
+
+Reviews list changed symbols without an approved mapping as **not assessed** and
+link to the existing Settings mapping flow. These warnings describe the saved
+case scope; they do not change a section's UPDATE/NO_CHANGE/UNCERTAIN judgement or
+retroactively rerun analysis. Deleted mapped symbols remain analysis candidates.
+
+Settings → Mappings checks missing symbols and headings only within successfully
+inspected files at the selected snapshot commit. Files with unsupported Python
+syntax and relationships outside the inspection remain unchecked. Empty inspected
+files still establish scope. No current branch-tip fetch or model call is needed
+to display health for a saved snapshot. Confirming a mapping remains an explicit
+human action and never approves baseline knowledge.

@@ -36,6 +36,8 @@ def test_human_edit_survives_navigation_and_requires_separate_approval(system, m
     settings, engine, factory, repo_id = system
     with factory() as session:
         case, section, proposal, version = make_case(session, repo_id)
+        case.case_data = {**case.case_data, 'changes': [*case.case_data['changes'],
+            {'code_id': 'pkg/new_feature.py::helper', 'change_kind': 'added'}]}
         session.commit()
         proposal_id = proposal.id
     values = {'DATABASE_URL': settings.database_url, 'DOCSYNC_REPOSITORY': settings.repository,
@@ -51,6 +53,8 @@ def test_human_edit_survives_navigation_and_requires_separate_approval(system, m
     app.button[0].click().run(timeout=20)
     app.sidebar.radio[0].set_value('Reviews').run(timeout=20)
     next(b for b in app.button if b.label == 'Open review').click().run(timeout=20)
+    assert any('Not assessed through approved mappings: pkg/new_feature.py::helper' in w.value for w in app.warning)
+    assert any(b.label == 'Review mappings in Settings' for b in app.button)
     next(b for b in app.button if b.label == 'Edit suggestion').click().run(timeout=20)
     text = '## Default timeout\nHuman-approved wording: eight seconds.\n'
     next(t for t in app.text_area if t.label == 'Documentation text').set_value(text).run(timeout=20)
