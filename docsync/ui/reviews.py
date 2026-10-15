@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from docsync.ui.components import heading, badge, empty, short, date, case_card, action, operation, case_title, prose, navigate
 from docsync.ui.mapping_health import changed_symbol_coverage
+from docsync.ui.change_trace import render_change_trace
 from docsync.ui.workspace import require_review_owner
 from docsync.ui.state import DECISIONS, interrupted
 from docsync.web.models import ProposalVersion, ReviewAction, Job
@@ -235,6 +236,7 @@ def render_case(ctx, item, view):
     release = item['release']
     if release and release.pr_url:
         st.link_button('Open documentation PR', release.pr_url)
+    render_change_trace(ctx, item, view)
     frozen = bool(release or case.status in {'PUBLISHING', 'WAITING_MERGE', 'INDEXED'})
     sections = sorted(item['sections'], key=lambda s: ({'UNCERTAIN': 0, 'UPDATE': 1, 'NO_CHANGE': 2}.get(s.decision, 3), s.path, s.start_line))
     if not sections:
