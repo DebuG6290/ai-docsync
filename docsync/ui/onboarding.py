@@ -3,6 +3,7 @@ import re
 
 import streamlit as st
 from docsync.ui.components import heading, action, prose
+from docsync.ui.mapping_health import render_snapshot_health
 from docsync.online.onboarding import (verify_access, connect_repository, discover, mapping_suggestions,
     confirm_mapping, workflow_files, release_sha)
 from docsync.sarvam import SarvamClient
@@ -123,8 +124,10 @@ def setup(ctx, view):
             if st.button('Inspect selected files', type='primary'):
                 try:
                     with st.spinner('Parsing selected code and documentation…'):
-                        st.session_state.discovery = discover(ctx.settings, view['repo'], code_paths=code_paths,
+                        inspected = discover(ctx.settings, view['repo'], code_paths=code_paths,
                             doc_paths=doc_paths, commit=snapshot['sha'])
+                        st.session_state.discovery = {**inspected, 'inspected_code_paths': list(code_paths),
+                            'inspected_doc_paths': list(doc_paths)}
                     reset_suggestions()
                     st.rerun()
                 except (GitHubError, ValueError) as exc:
@@ -140,6 +143,11 @@ def setup(ctx, view):
                 st.caption('Continue to Mappings to confirm relationships. Inspected content is not approved knowledge.')
     elif stage == 'Mappings':
         st.subheader('Confirm code-to-documentation relationships')
+        with ctx.factory() as session:
+            mappings = approved_mappings(session, ctx.repo_id)
+        confirmed = {(m['code_id'], m['section_id']) for m in mappings}
+        if snapshot:
+            render_snapshot_health(snapshot, mappings, ctx.repo_id)
         if not snapshot or not snapshot['symbols'] or not snapshot['sections']:
             st.info('Inspect Python files and Markdown documentation in the Documentation step first. New repositories have no approved mappings.')
             return
@@ -162,8 +170,6 @@ def setup(ctx, view):
             except Exception:
                 st.error('Suggestions could not finish. Keep the batch within 30 symbols and 30 sections, check operation diagnostics, or confirm a manual relationship.')
         suggestions = st.session_state.get('mapping_suggestions', [])
-        with ctx.factory() as session:
-            confirmed = {(m['code_id'], m['section_id']) for m in approved_mappings(session, ctx.repo_id)}
         for index, suggestion in enumerate(suggestions):
             if (suggestion['code_id'], suggestion['section_id']) in confirmed or index in st.session_state.get('ignored_mappings', []):
                 continue
