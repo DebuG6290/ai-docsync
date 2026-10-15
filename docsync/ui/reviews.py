@@ -41,17 +41,46 @@ def editor(text, draft_id, label='Documentation text'):
     return st.text_area(label, key=key, height=260, on_change=preserve_draft, args=(key, draft_id))
 
 
-def inspect_evidence(case, section):
-    with st.expander('View evidence'):
-        st.write('**Evidence completeness:** ' + section.evidence_completeness.replace('_', ' ').title())
-        for title, values in [('Code evidence', section.code_evidence), ('Missing information', section.missing_information),
-            ('Supported claims', section.safe_claims), ('Unsupported claims', section.unsupported_claims)]:
-            st.markdown('**' + title + '**')
-            if values:
-                for value in values:
-                    st.write('• ' + str(value))
-            else:
-                st.caption('None recorded.')
+def displayed_version(proposal, versions):
+    """Published/accepted text remains tied to its exact immutable version."""
+    if proposal.status in {'ACCEPTED', 'APPLIED'}:
+        version = next((v for v in versions if v.id == proposal.accepted_version_id), None)
+        if version is None:
+            raise ValueError('The approved proposal version is unavailable')
+        return version
+    return versions[-1]
+
+
+def assessment_details(source):
+    completeness = source.evidence_completeness
+    st.write('**Model-assessed evidence completeness:** ' +
+        (completeness.replace('_', ' ').title() if completeness else 'Not recorded'))
+    for title, values in [('Code evidence', source.code_evidence), ('Missing information', source.missing_information),
+        ('Model-assessed claims', source.safe_claims), ('Claims the model marked unestablished', source.unsupported_claims)]:
+        st.markdown('**' + title + '**')
+        if values:
+            for value in values:
+                st.write('• ' + str(value))
+        else:
+            st.caption('None recorded.')
+
+
+def inspect_evidence(case, section, version=None):
+    with st.expander(f'View evidence for Version {version.version}' if version else 'View evidence'):
+        if version:
+            st.caption(f'Evidence saved with Version {version.version}.')
+            if version.author == 'human':
+                st.caption('Human-authored version. Original model claims do not assess this edited text.')
+            elif not version.evidence_completeness:
+                st.caption('No evidence-completeness assessment was recorded for this version.')
+        else:
+            st.caption('Original section assessment.')
+        st.caption('Claim lists are model assessments, not independent human factual-support labels.')
+        assessment_details(version if version is not None else section)
+    if version:
+        with st.expander('Original section assessment'):
+            st.caption('Historical model assessment; it may describe different text from the displayed version.')
+            assessment_details(section)
     with st.expander('View code change'):
         st.caption(f'Before {short(case.before_sha)} → After {short(case.after_sha)}')
         for change in case.case_data.get('changes', []):
@@ -97,13 +126,13 @@ def review_section(ctx, case, section, proposal, frozen):
     st.caption(section.path)
     badge('Human update' if section.human_resolution == 'HUMAN_UPDATE' else DECISIONS.get(section.decision, section.decision),
         'warning' if section.decision == 'UNCERTAIN' else 'progress' if proposal else 'neutral')
-    with st.expander('Assessment rationale', expanded=False):
+    with st.expander('Original impact rationale', expanded=False):
         prose(section.rationale)
-    if section.missing_information and not section.human_resolution:
-        st.warning('Missing evidence: ' + '; '.join(map(str, section.missing_information)))
-    if section.unsupported_claims:
-        st.caption('Not established by the evidence: ' + '; '.join(map(str, section.unsupported_claims)))
     if not proposal:
+        if section.missing_information and not section.human_resolution:
+            st.warning('Missing evidence in the original model assessment: ' + '; '.join(map(str, section.missing_information)))
+        if section.unsupported_claims:
+            st.caption('Original model marked unestablished: ' + '; '.join(map(str, section.unsupported_claims)))
         with st.container(border=True):
             st.caption('CURRENT DOCUMENTATION')
             st.markdown(section.current_text)
@@ -113,8 +142,14 @@ def review_section(ctx, case, section, proposal, frozen):
     with ctx.factory() as session:
         versions = session.scalars(select(ProposalVersion).where(ProposalVersion.proposal_id == proposal.id).order_by(ProposalVersion.version)).all()
         events = session.scalars(select(ReviewAction).where(ReviewAction.proposal_id == proposal.id).order_by(ReviewAction.created_at)).all()
-    latest = versions[-1]
+    latest = displayed_version(proposal, versions)
     st.caption(f'Version {latest.version} · {"Your edit" if latest.author == "human" else "DocSync suggestion"}')
+    with st.expander('Version rationale'):
+        prose(latest.reason)
+    if latest.missing_information:
+        st.warning('Missing evidence recorded for this version: ' + '; '.join(map(str, latest.missing_information)))
+    if latest.unsupported_claims:
+        st.caption('Model marked unestablished for this version: ' + '; '.join(map(str, latest.unsupported_claims)))
     if proposal.status == 'ACCEPTED':
         badge('Approved', 'success')
         st.success(f'Approved version {next((v.version for v in versions if v.id == proposal.accepted_version_id), latest.version)} is saved for publication.')
@@ -158,7 +193,7 @@ def review_section(ctx, case, section, proposal, frozen):
                         operation(ctx, job.id)
                     except ValueError as exc:
                         st.error(str(exc))
-    inspect_evidence(case, section)
+    inspect_evidence(case, section, latest)
     with st.expander('View version history'):
         for event in events:
             st.write(f'{date(event.created_at)} · {event.action.replace("_", " ").title()}')
