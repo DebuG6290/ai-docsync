@@ -1,4 +1,4 @@
-"""Audited local documentation synchronization prototype."""
+"""Human-reviewed documentation synchronization for trusted teams."""
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 

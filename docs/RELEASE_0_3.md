@@ -17,6 +17,7 @@ Prepared on 2 November 2026 from `33aed9c2561aaac7efb680f24e04ee7b4e790063`.
 | --- | --- |
 | Existing baseline before changes | 200 passed, 2 PostgreSQL tests skipped |
 | Final Python 3.12 test suite | 238 passed, 3 PostgreSQL tests skipped (including the new PostgreSQL concurrency check) |
+| GitHub Actions with PostgreSQL/pgvector | Functional release commit `4d5ca42`: all 241 tests passed; dependency audit and static checks passed in run 41442387381 |
 | New regression scope | OIDC claim/expiry/invitation checks; forged legacy login; reader service/UI denial; cross-repo read/mutation bounds; actor audit; concurrent allowance enforcement; secret-safe preflight; additive usage migration; bounded provider response; sample edit/approve/activate/reset and session isolation |
 | Real UI interactions through Streamlit AppTest | Login, repository switching, every existing page, review/edit/approval, reader role and offline sample lifecycle passed |
 | Pinned dependency audit | pip-audit 2.10.1: 98 entries, zero skipped, no known vulnerabilities reported |
@@ -28,7 +29,7 @@ Known test warning: the installed FastAPI/Starlette TestClient emits an httpx de
 
 ## Not established by these checks
 
-- PostgreSQL-specific runtime tests were skipped locally because no PostgreSQL/pgvector service is available here. CI provisions that service and must pass before merge.
+- PostgreSQL-specific runtime tests were skipped locally because no PostgreSQL/pgvector service is available here. They passed in GitHub CI, including the concurrent operation allowance test. CI provisions an ephemeral service; this does not establish the health of the deployed Neon database.
 - Browser screenshot QA was blocked by failed Chromium downloads. Streamlit AppTest exercises widget behaviour but does not establish pixel layout, responsive appearance or browser accessibility.
 - No container build was run in this environment because Docker is unavailable. The container definition must be built before container distribution.
 - No real OIDC provider login, hosted data migration, new live Sarvam result or new GitHub docs publication was performed. The offline sample is not evidence of those integrations.
