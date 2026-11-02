@@ -10,7 +10,7 @@ from docsync.repository.python_symbols import Symbol, extract_symbols
 
 def _git(repo: Path, *args: str, check: bool = True) -> str:
     proc = subprocess.run(
-        ["git", "-C", str(repo), *args], capture_output=True, text=True, encoding="utf-8"
+        ["git", "-C", str(repo), *args], capture_output=True, text=True, encoding="utf-8", timeout=120
     )
     if check and proc.returncode:
         raise GitError(proc.stderr.strip() or f"git {' '.join(args)} failed")
@@ -18,7 +18,7 @@ def _git(repo: Path, *args: str, check: bool = True) -> str:
 
 
 def resolve_commit(repo: Path, rev: str) -> str:
-    sha = _git(repo, "rev-parse", "--verify", f"{rev}^{{commit}}").strip()
+    sha = _git(repo, "rev-parse", "--verify", "--end-of-options", f"{rev}^{{commit}}").strip()
     if len(sha) != 40:
         raise GitError(f"Could not resolve commit {rev!r}")
     return sha
@@ -30,6 +30,7 @@ def read_file(repo: Path, rev: str, path: str) -> str | None:
         capture_output=True,
         text=True,
         encoding="utf-8",
+        timeout=120,
     )
     return proc.stdout if proc.returncode == 0 else None
 
@@ -37,7 +38,7 @@ def read_file(repo: Path, rev: str, path: str) -> str | None:
 def changed_python_symbols(repo: Path, old_sha: str, new_sha: str) -> list[CodeChange]:
     old_sha = resolve_commit(repo, old_sha)
     new_sha = resolve_commit(repo, new_sha)
-    names = _git(repo, "diff", "--name-only", "--diff-filter=ACDMRT", old_sha, new_sha)
+    names = _git(repo, "diff", "--no-ext-diff", "--no-textconv", "--name-only", "--diff-filter=ACDMRT", old_sha, new_sha)
     changes: list[CodeChange] = []
     for path in sorted({item.strip().replace("\\", "/") for item in names.splitlines() if item.strip()}):
         if not path.endswith(".py"):
@@ -49,7 +50,7 @@ def changed_python_symbols(repo: Path, old_sha: str, new_sha: str) -> list[CodeC
             new_symbols = extract_symbols(path, after) if after is not None else {}
         except ValueError as exc:
             raise GitError(str(exc)) from exc
-        diff = _git(repo, "diff", "--no-ext-diff", "--unified=5", old_sha, new_sha, "--", path)
+        diff = _git(repo, "diff", "--no-ext-diff", "--no-textconv", "--unified=5", old_sha, new_sha, "--", path)
         for code_id in sorted(old_symbols.keys() | new_symbols.keys()):
             old_sym = old_symbols.get(code_id)
             new_sym = new_symbols.get(code_id)
@@ -73,6 +74,6 @@ def changed_python_symbols(repo: Path, old_sha: str, new_sha: str) -> list[CodeC
 
 
 def changed_paths(repo: Path, old_sha: str, new_sha: str) -> list[str]:
-    names = _git(repo, "diff", "--name-only", old_sha, new_sha)
+    names = _git(repo, "diff", "--no-ext-diff", "--no-textconv", "--name-only", old_sha, new_sha)
     return sorted(item.strip().replace("\\", "/") for item in names.splitlines() if item.strip())
 

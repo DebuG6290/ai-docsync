@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import subprocess
 import tempfile
 import time
@@ -133,27 +134,38 @@ class GitHubClient:
 @contextmanager
 def cloned_repository(repository: str, token: str, before_sha: str, after_sha: str):
     """Clone/fetch Git objects for parsing; repository code is never executed."""
+    from docsync.online.onboarding import repository_name
+    repository = repository_name(repository)
+    if any(not isinstance(value, str) or not re.fullmatch('[0-9a-f]{40}', value) or value == '0' * 40
+           for value in (before_sha, after_sha)):
+        raise ValueError('Remote reads require full nonzero Git commit SHAs')
     owner, name = repository.split("/", 1)
     remote = f"https://github.com/{owner}/{name}.git"
     auth = base64.b64encode(f"x-access-token:{token}".encode()).decode()
     env = os.environ.copy()
     env.update(
         GIT_TERMINAL_PROMPT="0",
-        GIT_CONFIG_COUNT="1",
+        GIT_CONFIG_COUNT="4",
         GIT_CONFIG_KEY_0="http.https://github.com/.extraheader",
         GIT_CONFIG_VALUE_0=f"AUTHORIZATION: basic {auth}",
+        GIT_CONFIG_KEY_1="protocol.file.allow", GIT_CONFIG_VALUE_1="never",
+        GIT_CONFIG_KEY_2="protocol.ext.allow", GIT_CONFIG_VALUE_2="never",
+        GIT_CONFIG_KEY_3="core.hooksPath", GIT_CONFIG_VALUE_3=os.devnull,
+        GIT_LFS_SKIP_SMUDGE="1",
     )
     with tempfile.TemporaryDirectory(prefix="docsync-git-") as directory:
         path = Path(directory) / "repo"
 
         def git(*args: str) -> str:
-            result = subprocess.run(
-                ["git", *args], cwd=path if path.exists() else directory,
-                env=env, capture_output=True, text=True, check=False,
-            )
+            try:
+                result = subprocess.run(
+                    ["git", *args], cwd=path if path.exists() else directory,
+                    env=env, capture_output=True, text=True, check=False, timeout=120,
+                )
+            except subprocess.TimeoutExpired:
+                raise GitHubError('Repository read timed out. Use a smaller repository or retry later.') from None
             if result.returncode:
-                detail = result.stderr.strip().splitlines()[-1:] or ["git command failed"]
-                raise GitHubError(detail[0][:500])
+                raise GitHubError('Repository read failed. Check GitHub access and network availability.')
             return result.stdout.strip()
 
         git("clone", "--filter=blob:none", "--no-checkout", remote, str(path))

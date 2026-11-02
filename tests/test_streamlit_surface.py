@@ -9,7 +9,7 @@ def test_streamlit_login_and_authenticated_status(system, monkeypatch):
     settings, engine, factory, repo_id = system
     values = {'DATABASE_URL': settings.database_url, 'DOCSYNC_REPOSITORY': settings.repository,
         'DOCSYNC_REVIEW_USERNAME': 'reviewer', 'DOCSYNC_REVIEW_PASSWORD': 'test-long-password',
-        'DOCSYNC_HOSTED': 'false', 'SARVAM_API_KEY': 'test-key'}
+        'DOCSYNC_HOSTED': 'false', 'DOCSYNC_AUTH_MODE': 'local', 'SARVAM_API_KEY': 'test-key'}
     for key, value in values.items():
         monkeypatch.setenv(key, value)
     app = AppTest.from_file(Path(__file__).resolve().parents[1] / 'streamlit_app.py')
@@ -42,7 +42,7 @@ def test_human_edit_survives_navigation_and_requires_separate_approval(system, m
         proposal_id = proposal.id
     values = {'DATABASE_URL': settings.database_url, 'DOCSYNC_REPOSITORY': settings.repository,
         'DOCSYNC_REVIEW_USERNAME': 'reviewer', 'DOCSYNC_REVIEW_PASSWORD': 'test-long-password',
-        'DOCSYNC_HOSTED': 'false', 'SARVAM_API_KEY': 'test-key'}
+        'DOCSYNC_HOSTED': 'false', 'DOCSYNC_AUTH_MODE': 'local', 'SARVAM_API_KEY': 'test-key'}
     for key, value in values.items():
         monkeypatch.setenv(key, value)
     app = AppTest.from_file(Path(__file__).resolve().parents[1] / 'streamlit_app.py')

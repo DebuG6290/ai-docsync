@@ -55,7 +55,7 @@ def render(ctx, view):
                 st.link_button('Open PR in GitHub', release.pr_url)
             if release.status != 'INDEXED' and release.pr_number:
                 if st.button('Check GitHub status', key='check-' + release.id):
-                    action(lambda: reconcile_release(ctx.factory, release.id, repo_id=ctx.repo_id), 'GitHub status checked.')
+                    action(lambda: ctx.run(lambda: reconcile_release(ctx.factory, release.id, repo_id=ctx.repo_id), role='reader'), 'GitHub status checked.')
             if status.tone == 'error':
                 st.link_button('Open indexing runs', f'https://github.com/{ctx.settings.repository}/actions/workflows/docsync-index.yml')
                 st.caption('For execution failures, rerun the failed Action. For content conflicts, inspect the merged text before retrying.')

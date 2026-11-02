@@ -4,8 +4,16 @@ from sqlalchemy import select
 from docsync.web.models import Repository, ChangeCase, Proposal, SectionAssessment
 
 
-def repositories(session):
-    return session.scalars(select(Repository).order_by(Repository.created_at, Repository.id)).all()
+def repositories(session, principal=None):
+    query = select(Repository).order_by(Repository.created_at, Repository.id)
+    if principal is not None:
+        if not principal.administrator:
+            from sqlalchemy import func
+            query = query.where(func.lower(Repository.full_name).in_(list(principal.grants)))
+        rows = session.scalars(query).all()
+        return [row for row in rows if principal.allows(row.full_name)]
+    # Trusted Python callers only; the application always supplies a principal.
+    return session.scalars(query).all()
 
 
 def select_repository(rows, state, default_name):
@@ -20,7 +28,7 @@ def select_repository(rows, state, default_name):
 def switch_repository(state, repo_id):
     # Preserve authentication/navigation only. Unsaved inputs are never reused in another repo.
     for key in list(state):
-        if key not in {'authenticated', 'page', 'repository_id'}:
+        if key not in {'authenticated', 'authenticated_at', 'page', 'repository_id'}:
             del state[key]
     state['repository_id'] = repo_id
 

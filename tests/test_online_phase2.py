@@ -59,6 +59,7 @@ def settings_for(tmp_path: Path, **overrides) -> Settings:
         "repository": "DebuG6290/httpx",
         "monitored_branch": "master",
         "review_username": "reviewer",
+        "auth_mode": "local",
         "review_password": "a-long-test-password",
         "base_url": "https://docsync.example.test",
         "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",

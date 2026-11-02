@@ -124,7 +124,8 @@ class Store:
             return []
         marks = ",".join("?" for _ in code_ids)
         return list(self.db.execute(
-            f"SELECT * FROM mappings WHERE status='APPROVED' AND code_id IN ({marks}) ORDER BY code_id, section_id",
+            # Only a generated list of '?' placeholders is interpolated; values are bound.
+            f"SELECT * FROM mappings WHERE status='APPROVED' AND code_id IN ({marks}) ORDER BY code_id, section_id",  # nosec B608: generated placeholders only; values are bound
             tuple(sorted(code_ids)),
         ))
 

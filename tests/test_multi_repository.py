@@ -1,3 +1,4 @@
+from docsync.security import local_principal
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
@@ -65,7 +66,7 @@ def test_selection_uses_ids_and_repository_specific_context(system):
     switch_repository(state, second.id)
     assert set(state) == {'repository_id', 'authenticated'}
     assert select_repository(rows, state, settings.repository).id == second.id
-    ctx = Context(scoped_settings(settings, second), engine, factory, second.id)
+    ctx = Context(scoped_settings(settings, second), engine, factory, second.id, local_principal())
     assert ctx.repo_id == second.id and ctx.settings.repository == second.full_name
     assert ctx.settings.monitored_branch == 'main' and ctx.settings.github_installation_id == 88
     state['repository_id'] = 'missing'
@@ -91,7 +92,8 @@ def test_all_read_models_and_baseline_history_are_isolated(system):
             session.flush()
             session.add(AuditEvent(kind='operation_started', payload={'job_id': job.id}))
         session.commit()
-    views = [load(Context(settings, engine, factory, r)) for r in [first, second.id]]
+    with factory() as session:
+        views = [load(Context(scoped_settings(settings, session.get(Repository, r)), engine, factory, r, local_principal())) for r in [first, second.id]]
     assert views[0]['active'].id != views[1]['active'].id
     for view in views:
         repo_id = view['repo'].id
@@ -172,7 +174,7 @@ def test_review_mutations_and_jobs_reject_cross_repository_ids(system, monkeypat
         job = Job(repo_id=first, kind='index_baseline', payload={})
         forged = Job(repo_id=second.id, kind='revise_proposal', payload={'proposal_id': proposal.id})
         session.add_all([job, forged]); session.commit()
-    ctx = Context(scoped_settings(settings, second), engine, factory, second.id)
+    ctx = Context(scoped_settings(settings, second), engine, factory, second.id, local_principal())
     with pytest.raises(ValueError, match='selected repository'):
         service(ctx, accept_proposal, proposal.id, version.id)
     monkeypatch.setattr('docsync.online.operations._process_job', lambda *args: pytest.fail('Must not execute foreign job'))
@@ -225,7 +227,7 @@ def test_generated_callers_are_generic_and_pins_match():
 def launch(settings, monkeypatch):
     values = {'DATABASE_URL': settings.database_url, 'DOCSYNC_REPOSITORY': settings.repository,
         'DOCSYNC_MONITORED_BRANCH': settings.monitored_branch, 'DOCSYNC_REVIEW_USERNAME': 'reviewer',
-        'DOCSYNC_REVIEW_PASSWORD': 'test-long-password', 'DOCSYNC_HOSTED': 'false'}
+        'DOCSYNC_REVIEW_PASSWORD': 'test-long-password', 'DOCSYNC_HOSTED': 'false', 'DOCSYNC_AUTH_MODE': 'local'}
     for key, value in values.items():
         monkeypatch.setenv(key, value)
     app = AppTest.from_file(Path(__file__).resolve().parents[1] / 'streamlit_app.py')

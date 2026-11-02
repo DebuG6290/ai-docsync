@@ -13,9 +13,11 @@ from docsync.web.workflow import accept_proposal, modify_proposal, reject_propos
 
 
 def service(ctx, function, *args):
-    with ctx.factory() as session:
-        require_review_owner(session, ctx.repo_id, args[0], section=function in {triage_section, override_no_change})
-        return function(session, *args)
+    def run():
+        with ctx.factory() as session:
+            require_review_owner(session, ctx.repo_id, args[0], section=function in {triage_section, override_no_change})
+            return function(session, *args)
+    return ctx.run(run)
 
 
 def show_diff(before, after):
@@ -237,7 +239,7 @@ def render_case(ctx, item, view):
     if release and release.pr_url:
         st.link_button('Open documentation PR', release.pr_url)
     render_change_trace(ctx, item, view)
-    frozen = bool(release or case.status in {'PUBLISHING', 'WAITING_MERGE', 'INDEXED'})
+    frozen = bool(not ctx.can('reviewer') or release or case.status in {'PUBLISHING', 'WAITING_MERGE', 'INDEXED'})
     sections = sorted(item['sections'], key=lambda s: ({'UNCERTAIN': 0, 'UPDATE': 1, 'NO_CHANGE': 2}.get(s.decision, 3), s.path, s.start_line))
     if not sections:
         empty('Assessment is not ready yet', 'The code change is saved. The analysis result will appear here when it is available.')
@@ -265,7 +267,7 @@ def render_case(ctx, item, view):
             nxt.button('Next section →', disabled=index == len(by_id)-1, on_click=move, args=(1,), use_container_width=True)
     jobs = [j for j in view['jobs'] if j.payload.get('case_id') == case.id or j.payload.get('proposal_id') in {p.id for p in item['proposals']}]
     publish_jobs = [j for j in jobs if j.kind == 'publish_docs' and j.status not in {'COMPLETED', 'CANCELLED'}]
-    if publish_jobs:
+    if publish_jobs and ctx.can('reviewer'):
         job = publish_jobs[0]
         with st.container(border=True):
             st.subheader('Publish approved documentation')
@@ -280,7 +282,7 @@ def render_case(ctx, item, view):
                 disabled=job.status == 'PROCESSING' and not interrupted(job)):
                 operation(ctx, job.id, retry=True)
     for job in jobs:
-        if job.kind == 'revise_proposal' and (job.status == 'ERROR' or interrupted(job)):
+        if ctx.can('reviewer') and job.kind == 'revise_proposal' and (job.status == 'ERROR' or interrupted(job)):
             st.warning('A revision did not finish. The reason and prior versions are saved. A retry may make another Sarvam call.')
             if st.button('Retry this revision', key='retry-' + job.id):
                 operation(ctx, job.id, retry=True)

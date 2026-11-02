@@ -17,6 +17,17 @@ T = TypeVar("T", bound=BaseModel)
 MODEL_CONTRACT_ERROR = "MODEL_CONTRACT_ERROR"
 API_ERROR = "API_ERROR"
 
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Never forward the provider key or source text to a redirect target.
+        return None
+
+
+def _open_request(request, *, timeout):
+    # Endpoint is the fixed HTTPS URL below; proxy and TLS defaults stay enabled.
+    return urllib.request.build_opener(_NoRedirect()).open(request, timeout=timeout)
+
 OUTPUT_TOKEN_BUDGETS = {"mapping": 4096, "impact": 8192, "revision": 4096, "conflict": 4096}
 
 
@@ -221,8 +232,10 @@ class SarvamClient(ModelClient):
         }
 
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                raw_body = response.read()
+            with _open_request(request, timeout=self.timeout) as response:
+                raw_body = response.read(2_000_001)
+                if len(raw_body) > 2_000_000:
+                    raise ModelError('Sarvam response exceeded the safe size limit', category=API_ERROR)
                 payload = json.loads(raw_body.decode("utf-8"))
         except urllib.error.HTTPError as exc:
             request_id = None

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Boolean, DateTime, ForeignKey, ForeignKeyConstraint, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, ForeignKeyConstraint, Integer, JSON, String, Text, UniqueConstraint, event
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -18,6 +18,14 @@ def utcnow() -> datetime:
 
 class Base(DeclarativeBase):
     pass
+
+
+class UsageBucket(Base):
+    """Atomic operation allowances shared by sessions and application workers."""
+    __tablename__ = 'usage_buckets'
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    window: Mapped[str] = mapped_column(String(32), nullable=False)
+    count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
 
 class Repository(Base):
@@ -167,6 +175,14 @@ class AuditEvent(Base):
     kind: Mapped[str] = mapped_column(String(64), nullable=False)
     payload: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+@event.listens_for(AuditEvent, 'before_insert')
+def _record_actor(_mapper, _connection, target):
+    from docsync.security import current_actor
+    actor = current_actor.get()
+    if actor:
+        target.payload = {**(target.payload or {}), 'actor_id': actor}
 
 
 class DocumentationRelease(Base):

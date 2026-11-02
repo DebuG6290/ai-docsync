@@ -185,12 +185,12 @@ def test_provider_length_is_rejected_even_with_valid_complete_json(monkeypatch):
     class Response:
         def __enter__(self): return self
         def __exit__(self, *args): pass
-        def read(self): return json.dumps(payload).encode()
+        def read(self, *_args): return json.dumps(payload).encode()
     def response(request, **kwargs):
         calls.append(json.loads(request.data))
         return Response()
     monkeypatch.setenv('SARVAM_API_KEY', 'test-key')
-    monkeypatch.setattr('docsync.sarvam.urllib.request.urlopen', response)
+    monkeypatch.setattr('docsync.sarvam._open_request', response)
     from docsync.models import ImpactResponse
     with pytest.raises(ModelError, match='finish_reason=length'):
         SarvamClient().structured('system', 'user', ImpactResponse, 'impact_analysis', diagnostic_sink=diagnostics.append)

@@ -22,6 +22,11 @@ class Settings:
     embedding_model: str
     embedding_cache: str
     github_token: str = ""
+    auth_mode: str = "oidc"
+    access_policy: str = ""
+    chat_daily_limit: int = 30
+    repository_daily_limit: int = 200
+    model_action_daily_limit: int = 20
 
 
 def get_settings() -> Settings:
@@ -54,4 +59,9 @@ def get_settings() -> Settings:
         embedding_model=os.getenv("DOCSYNC_EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
         embedding_cache=os.getenv("DOCSYNC_EMBEDDING_CACHE", str(Path(".docsync-state") / "embedding-cache")),
         github_token=os.getenv("GITHUB_TOKEN", ""),
+        auth_mode=os.getenv("DOCSYNC_AUTH_MODE", "oidc"),
+        access_policy=os.getenv("DOCSYNC_ACCESS_POLICY", ""),
+        chat_daily_limit=int(os.getenv("DOCSYNC_CHAT_DAILY_LIMIT", "30")),
+        repository_daily_limit=int(os.getenv("DOCSYNC_REPOSITORY_DAILY_LIMIT", "200")),
+        model_action_daily_limit=int(os.getenv("DOCSYNC_MODEL_ACTION_DAILY_LIMIT", "20")),
     )

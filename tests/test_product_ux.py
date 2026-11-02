@@ -1,3 +1,4 @@
+from docsync.security import local_principal
 from datetime import timedelta
 from types import SimpleNamespace
 import pytest
@@ -89,7 +90,7 @@ def test_uncertainty_resolution_counts_as_completed_decision(system):
         case, section, _, _ = make_case(session, repo_id, decision='UNCERTAIN', with_proposal=False)
         session.commit()
         triage_section(session, section.id, 'NO_CHANGE', 'Reviewed available evidence.')
-    state = load(Context(settings, engine, factory, repo_id))['cases'][0]
+    state = load(Context(settings, engine, factory, repo_id, local_principal()))['cases'][0]
     assert state['required'] == state['approved'] == 1
     assert state['status'].label == 'Review complete'
 

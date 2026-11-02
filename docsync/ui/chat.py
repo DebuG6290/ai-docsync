@@ -16,6 +16,7 @@ def reask(question):
 
 
 def render(ctx, view):
+    ctx.require()
     heading('Ask your approved documentation', 'Answers come from approved documentation, with sources you can inspect.', 'DOCUMENTATION ASSISTANT')
     if not view['active']:
         empty('Chat needs an approved knowledge version', 'Initialize your baseline from Knowledge. Drafts and suggestions are never used as answers.')
@@ -57,7 +58,8 @@ def render(ctx, view):
                     st.caption(f"Source commit {short(citation['approved_commit'])} · knowledge {version}")
             if historical:
                 st.button('Ask again using current documentation', key='reask-' + turn.id, on_click=reask, args=(turn.question,))
-    prompt = st.chat_input('Ask a question about approved documentation', key='question')
+    st.caption('Questions and answers are shared with members who can access this repository. Do not enter secrets or personal data.')
+    prompt = st.chat_input('Ask a question about approved documentation', key='question', max_chars=4000)
     prompt = st.session_state.pop('reask', None) or prompt
     if prompt:
         st.session_state.last_question = prompt
@@ -65,7 +67,8 @@ def render(ctx, view):
             with st.spinner('Searching approved documentation and preparing your answer…'):
                 with ctx.factory() as session:
                     repo = session.get(Repository, ctx.repo_id)
-                    answer_question(session, ctx.settings, repo, prompt, embedder(ctx.settings.embedding_model, ctx.settings.embedding_cache))
+                    ctx.run(lambda: answer_question(session, ctx.settings, repo, prompt,
+                        embedder(ctx.settings.embedding_model, ctx.settings.embedding_cache)), role='reader', model=True)
         action(answer, 'Answer saved with its approved documentation sources.')
     if st.session_state.get('last_question') and not prompt:
         with st.expander('Retry a previous question'):

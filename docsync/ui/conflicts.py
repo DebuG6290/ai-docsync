@@ -18,8 +18,11 @@ def pair_table(pairs):
 
 
 def render(ctx, view):
+    if not ctx.can('reviewer'):
+        st.caption('Knowledge integrity decisions require reviewer access.')
+        return
     if view['active'] and st.button('Audit current approved knowledge for conflicts'):
-        action(lambda: audit_current(ctx.engine, ctx.repo_id), 'Approved snapshot staged for integrity review.')
+        action(lambda: ctx.run(lambda: audit_current(ctx.engine, ctx.repo_id)), 'Approved snapshot staged for integrity review.')
     with ctx.factory() as session:
         scans = session.scalars(select(KnowledgeScan).where(KnowledgeScan.repo_id == ctx.repo_id)
             .order_by(KnowledgeScan.created_at.desc())).all()
@@ -53,16 +56,16 @@ def render(ctx, view):
                 continue
             if scan.state in {'PENDING', 'ERROR'}:
                 if st.button('Run / resume semantic conflict scan', key='scan-' + scan.id):
-                    action(lambda s=scan: scan_pending(ctx.engine, ctx.repo_id, s.id,
-                        SarvamClient(ctx.settings.sarvam_model)), 'Conflict scan completed.')
+                    action(lambda s=scan: ctx.run(lambda: scan_pending(ctx.engine, ctx.repo_id, s.id,
+                        SarvamClient(ctx.settings.sarvam_model)), model=True), 'Conflict scan completed.')
             if scan.state == 'SCANNING':
                 st.info('Conflict scan is running. Refresh after completion. An interrupted scan can be retried after its 30-minute lease.')
                 from docsync.web.models import utcnow
                 from datetime import timedelta
                 if not scan.claimed_at or aware(scan.claimed_at) < utcnow() - timedelta(minutes=30):
                     if st.button('Retry interrupted scan', key='retry-scan-' + scan.id):
-                        action(lambda s=scan: scan_pending(ctx.engine, ctx.repo_id, s.id,
-                            SarvamClient(ctx.settings.sarvam_model)), 'Conflict scan resumed.')
+                        action(lambda s=scan: ctx.run(lambda: scan_pending(ctx.engine, ctx.repo_id, s.id,
+                            SarvamClient(ctx.settings.sarvam_model)), model=True), 'Conflict scan resumed.')
             sources = {s['section_id']: s for s in scan.snapshot['sections']}
             st.caption(f'{counts["assessed"]} assessed pairs need human judgement; {counts["pending"] - counts["assessed"]} await semantic assessment.')
             if counts['assessed']:
@@ -95,16 +98,16 @@ def render(ctx, view):
                         if st.form_submit_button('Record human resolution', type='primary', disabled=scan.state == 'SCANNING'):
                             def save(p=pair, choice=choice, rationale=rationale):
                                 with ctx.factory() as session:
-                                    resolve(session, ctx.repo_id, p.id, choice, rationale, ctx.settings.review_username)
+                                    resolve(session, ctx.repo_id, p.id, choice, rationale, ctx.principal.actor_id)
                                     session.commit()
-                            action(save, 'Human resolution saved.')
+                            action(lambda: ctx.run(save), 'Human resolution saved.')
             if counts['excluded']:
                 st.write('Excluded from this trusted snapshot: ' + ', '.join(sorted(counts['excluded'])))
             if not counts['pending'] and scan.state == 'READY':
                 if scan.snapshot.get('mode') == 'AUDIT':
                     st.success('Integrity review is complete. Apply human exclusions to a new immutable knowledge version.')
                     if st.button('Activate reviewed integrity snapshot', key='activate-audit-' + scan.id, type='primary'):
-                        action(lambda s=scan: activate_audit(ctx.engine, ctx.repo_id, s.id), 'Reviewed integrity snapshot activated.')
+                        action(lambda s=scan: ctx.run(lambda: activate_audit(ctx.engine, ctx.repo_id, s.id)), 'Reviewed integrity snapshot activated.')
                 else:
                     st.success('Integrity review is complete. Resume the original operation to reverify the approved Git snapshot and activate knowledge.')
                     waiting = [j for j in view['jobs'] if j.status == 'WAITING_REVIEW' and

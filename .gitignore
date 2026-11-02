@@ -13,4 +13,6 @@ __pycache__/
 .env
 .streamlit/secrets.toml
 *.egg-info/
+build/
+dist/
 

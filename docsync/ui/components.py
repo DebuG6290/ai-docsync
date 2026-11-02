@@ -13,6 +13,31 @@ class Context:
     engine: object
     factory: object
     repo_id: str
+    principal: object = None
+
+    def require(self, role='reader'):
+        from docsync.security import AccessDenied
+        if self.principal is None:
+            raise AccessDenied('Sign in before accessing a repository.')
+        self.principal.require(self.settings.repository, role)
+        from docsync.web.models import Repository
+        with self.factory() as session:
+            owner = session.get(Repository, self.repo_id)
+            if owner is None or owner.full_name.casefold() != self.settings.repository.casefold():
+                raise AccessDenied('The selected repository identity is inconsistent')
+
+    def can(self, role='reader'):
+        return self.principal is not None and self.principal.allows(self.settings.repository, role)
+
+    def run(self, call, *, role='reviewer', model=False):
+        from docsync.security import actor_scope
+        self.require(role)
+        if model:
+            from docsync.usage import reserve_usage
+            reserve_usage(self.engine, self.principal.actor_id, self.repo_id,
+                scope='chat' if role == 'reader' else 'model', settings=self.settings)
+        with actor_scope(self.principal):
+            return call()
 
 
 def styles():
@@ -89,8 +114,16 @@ def action(call, success):
 
 def operation(ctx, job_id, retry=False):
     def run():
+        ctx.require('reviewer')
+        # Validate ownership and replay status before reserving any model allowance.
+        from docsync.web.models import Job
+        with ctx.factory() as session:
+            job = session.get(Job, job_id)
+            if job is None or job.repo_id != ctx.repo_id:
+                raise ValueError('This operation belongs to another repository')
+            model = job.kind == 'revise_proposal' and job.status != 'COMPLETED'
         with st.spinner('Saving the result. Keep this page open…'):
-            execute(ctx.engine, ctx.settings, job_id, retry=retry, repo_id=ctx.repo_id)
+            ctx.run(lambda: execute(ctx.engine, ctx.settings, job_id, retry=retry, repo_id=ctx.repo_id), model=model)
     action(run, 'Operation completed. The saved result is ready to review.')
 
 
