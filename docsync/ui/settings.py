@@ -6,6 +6,7 @@ from docsync.online.onboarding import verify_access
 
 
 def render(ctx, view):
+    ctx.require('reviewer')
     heading('Workspace settings', 'Repository configuration and approved mapping details.', 'CONFIGURATION')
     st.markdown('### Monitored repository')
     st.write(ctx.settings.repository)
@@ -18,7 +19,7 @@ def render(ctx, view):
     st.caption('GitHub App installation recorded' if view['repo'].installation_id else 'GitHub App installation needs validation')
     if st.button('Check GitHub App access'):
         try:
-            verify_access(ctx.settings, view['repo'].full_name, view['repo'].monitored_branch, view['repo'].installation_id or 0)
+            ctx.run(lambda: verify_access(ctx.settings, view['repo'].full_name, view['repo'].monitored_branch, view['repo'].installation_id or 0))
             st.success('GitHub App read/write access and monitored branch verified.')
         except Exception:
             st.error('Access could not be verified. Check the App installation and branch. Saved repository configuration is unchanged.')
@@ -31,4 +32,10 @@ def render(ctx, view):
         st.caption('GitHub Actions · Neon PostgreSQL / pgvector · Streamlit Community Cloud')
         st.caption('Credentials are managed through deployment secrets and are never displayed here.')
     st.divider()
+    with st.expander('Access, usage and privacy'):
+        st.write('Your access: ' + ('Administrator' if ctx.principal.administrator else 'Reviewer'))
+        st.write(f'Per member / repository / UTC day: {ctx.settings.chat_daily_limit} chat operations and {ctx.settings.model_action_daily_limit} model actions.')
+        st.write(f'Repository-wide UI allowance: {ctx.settings.repository_daily_limit} model operations / UTC day. Five operations per member / repository / minute.')
+        st.caption('These are operation limits, not a monetary cap. Trusted Actions analysis has separate workflow limits. Set provider billing limits as well.')
+        st.caption('Selected repository content and chat passages go to Sarvam. Questions and answers are shared within this repository. Review evidence and chat are retained until managed by the workspace operator.')
     setup(ctx, view)

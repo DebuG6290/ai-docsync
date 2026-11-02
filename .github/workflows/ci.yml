@@ -30,5 +30,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -e '.[test]'
+      - run: pip install -c requirements.lock -e '.[test,security]'
       - run: python -m pytest -q
+      - name: Audit pinned dependencies
+        run: pip-audit -r requirements.lock --no-deps --disable-pip --strict
+      - name: Static security checks (medium and high severity)
+        run: bandit -r docsync -ll -q

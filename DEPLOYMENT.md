@@ -1,5 +1,13 @@
 # DocSync: free hosted deployment
 
+## v0.3 team beta upgrade
+
+Read [README.md](README.md) and [SECURITY.md](SECURITY.md) first. The shared reviewer password is now **local development only**. Before redeploying, configure `DOCSYNC_AUTH_MODE=oidc`, `DOCSYNC_HOSTED=true`, `[auth]` provider settings and an explicit `DOCSYNC_ACCESS_POLICY` with an administrator. Use a PostgreSQL TLS connection (`sslmode=require` or a verified TLS mode). Run `docsync-doctor --hosted`, back up the database, then apply migration 005. Missing/invalid sign-in configuration fails closed before repository reads.
+
+Administrators connect repositories; repository reviewers set mappings and approve/publish; readers can inspect and ask bounded questions. UI model-use allowances are shared in the database. Existing review/index history is retained. No Phase 1 prompt/schema or semantic decision tuning is introduced. The original deployment details below describe the existing integration; their shared-password instructions are superseded by this upgrade section and the current secrets example.
+
+For a public sample, deploy `demo_app.py` separately with **no production secrets**. It is offline and scripted, with real approval/indexing services and isolated in-memory state. For the connected team beta, complete the hosted acceptance steps in SECURITY.md before sharing access.
+
 For connecting another repository inside the same Streamlit deployment, see [Shared repository workspace](docs/MULTI_REPOSITORY.md). Existing HTTPX configuration remains the bootstrap/default; repository selection now uses durable repository IDs. No new database or Streamlit secrets are required. Install the configured GitHub App on each additional repository and use its repository-specific installation ID.
 
 The supported runtime is GitHub Actions → Neon PostgreSQL/pgvector → Streamlit Community Cloud. Sarvam is the only paid API. The Phase 1 reasoning prompts, schemas, mappings and targeted revision remain frozen.
@@ -75,10 +83,9 @@ Required Streamlit secret names:
 - `GITHUB_APP_ID`
 - `GITHUB_INSTALLATION_ID`
 - `GITHUB_PRIVATE_KEY` (multiline PEM)
-- `DOCSYNC_REVIEW_USERNAME`
-- `DOCSYNC_REVIEW_PASSWORD` (long random password)
+- `DOCSYNC_AUTH_MODE=oidc`, `DOCSYNC_ACCESS_POLICY`, and the `[auth]` OIDC section from the current secrets example
 
-Configuration: `DOCSYNC_REPOSITORY`, `DOCSYNC_MONITORED_BRANCH`, `DOCSYNC_HOSTED=true`, optional `SARVAM_MODEL`. Keep GITHUB_TOKEN unset here. The application requires login before reads, mutations or model calls. Add Community Cloud viewer restrictions under sharing settings where available; provider restrictions are additional protection. The public repository contains no credentials.
+Configuration: optional bootstrap `DOCSYNC_REPOSITORY`, `DOCSYNC_MONITORED_BRANCH`, `DOCSYNC_HOSTED=true`, optional `SARVAM_MODEL`. Keep GITHUB_TOKEN unset here. The application requires OIDC login and an explicit role before repository reads, mutations or model calls. Add host viewer restrictions where available as additional protection. Never commit real credentials.
 
 Pages: **Home, Reviews, Knowledge, Chat, History, Settings**. Home prioritizes reviews needing attention. Reviews opens a focused section-by-section workspace with the recommendation, exact proposed diff, rationale and missing evidence. Code, assessment details and version history are expandable. Approval binds the displayed version. **Edit suggestion → Save edit → Approve update** creates an authoritative human version (`human_modified=true`) with separate explicit approval. Request revision saves the reason first and revises only the selected section. Uncertain sections require reasoned human triage. A NO_CHANGE section can receive a reasoned human override before the publication snapshot is created; the original assessment remains in history.
 

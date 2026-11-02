@@ -70,6 +70,7 @@ def case_status(case, sections, proposals, release=None, jobs=()):
 
 
 def load(ctx):
+    ctx.require()
     with ctx.factory() as session:
         repo = session.get(Repository, ctx.repo_id)
         if repo is None:

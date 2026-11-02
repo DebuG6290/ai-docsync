@@ -76,6 +76,9 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
         return response
 
     def require_user(credentials: HTTPBasicCredentials | None = Depends(security)) -> str:
+        from docsync.security import hosted_environment
+        if settings.auth_mode != 'local' or hosted_environment():
+            raise HTTPException(status_code=503, detail='This legacy interface is local-only. Use the OIDC-protected Streamlit application.')
         if not settings.review_password:
             raise HTTPException(status_code=503, detail="DOCSYNC_REVIEW_PASSWORD is not configured")
         if credentials is None:
@@ -106,6 +109,9 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
 
     @app.post("/webhooks/github")
     async def github_webhook(request: Request):
+        from docsync.security import hosted_environment
+        if settings.auth_mode != 'local' or hosted_environment():
+            raise HTTPException(status_code=503, detail='Legacy webhooks are disabled. Use the trusted GitHub Actions integration.')
         raw_body = await request.body()
         headers = request.headers
         if not valid_signature(settings.github_webhook_secret, raw_body, headers.get("x-hub-signature-256")):

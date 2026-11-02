@@ -64,7 +64,8 @@ def bulk_multiselect(label, options, *, key, default=None):
     return st.multiselect(label, options, **widget_args)
 
 
-def connect(settings, factory):
+def connect(settings, factory, principal):
+    principal.require(role='admin')
     heading('Connect repository', 'Add a repository to this workspace. Knowledge requires a separate approved baseline.', 'REPOSITORY SETUP')
     st.caption('Install or authorize the configured GitHub App on this repository first. Its installation ID can differ from HTTPX.')
     with st.form('connect-repository'):
@@ -74,6 +75,7 @@ def connect(settings, factory):
             help='Find the ID in the installation settings URL. This is an identifier, not a credential.')
         submitted = st.form_submit_button('Verify GitHub App access', type='primary')
     if submitted:
+        principal.require(role='admin')
         st.session_state.pop('verified_repository', None)
         try:
             with st.spinner('Checking App permissions, repository access and branch…'):
@@ -85,8 +87,11 @@ def connect(settings, factory):
         st.success(f"Access verified: {verified['name']} · {verified['branch']}")
         st.caption('Discovery commit: ' + verified['sha'])
         if st.button('Connect verified repository', type='primary'):
+            principal.require(role='admin')
             with factory() as session:
-                repo = connect_repository(session, verified)
+                from docsync.security import actor_scope
+                with actor_scope(principal):
+                    repo = connect_repository(session, verified)
             # Apply selection on the next run, before sidebar widget construction.
             st.session_state.connected_repository_id = repo.id
             st.rerun()
@@ -96,6 +101,8 @@ def connect(settings, factory):
 
 
 def setup(ctx, view):
+    ctx.require('reviewer')
+    st.caption('Selected code and documentation go to Sarvam for model-assisted suggestions. Confirm that your team authorizes this provider before continuing.')
     stage = st.radio('Repository setup', ['Documentation', 'Mappings', 'Integration', 'Baseline'], horizontal=True, key='setup-stage')
     snapshot = st.session_state.get('discovery')
     if snapshot and snapshot['repo_id'] != ctx.repo_id:
@@ -106,7 +113,7 @@ def setup(ctx, view):
         if st.button('Discover repository structure'):
             try:
                 with st.spinner('Reading repository paths…'):
-                    st.session_state.discovery = discover(ctx.settings, view['repo'])
+                    st.session_state.discovery = ctx.run(lambda: discover(ctx.settings, view['repo']))
                 reset_suggestions()
                 st.rerun()
             except (GitHubError, ValueError):
@@ -124,8 +131,8 @@ def setup(ctx, view):
             if st.button('Inspect selected files', type='primary'):
                 try:
                     with st.spinner('Parsing selected code and documentation…'):
-                        inspected = discover(ctx.settings, view['repo'], code_paths=code_paths,
-                            doc_paths=doc_paths, commit=snapshot['sha'])
+                        inspected = ctx.run(lambda: discover(ctx.settings, view['repo'], code_paths=code_paths,
+                            doc_paths=doc_paths, commit=snapshot['sha']))
                         st.session_state.discovery = {**inspected, 'inspected_code_paths': list(code_paths),
                             'inspected_doc_paths': list(doc_paths)}
                     reset_suggestions()
@@ -163,7 +170,7 @@ def setup(ctx, view):
                 with st.spinner('Suggesting candidate relationships…'):
                     scoped = {**snapshot, 'symbols': [symbols[k] for k in selected_code], 'sections': [sections[k] for k in selected_sections]}
                     with ctx.factory() as session:
-                        suggestions = mapping_suggestions(session, ctx.repo_id, scoped, SarvamClient(ctx.settings.sarvam_model))
+                        suggestions = ctx.run(lambda: mapping_suggestions(session, ctx.repo_id, scoped, SarvamClient(ctx.settings.sarvam_model)), model=True)
                     reset_suggestions()
                     st.session_state.mapping_suggestions = suggestions
                 st.rerun()
@@ -184,7 +191,7 @@ def setup(ctx, view):
                     def save(s=suggestion, target=target, reason=reason):
                         with ctx.factory() as session:
                             confirm_mapping(session, ctx.repo_id, snapshot, s['code_id'], target, reason)
-                    action(save, 'Mapping confirmed for this repository.')
+                    action(lambda: ctx.run(save), 'Mapping confirmed for this repository.')
                 if ignore.button('Ignore', key=f'ignore-mapping-{index}'):
                     st.session_state.ignored_mappings = [*st.session_state.get('ignored_mappings', []), index]
                     st.rerun()
@@ -197,7 +204,7 @@ def setup(ctx, view):
                     def save_manual():
                         with ctx.factory() as session:
                             confirm_mapping(session, ctx.repo_id, snapshot, code_id, section_id, reason)
-                    action(save_manual, 'Mapping confirmed for this repository.')
+                    action(lambda: ctx.run(save_manual), 'Mapping confirmed for this repository.')
         st.caption(f'{len(confirmed)} approved mappings. Confirmation does not approve the documentation baseline.')
     elif stage == 'Integration':
         st.subheader('Install the two caller workflows')

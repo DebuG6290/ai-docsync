@@ -16,6 +16,8 @@ services:
     build: .
     command: ["sh", "-c", "python -m docsync.web.migrate && streamlit run streamlit_app.py --server.address 0.0.0.0"]
     environment: &app-env
+      DOCSYNC_AUTH_MODE: local
+      DOCSYNC_HOSTED: "false"
       DATABASE_URL: postgresql+psycopg://docsync:local-only-change-this@db:5432/docsync
       SARVAM_API_KEY: ${SARVAM_API_KEY:?Set SARVAM_API_KEY in the shell or local .env file}
       SARVAM_MODEL: ${SARVAM_MODEL:-sarvam-105b}
@@ -27,7 +29,7 @@ services:
       GITHUB_INSTALLATION_ID: ${GITHUB_INSTALLATION_ID:?Set GITHUB_INSTALLATION_ID}
       GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:?Set GITHUB_PRIVATE_KEY}
     ports:
-      - "8501:8501"
+      - "127.0.0.1:8501:8501"
     depends_on:
       db:
         condition: service_healthy

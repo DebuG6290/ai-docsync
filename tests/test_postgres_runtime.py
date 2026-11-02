@@ -11,6 +11,35 @@ from docsync.web.indexing import IndexInput, replace_approved_sections, retrieve
 
 
 @pytest.mark.skipif(not os.getenv('DOCSYNC_TEST_POSTGRES_URL'), reason='No ephemeral PostgreSQL configured locally')
+def test_real_postgres_usage_allowance_is_atomic(tmp_path, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from dataclasses import replace
+    from docsync.usage import reserve_usage
+    from test_online_phase2 import settings_for
+    url = os.environ['DOCSYNC_TEST_POSTGRES_URL']
+    monkeypatch.setenv('DATABASE_URL', url)
+    command.upgrade(Config('alembic.ini'), 'head')
+    engine = make_engine(url)
+    settings = replace(settings_for(tmp_path, database_url=url), chat_daily_limit=3)
+    with session_factory(engine)() as session:
+        repo = Repository(full_name='quota-test/' + uid(), monitored_branch='main')
+        session.add(repo)
+        session.commit()
+        repo_id = repo.id
+    def reserve(_):
+        try:
+            reserve_usage(engine, 'same-identity', repo_id, scope='chat', settings=settings)
+            return True
+        except ValueError:
+            return False
+    try:
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            assert sum(pool.map(reserve, range(12))) == 3
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.skipif(not os.getenv('DOCSYNC_TEST_POSTGRES_URL'), reason='No ephemeral PostgreSQL configured locally')
 def test_real_postgres_migration_vector_retrieval_and_rollback(monkeypatch):
     url = os.environ['DOCSYNC_TEST_POSTGRES_URL']
     monkeypatch.setenv('DATABASE_URL', url)

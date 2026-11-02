@@ -25,6 +25,8 @@ def answer_question(
 ) -> ChatTurn:
     if not question.strip():
         raise ValueError("Enter a question")
+    if len(question) > 4000:
+        raise ValueError('Questions must be 4000 characters or fewer')
     session.commit()
     query_vector = embedder.embed(question)
     version, chunks = retrieve(session, repository, query_vector, limit=10)
@@ -89,6 +91,8 @@ def answer_question(
         knowledge_version_id=version.id,
     )
     session.add(turn)
+    from docsync.web.workflow import audit
+    audit(session, 'chat_answer_saved', {'repo_id': repository.id, 'knowledge_version': version.id})
     session.commit()
     return turn
 

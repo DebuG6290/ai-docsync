@@ -285,6 +285,8 @@ def accept_proposal(session: Session, proposal_id: str, expected_version_id: str
 
 
 def modify_proposal(session: Session, proposal_id: str, content: str, expected_version_id: str | None = None) -> ProposalVersion:
+    if len(content) > 100000:
+        raise ValueError('Documentation text must be 100000 characters or fewer')
     proposal = _review_target(session, proposal_id, expected_version_id)
     if not content.strip():
         raise ValueError("Documentation text is required")
@@ -319,6 +321,8 @@ def modify_proposal(session: Session, proposal_id: str, content: str, expected_v
 
 
 def reject_proposal(session: Session, proposal_id: str, reason: str, expected_version_id: str | None = None) -> None:
+    if len(reason) > 4000:
+        raise ValueError('Review reasons must be 4000 characters or fewer')
     proposal = _review_target(session, proposal_id, expected_version_id)
     if proposal is None:
         raise ValueError("Unknown proposal")
@@ -337,6 +341,8 @@ def reject_proposal(session: Session, proposal_id: str, reason: str, expected_ve
 
 
 def triage_section(session: Session, section_id: str, resolution: str, reason: str, content: str = "") -> None:
+    if len(reason) > 4000 or len(content) > 100000:
+        raise ValueError('Use at most 4000 characters for a reason and 100000 for documentation')
     section = session.scalar(select(SectionAssessment).where(SectionAssessment.id == section_id).with_for_update())
     if section is None or section.decision != "UNCERTAIN":
         raise ValueError("This section is not awaiting uncertainty triage")
@@ -384,6 +390,8 @@ def triage_section(session: Session, section_id: str, resolution: str, reason: s
 
 def override_no_change(session: Session, assessment_id: str, reason: str, content: str) -> ProposalVersion:
     """Preserve the model assessment while creating an auditable human update."""
+    if len(reason) > 4000 or len(content) > 100000:
+        raise ValueError('Use at most 4000 characters for a reason and 100000 for documentation')
     section = session.scalar(select(SectionAssessment).where(SectionAssessment.id == assessment_id).with_for_update())
     if section is None or section.decision != 'NO_CHANGE':
         raise ValueError('Only a no-update recommendation can be overridden here')
